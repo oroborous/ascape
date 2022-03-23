@@ -10,6 +10,8 @@ package org.ascape.model;
 import java.awt.Color;
 import java.awt.Image;
 
+import edu.brook.aa.Logger;
+import edu.brook.aa.Person;
 import org.ascape.model.rule.ExecuteThenUpdate;
 import org.ascape.model.rule.Propogate;
 import org.ascape.model.rule.Rule;
@@ -48,18 +50,13 @@ import org.ascape.model.space.Mutable;
  */
 public class Agent extends AscapeObject implements Cloneable {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = 1L;
 
     /**
      * A rule causing the target and all its children scapes to be initialized.
      */
     public static final Rule INITIALIZE_RULE = new Propogate("Initialize") {
-        /**
-         * 
-         */
+
         private static final long serialVersionUID = 1L;
 
         /**
@@ -87,9 +84,7 @@ public class Agent extends AscapeObject implements Cloneable {
      * of other agents or the lattice.
      */
     public static final Rule UPDATE_RULE = new Rule("Update") {
-        /**
-         * 
-         */
+
         private static final long serialVersionUID = 1L;
 
         /**
@@ -125,9 +120,7 @@ public class Agent extends AscapeObject implements Cloneable {
      * For this to work properly, the scape's execution order must be by rule, not by agent.
      */
     public static final Rule ITERATE_AND_UPDATE_RULE = new ExecuteThenUpdate("Iterate and Update") {
-        /**
-         * 
-         */
+
         private static final long serialVersionUID = 1L;
 
         /**
@@ -153,9 +146,7 @@ public class Agent extends AscapeObject implements Cloneable {
      * A rule calling the death method of the target agent.
      */
     public static final Rule DEATH_RULE = new Rule("Death") {
-        /**
-         * 
-         */
+
         private static final long serialVersionUID = 1L;
 
         /**
@@ -187,9 +178,7 @@ public class Agent extends AscapeObject implements Cloneable {
      * Kills the agent regardless of deathCondition.
      */
     public static final Rule FORCE_DIE_RULE = new Rule("Force Death") {
-        /**
-         * 
-         */
+
         private static final long serialVersionUID = 1L;
 
         /**
@@ -222,9 +211,7 @@ public class Agent extends AscapeObject implements Cloneable {
      * fissionCondition method returns true.
      */
     public static final Rule FISSIONING_RULE = new Rule("Fissioning") {
-        /**
-         * 
-         */
+
         private static final long serialVersionUID = 1L;
 
         /**
@@ -255,9 +242,7 @@ public class Agent extends AscapeObject implements Cloneable {
      * Forces the agent to fission, regardless of fission condition.
      */
     public static final Rule FORCE_FISSION_RULE = new Rule("Force Fission") {
-        /**
-         * 
-         */
+
         private static final long serialVersionUID = 1L;
 
         /**
@@ -287,9 +272,6 @@ public class Agent extends AscapeObject implements Cloneable {
      * An rule calling the metabolism method of the target agent.
      */
     public static final Rule METABOLISM_RULE = new Rule("Metabolism") {
-        /**
-         * 
-         */
         private static final long serialVersionUID = 1L;
 
         /**
@@ -320,9 +302,6 @@ public class Agent extends AscapeObject implements Cloneable {
      * movementCondition method returns true.
      */
     public static final Rule MOVEMENT_RULE = new Rule("Movement") {
-        /**
-         * 
-         */
         private static final long serialVersionUID = 1L;
 
         /**
@@ -354,9 +333,7 @@ public class Agent extends AscapeObject implements Cloneable {
      * agent to move regradless of what the movement condition method returns.
      */
     public static final Rule FORCE_MOVE_RULE = new Rule("Force Move") {
-        /**
-         * 
-         */
+
         private static final long serialVersionUID = 1L;
 
         /**
@@ -388,9 +365,7 @@ public class Agent extends AscapeObject implements Cloneable {
      * the Agent.play() method.
      */
     public static final Rule PLAY_OTHER = new Rule("Play Other") {
-        /**
-         * 
-         */
+
         private static final long serialVersionUID = 1L;
 
         /**
@@ -435,9 +410,7 @@ public class Agent extends AscapeObject implements Cloneable {
      * to add specialized rules to an existing scape.
      */
     public static final Rule ITERATE_RULE = new Rule("Iterate") {
-        /**
-         * 
-         */
+
         private static final long serialVersionUID = 1L;
 
         /**
@@ -488,7 +461,7 @@ public class Agent extends AscapeObject implements Cloneable {
      * By default, adds a default iterate rule, which calls iterate on each agent for
      * every iteration. <i>You should always override this rule for custom agents
      * (or call scape.clearRules()) so that the overhead of the iterate rule isn't incurred.</i>
-     *
+     * <p>
      * Edited - Iterate rule is no longer added by default.
      */
     public void scapeCreated() {
@@ -535,6 +508,7 @@ public class Agent extends AscapeObject implements Cloneable {
     /**
      * Conditions under which this agent should die.
      * Returns false by default.
+     *
      * @return true if the agent should die
      * @see #death
      */
@@ -544,6 +518,7 @@ public class Agent extends AscapeObject implements Cloneable {
 
     /**
      * Perform the death rule; if the death condition is met, kill the agent.
+     *
      * @see #deathCondition
      * @see #DEATH_RULE
      */
@@ -567,6 +542,7 @@ public class Agent extends AscapeObject implements Cloneable {
     /**
      * Conditions under which this agent should fission.
      * Returns false by default.
+     *
      * @return true if the agent should fission
      * @see #fission
      */
@@ -576,6 +552,7 @@ public class Agent extends AscapeObject implements Cloneable {
 
     /**
      * Perform the fissioning rule; if the fission condition is met, fission.
+     *
      * @see #fissionCondition
      * @see #FISSIONING_RULE
      */
@@ -594,6 +571,7 @@ public class Agent extends AscapeObject implements Cloneable {
     /**
      * Conditions under which this agent should move.
      * Returns false by default.
+     *
      * @see #movement
      */
     public boolean movementCondition() {
@@ -602,6 +580,7 @@ public class Agent extends AscapeObject implements Cloneable {
 
     /**
      * Perform the movement rule; by default, if the movement condition is met, move.
+     *
      * @see #movementCondition
      * @see #MOVEMENT_RULE
      */
@@ -614,6 +593,7 @@ public class Agent extends AscapeObject implements Cloneable {
     /**
      * Override to move this agent based on movement condition.
      * To provide a general purpose movement function, overide movement instead
+     *
      * @see #movement
      */
     public void move() {
@@ -621,6 +601,7 @@ public class Agent extends AscapeObject implements Cloneable {
 
     /**
      * Performs default metabolism for this agent.
+     *
      * @see #METABOLISM_RULE
      */
     public void metabolism() {
@@ -630,6 +611,7 @@ public class Agent extends AscapeObject implements Cloneable {
      * Interact in some way with the supplied agent.
      * To use, simply add a Play rule to the agent's scape
      * and overide this method. (Other play methods may be supplied later.)
+     *
      * @see CellOccupant#PLAY_NEIGHBORS_RULE
      * @see CellOccupant#PLAY_RANDOM_NEIGHBOR_RULE
      * @see CellOccupant#PLAY_OTHER
@@ -641,6 +623,7 @@ public class Agent extends AscapeObject implements Cloneable {
      * Iterate this agent.
      * By default, called automatically on each agent each iteration.
      * Use clearRules or overide scapeCreated to prevent this.
+     *
      * @see #scapeCreated
      * @see #ITERATE_RULE
      */
@@ -649,6 +632,7 @@ public class Agent extends AscapeObject implements Cloneable {
 
     /**
      * Update this agent.
+     *
      * @see #UPDATE_RULE
      */
     public void update() {
@@ -668,6 +652,7 @@ public class Agent extends AscapeObject implements Cloneable {
 
     /**
      * Causes the provided rules to be executed upon this agent.
+     *
      * @param rules an array of rules to be executed
      */
     public void execute(Rule[] rules) {
@@ -678,6 +663,7 @@ public class Agent extends AscapeObject implements Cloneable {
 
     /**
      * Causes the provided rule to be executed upon this agent.
+     *
      * @param rule a rule to be executed
      */
     public void execute(Rule rule) {

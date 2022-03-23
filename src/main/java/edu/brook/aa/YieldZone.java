@@ -18,9 +18,7 @@ import org.ascape.model.space.Singleton;
 
 class Locations extends ArrayList {
 
-    /**
-     * 
-     */
+
     private static final long serialVersionUID = 5450029191071931492L;
     private boolean needsSort = true;
 
@@ -94,9 +92,7 @@ class Locations extends ArrayList {
 
 public class YieldZone extends Scape {
 
-    /**
-     * 
-     */
+
     private static final long serialVersionUID = 6889645892625033089L;
 
     private EnvironmentZone environmentZone;
@@ -193,9 +189,7 @@ public class YieldZone extends Scape {
     public void scapeCreated() {
         scape.getRules().clear();
         Rule calculateYield = new Rule("Calculate Yield") {
-            /**
-             * 
-             */
+
             private static final long serialVersionUID = -6031208102620304399L;
 
             public void execute(Agent agent) {

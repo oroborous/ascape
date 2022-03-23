@@ -1,32 +1,26 @@
 /*
- * Copyright 1998-2007 The Brookings Institution, with revisions by Metascape LLC, and others. 
+ * Copyright 1998-2007 The Brookings Institution, with revisions by Metascape LLC, and others.
  * All rights reserved.
  * This program and the accompanying materials are made available solely under of the BSD license "brookings-models-license.txt".
- * Any referenced or included libraries carry licenses of their respective copyright holders. 
+ * Any referenced or included libraries carry licenses of their respective copyright holders.
  */
 
 package edu.brook.aa;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.io.DataInputStream;
-import java.io.IOException;
+import java.io.*;
 
 import org.ascape.model.Cell;
-import org.ascape.util.data.StatCollector;
-import org.ascape.util.data.StatCollectorCondCSA;
-import org.ascape.util.data.StatCollectorCondCSAMM;
-import org.ascape.util.data.UnitIntervalDataPoint;
+import org.ascape.model.space.Coordinate2DDiscrete;
+import org.ascape.util.data.*;
 import org.ascape.util.vis.ColorFeatureGradiated;
 import org.ascape.util.vis.Drawable;
 
 
-
 public class HistoricSettlement extends Cell implements Drawable {
 
-    /**
-     * 
-     */
+
     private static final long serialVersionUID = -6290387961249914907L;
 
     private int SARGnumber;
@@ -57,7 +51,28 @@ public class HistoricSettlement extends Cell implements Drawable {
 
     private int baselineHouseholds;
 
+    private Location location;
+    private Coordinate2DDiscrete coordinates;
+
+    private static PrintWriter writer;
+
+    static {
+        try {
+            writer = new PrintWriter("historic.txt");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public HistoricSettlement() {
+    }
+
+    public void setCoordinates(Coordinate2DDiscrete locCoordinate) {
+        this.coordinates = locCoordinate;
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
     }
 
     public void streamToState(DataInputStream s) throws IOException {
@@ -137,23 +152,21 @@ public class HistoricSettlement extends Cell implements Drawable {
     }
 
     final ColorFeatureGradiated settlementColorFeature =
-        new ColorFeatureGradiated("Settlement Size", Color.black, (new UnitIntervalDataPoint() {
-            /**
-             * 
-             */
-            private static final long serialVersionUID = 1992474238329035019L;
+            new ColorFeatureGradiated("Settlement Size", Color.black, (new UnitIntervalDataPoint() {
+                /**
+                 *
+                 */
+                private static final long serialVersionUID = 1992474238329035019L;
 
-            public double getValue(Object object) {
-                return ((double) (((HistoricSettlement) object).getHouseholdCount()) / 10.0);
-            }
-        }));
+                public double getValue(Object object) {
+                    return ((double) (((HistoricSettlement) object).getHouseholdCount()) / 10.0);
+                }
+            }));
 
     public void scapeCreated() {
-        StatCollector[] stats = new StatCollector[2];
+        StatCollector[] stats = new StatCollector[3];
         stats[0] = new StatCollectorCondCSA("Historic Households") {
-            /**
-             * 
-             */
+
             private static final long serialVersionUID = -890759850053222387L;
 
             public boolean meetsCondition(Object object) {
@@ -165,9 +178,7 @@ public class HistoricSettlement extends Cell implements Drawable {
             }
         };
         stats[1] = new StatCollectorCondCSAMM("Historic Household Size") {
-            /**
-             * 
-             */
+
             private static final long serialVersionUID = 1466828234754387324L;
 
             public boolean meetsCondition(Object object) {
@@ -176,6 +187,21 @@ public class HistoricSettlement extends Cell implements Drawable {
 
             public final double getValue(Object object) {
                 return 5 * ((HistoricSettlement) object).getHouseholdCount();
+            }
+        };
+        stats[2] = new StatCollectorCond("Training Data") {
+
+            @Override
+            public boolean meetsCondition(Object object) {
+                return ((HistoricSettlement) object).isExtant();
+            }
+
+            public double getValue(Object object) {
+                HistoricSettlement histSet = ((HistoricSettlement) object);
+                double hhCount = histSet.getHouseholdCount();
+                writer.printf("%s%n", histSet);
+                writer.flush();
+                return hhCount;
             }
         };
         getScape().addStatCollectors(stats);
@@ -189,6 +215,14 @@ public class HistoricSettlement extends Cell implements Drawable {
     }
 
     public String toString() {
-        return "Historic Settlement " + coordinate;
+        return String.format("Period: %d, SARG Number: %d, Household Count: %d, Size: %d, Coordinates: (%d,%d), Location [%s]",
+                getScape().getPeriod(), SARGnumber,
+                getHouseholdCount(), getSize(),
+                coordinates.getXValue(), coordinates.getYValue(),
+                this.location.toString());
     }
+
+//    public String toString() {
+//        return "Historic Settlement " + coordinate;
+//    }
 }

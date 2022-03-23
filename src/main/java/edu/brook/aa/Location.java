@@ -1,30 +1,32 @@
 /*
- * Copyright 1998-2007 The Brookings Institution, with revisions by Metascape LLC, and others. 
+ * Copyright 1998-2007 The Brookings Institution, with revisions by Metascape LLC, and others.
  * All rights reserved.
  * This program and the accompanying materials are made available solely under of the BSD license "brookings-models-license.txt".
- * Any referenced or included libraries carry licenses of their respective copyright holders. 
+ * Any referenced or included libraries carry licenses of their respective copyright holders.
  */
 
 package edu.brook.aa;
 
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.List;
 
 import org.ascape.model.Cell;
 import org.ascape.util.Conditional;
+import org.ascape.util.data.StatCollector;
+import org.ascape.util.data.StatCollectorCond;
+import org.ascape.util.data.StatCollectorCondCSA;
+import org.ascape.util.data.StatCollectorCondCSAMM;
 
 
 public class Location extends Cell implements Comparable {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = -748678910819856437L;
 
     public final static Conditional HAS_WATER = new Conditional() {
-        /**
-         * 
-         */
+
         private static final long serialVersionUID = -7865447439916098804L;
 
         public boolean meetsCondition(Object o) {
@@ -33,9 +35,7 @@ public class Location extends Cell implements Comparable {
     };
 
     public final static Conditional LOW_EROSION = new Conditional() {
-        /**
-         * 
-         */
+
         private static final long serialVersionUID = 7358607915800653400L;
 
         public boolean meetsCondition(Object o) {
@@ -44,9 +44,7 @@ public class Location extends Cell implements Comparable {
     };
 
     public final static Conditional KAYENTA_1_SETTLEMENT = new Conditional() {
-        /**
-         * 
-         */
+
         private static final long serialVersionUID = -3431191777565656996L;
 
         public boolean meetsCondition(Object o) {
@@ -74,6 +72,17 @@ public class Location extends Cell implements Comparable {
     private WaterSource waterSource;
 
     private HistoricSettlement[] historicSettlements = new HistoricSettlement[0];
+
+
+    public String toString() {
+        return String.format("Base Yield: %f, Quality: %f, Clan: %s, Farm: %b, Frost Yield Factor: %f, Maize Zone: %s, Env Zone: %s, Yield Zone: %s",
+                getBaseYield(), getQuality(),
+                clan != null ? clan.getName() : "none",
+                farm != null ? farm.toString() : "none",
+                getFrostYieldFactor(), getMaizeZone(),
+                getEnvironmentZone(), getYieldZone());
+    }
+
 
     public void streamToState(DataInputStream s) throws IOException {
         int data = s.readShort();
@@ -281,6 +290,7 @@ public class Location extends Cell implements Comparable {
     }
 
     public void addHistoricSettlement(HistoricSettlement historicSettlement) {
+        historicSettlement.setLocation(this);
         HistoricSettlement[] temp = new HistoricSettlement[historicSettlements.length + 1];
         for (int i = 0; i < historicSettlements.length; i++) {
             temp[i] = historicSettlements[i];

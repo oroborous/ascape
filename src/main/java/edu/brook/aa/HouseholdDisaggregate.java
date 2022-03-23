@@ -1,8 +1,8 @@
 /*
- * Copyright 1998-2007 The Brookings Institution, with revisions by Metascape LLC, and others. 
+ * Copyright 1998-2007 The Brookings Institution, with revisions by Metascape LLC, and others.
  * All rights reserved.
  * This program and the accompanying materials are made available solely under of the BSD license "brookings-models-license.txt".
- * Any referenced or included libraries carry licenses of their respective copyright holders. 
+ * Any referenced or included libraries carry licenses of their respective copyright holders.
  */
 
 package edu.brook.aa;
@@ -19,9 +19,6 @@ import org.ascape.util.data.StatCollectorCond;
  */
 public class HouseholdDisaggregate extends HouseholdBase {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = 479643522137191595L;
 
     public void initialize() {
@@ -78,7 +75,7 @@ public class HouseholdDisaggregate extends HouseholdBase {
 
     public void die() {
         //markForDeletion();
-        //Any people remaining in the household also die..
+        //Any people remaining in the household also die...
         executeOnMembers(FORCE_DIE_RULE);
         //Executing the die rule will invoke this method when
         //the last agent is removed; we need to ensure that the deletion
@@ -91,7 +88,7 @@ public class HouseholdDisaggregate extends HouseholdBase {
 
     private final static StatCollectorCSA[] calculateNutritionNeed = {new StatCollectorCSA() {
         /**
-         * 
+         *
          */
         private static final long serialVersionUID = -129288260390992758L;
 
@@ -133,9 +130,7 @@ public class HouseholdDisaggregate extends HouseholdBase {
         stats[0] = new StatCollector("Households Formed", false);
         stats[1] = new StatCollector("Households Disbanded", false);
         stats[2] = new StatCollectorCSAMM("Household Size") {
-            /**
-             * 
-             */
+
             private static final long serialVersionUID = -6891269369011896010L;
 
             public double getValue(Object o) {
@@ -154,9 +149,6 @@ public class HouseholdDisaggregate extends HouseholdBase {
 
 class ClanStat extends StatCollectorCond {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = 8450032997440700233L;
     Clan clan;
 

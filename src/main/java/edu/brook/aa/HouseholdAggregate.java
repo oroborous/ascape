@@ -13,9 +13,6 @@ import org.ascape.util.data.StatCollectorCSAMM;
 
 public class HouseholdAggregate extends HouseholdBase {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = 5091800912116536871L;
 
     private int age;

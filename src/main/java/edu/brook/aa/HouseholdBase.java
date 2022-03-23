@@ -1,8 +1,8 @@
 /*
- * Copyright 1998-2007 The Brookings Institution, with revisions by Metascape LLC, and others. 
+ * Copyright 1998-2007 The Brookings Institution, with revisions by Metascape LLC, and others.
  * All rights reserved.
  * This program and the accompanying materials are made available solely under of the BSD license "brookings-models-license.txt".
- * Any referenced or included libraries carry licenses of their respective copyright holders. 
+ * Any referenced or included libraries carry licenses of their respective copyright holders.
  */
 
 package edu.brook.aa;
@@ -11,6 +11,7 @@ import java.util.Enumeration;
 import java.util.Vector;
 
 import org.ascape.model.Scape;
+import org.ascape.model.space.Coordinate2DDiscrete;
 import org.ascape.util.Conditional;
 import org.ascape.util.data.DataPoint;
 import org.ascape.util.data.StatCollector;
@@ -19,15 +20,11 @@ import org.ascape.util.data.StatCollectorCond;
 
 public abstract class HouseholdBase extends Scape {
 
-    /**
-     * 
-     */
+
     private static final long serialVersionUID = 4016766647753095651L;
 
     public Conditional find_settlement_rule = new Conditional() {
-        /**
-         * 
-         */
+
         private static final long serialVersionUID = -1952585657699460589L;
 
         public boolean meetsCondition(Object o) {
@@ -36,6 +33,8 @@ public abstract class HouseholdBase extends Scape {
     };
 
     static int maximumFarmlandsSearched = 100;
+    private static int nextId = 1;
+    int id;
 
     Vector farms;
 
@@ -59,6 +58,7 @@ public abstract class HouseholdBase extends Scape {
 
     public void initialize() {
         super.initialize();
+        id = nextId++;
         setMembersActive(false);
         agedCornStocks = new int[((LHV) getRoot()).getYearsOfStock() + 1];
         for (int i = 0; i < agedCornStocks.length - 1; i++) {
@@ -83,6 +83,7 @@ public abstract class HouseholdBase extends Scape {
         Farm farm = new Farm();
         farm.setHousehold(this);
         farms.addElement(farm);
+        Logger.INSTANCE.log(getScape().getPeriod(), id, "[AddNewFarm: " + farm.toString());
         return farm;
     }
 
@@ -108,14 +109,23 @@ public abstract class HouseholdBase extends Scape {
         }
         settlement = location.getSettlement();
         settlement.add(this, false);
+        Logger.INSTANCE.log(getScape().getPeriod(), id,
+                String.format("[Occupy: Settlement (Size: %d) @ Location: %s]",
+                settlement.getSize(),
+                location.toString()));
     }
 
     public void leave() {
         leaveAllFarms();
+        int settlementSize = 0;
         if (settlement != null) {
             settlement.remove(this);
+            settlementSize = settlement.getSize();
             settlement = null;
         }
+        Logger.INSTANCE.log(getScape().getPeriod(), id,
+                String.format("[Leave: Settlement (New Size: %d)]",
+                settlementSize));
     }
 
     public void findFarmAndSettlement() {
@@ -124,6 +134,9 @@ public abstract class HouseholdBase extends Scape {
         while (farms.size() == 0) {
             Location farmLocation = ((LHV) getRoot()).removeBestLocation();
             if (farmLocation != null) {
+                Logger.INSTANCE.log(getScape().getPeriod(), id,
+                        String.format("[ConsideringFarm: Location: %s]",
+                        farmLocation.toString()));
                 //System.out.println(farmLocation.getClan() + " " + clan);
                 //if (farmLocation.getBaseYield() >= ((LHV) getRoot()).getHouseholdMinNutritionNeed()) {
                 if (farmLocation.getBaseYield() > 0) {
@@ -135,6 +148,7 @@ public abstract class HouseholdBase extends Scape {
                     	}
                     }) == 0) {*/
                     if ((farmLocation.getClan() == null) || (farmLocation.getClan() == clan)) {
+                        // TODO record farms that are too far away to consider
                         Location nearestWater = (Location) farmLocation.findNearest(Location.HAS_WATER, true, ((LHV) getRoot()).getWaterSourceDistance());
                         if (nearestWater != null) {
                             //System.out.println(farmLocation.getYieldZone().getName());
@@ -256,8 +270,11 @@ public abstract class HouseholdBase extends Scape {
 
     /**
      * Consume the given quantity of corn.
-     * If the quantity available is greater than or equal to the quantity needed, removes from stores the quantity requested, and returns 0.
-     * If the quantity avialable is less than the quantity needed, removes from stores all reminaing food, and returns the amount of need not met.
+     * If the quantity available is greater than or equal to the quantity needed, removes
+     * from stores the quantity requested, and returns 0.
+     * If the quantity available is less than the quantity needed, removes from stores all
+     * remaining food, and returns the amount of need not met.
+     *
      * @param amount the quantity of food needed
      */
     public int consumeCorn(int amount) {
@@ -322,16 +339,13 @@ public abstract class HouseholdBase extends Scape {
 
     public void die() {
         if (!scape.remove(this)) {
-            throw new RuntimeException("Tried to kill an agent not a memeber of its Scape.");
+            throw new RuntimeException("Tried to kill an agent not a member of its Scape.");
         }
         leave();
     }
 
     class SettlementZoneStatCollector extends StatCollectorCond {
 
-        /**
-         * 
-         */
         private static final long serialVersionUID = 5283713940057557749L;
         EnvironmentZone zone;
 
@@ -351,9 +365,7 @@ public abstract class HouseholdBase extends Scape {
 
     class FarmZoneStatCollector extends StatCollectorCond {
 
-        /**
-         * 
-         */
+
         private static final long serialVersionUID = 6863625481169667385L;
         EnvironmentZone zone;
 
@@ -382,9 +394,7 @@ public abstract class HouseholdBase extends Scape {
         stats[2] = new StatCollector("Fissions", false);
         stats[3] = new StatCollector("Departures", false);
         stats[4] = new StatCollectorCSAMM("Farms Per Household") {
-            /**
-             * 
-             */
+
             private static final long serialVersionUID = -3060585396202230071L;
 
             public double getValue(Object o) {

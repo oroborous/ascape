@@ -1,8 +1,8 @@
 /*
- * Copyright 1998-2007 The Brookings Institution, with revisions by Metascape LLC, and others. 
+ * Copyright 1998-2007 The Brookings Institution, with revisions by Metascape LLC, and others.
  * All rights reserved.
  * This program and the accompanying materials are made available solely under of the BSD license "brookings-models-license.txt".
- * Any referenced or included libraries carry licenses of their respective copyright holders. 
+ * Any referenced or included libraries carry licenses of their respective copyright holders.
  */
 
 package edu.brook.aa;
@@ -19,12 +19,10 @@ import org.ascape.util.data.StatCollectorCond;
 
 /**
  * This class involves very preliminary exploration.
- a */
+ * a
+ */
 public class LHVDisaggregate extends LHV {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = -6752232051261561854L;
 
     public Scape people;
@@ -42,13 +40,22 @@ public class LHVDisaggregate extends LHV {
         people.addRule(METABOLISM_RULE);
         people.addRule(DEATH_RULE);
         people.addRule(new Rule("Form Household") {
-            /**
-             * 
-             */
+
             private static final long serialVersionUID = -1104523698642038557L;
 
             public void execute(Agent a) {
-                ((Person) a).householdFormation();
+                Person p = (Person) a;
+
+                int age = p.age;
+
+                p.householdFormation();
+
+                Logger.INSTANCE.log(getScape().getPeriod(),
+                        p.getHousehold().id,
+                        String.format("[FormHouseholdRule: age=%d]",
+                        age));
+
+
             }
         });
         people.addRule(FISSIONING_RULE);
@@ -73,9 +80,7 @@ public class LHVDisaggregate extends LHV {
         super.createViews();
         StatCollector[] stats = new StatCollector[9];
         stats[0] = new StatCollectorCond("Size = 1") {
-            /**
-             * 
-             */
+
             private static final long serialVersionUID = -6187477562807067038L;
 
             public boolean meetsCondition(Object object) {
@@ -83,9 +88,7 @@ public class LHVDisaggregate extends LHV {
             }
         };
         stats[1] = new StatCollectorCond("Size = 2") {
-            /**
-             * 
-             */
+
             private static final long serialVersionUID = -2088909634350675904L;
 
             public boolean meetsCondition(Object object) {
@@ -93,9 +96,7 @@ public class LHVDisaggregate extends LHV {
             }
         };
         stats[2] = new StatCollectorCond("Size = 3") {
-            /**
-             * 
-             */
+
             private static final long serialVersionUID = -8327106276659553656L;
 
             public boolean meetsCondition(Object object) {
@@ -103,9 +104,7 @@ public class LHVDisaggregate extends LHV {
             }
         };
         stats[3] = new StatCollectorCond("Size = 4") {
-            /**
-             * 
-             */
+
             private static final long serialVersionUID = -2207871416202810012L;
 
             public boolean meetsCondition(Object object) {
@@ -113,9 +112,7 @@ public class LHVDisaggregate extends LHV {
             }
         };
         stats[4] = new StatCollectorCond("Size = 5") {
-            /**
-             * 
-             */
+
             private static final long serialVersionUID = -3782509565955129394L;
 
             public boolean meetsCondition(Object object) {
@@ -123,9 +120,7 @@ public class LHVDisaggregate extends LHV {
             }
         };
         stats[5] = new StatCollectorCond("Size = 6") {
-            /**
-             * 
-             */
+
             private static final long serialVersionUID = 6268992466489178017L;
 
             public boolean meetsCondition(Object object) {
@@ -133,9 +128,7 @@ public class LHVDisaggregate extends LHV {
             }
         };
         stats[6] = new StatCollectorCond("Size = 7") {
-            /**
-             * 
-             */
+
             private static final long serialVersionUID = 8816932454170339947L;
 
             public boolean meetsCondition(Object object) {
@@ -143,9 +136,7 @@ public class LHVDisaggregate extends LHV {
             }
         };
         stats[7] = new StatCollectorCond("Size = 8") {
-            /**
-             * 
-             */
+
             private static final long serialVersionUID = 8428713312506109519L;
 
             public boolean meetsCondition(Object object) {
@@ -153,9 +144,6 @@ public class LHVDisaggregate extends LHV {
             }
         };
         stats[8] = new StatCollectorCond("Size = 9+") {
-            /**
-             * 
-             */
             private static final long serialVersionUID = -7184518477319545048L;
 
             public boolean meetsCondition(Object object) {

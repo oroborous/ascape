@@ -1,8 +1,8 @@
 /*
- * Copyright 1998-2007 The Brookings Institution, with revisions by Metascape LLC, and others. 
+ * Copyright 1998-2007 The Brookings Institution, with revisions by Metascape LLC, and others.
  * All rights reserved.
  * This program and the accompanying materials are made available solely under of the BSD license "brookings-models-license.txt".
- * Any referenced or included libraries carry licenses of their respective copyright holders. 
+ * Any referenced or included libraries carry licenses of their respective copyright holders.
  */
 
 package edu.brook.aa;
@@ -20,9 +20,6 @@ import org.ascape.view.vis.ChartView;
  */
 public class LHVClan extends LHVDisaggregate {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = -5102792644057845317L;
 
     public void createScape() {

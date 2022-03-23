@@ -1,8 +1,8 @@
 /*
- * Copyright 1998-2007 The Brookings Institution, with revisions by Metascape LLC, and others. 
+ * Copyright 1998-2007 The Brookings Institution, with revisions by Metascape LLC, and others.
  * All rights reserved.
  * This program and the accompanying materials are made available solely under of the BSD license "brookings-models-license.txt".
- * Any referenced or included libraries carry licenses of their respective copyright holders. 
+ * Any referenced or included libraries carry licenses of their respective copyright holders.
  */
 
 package edu.brook.aa;
@@ -13,9 +13,6 @@ import org.ascape.util.data.StatCollector;
 
 public class Person extends Cell {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = 2643326983426692833L;
 
     public final static boolean FEMALE = true;
@@ -138,7 +135,7 @@ public class Person extends Cell {
     }
 
     public boolean fissionCondition() {
-        //The table below is based on data Alan Sweedlund developed for feamle births per woman, hence we double the chance
+        //The table below is based on data Alan Sweedlund developed for female births per woman, hence we double the chance
         if ((mate != null) && (sex == FEMALE)) {
             if (age < ((LHVDisaggregate) getRoot()).getMinFertilityAge()) {
                 return false;
@@ -260,7 +257,7 @@ public class Person extends Cell {
     }
 
     /**
-     * Sets the household this person is a memebr of.
+     * Sets the household this person is a member of.
      */
     public void setHousehold(HouseholdDisaggregate household) {
         leave();
