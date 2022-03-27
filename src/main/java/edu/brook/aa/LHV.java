@@ -194,9 +194,6 @@ public class LHV extends Scape {
 
     class FillValleyCellFeature extends FillCellFeature {
 
-        /**
-         *
-         */
         private static final long serialVersionUID = 3823585979723128174L;
 
         public FillValleyCellFeature(String name, ColorFeature colorFeature) {
@@ -300,9 +297,6 @@ public class LHV extends Scape {
         yieldZones.setAutoCreate(false);
         //We sort all at once to avoid sorting penalites per addition
         yieldZones.addInitialRule(new Rule("Sort Available Locations") {
-            /**
-             *
-             */
             private static final long serialVersionUID = 8923085455603538447L;
 
             public void execute(Agent agent) {
@@ -327,9 +321,6 @@ public class LHV extends Scape {
                 super.initialize();
                 CollectStats collector = new CollectStats();
                 StatCollectorCondCSA countHouseholds = new StatCollectorCondCSA() {
-                    /**
-                     *
-                     */
                     private static final long serialVersionUID = -8509781010737527704L;
 
                     public boolean meetsCondition(Object object) {

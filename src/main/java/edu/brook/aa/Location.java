@@ -52,6 +52,10 @@ public class Location extends Cell implements Comparable {
         }
     };
 
+    private static int nextId = 1;
+
+    int id;
+
     private double quality;
 
     private EnvironmentZone environmentZone;
@@ -75,12 +79,9 @@ public class Location extends Cell implements Comparable {
 
 
     public String toString() {
-        return String.format("Base Yield: %f, Quality: %f, Clan: %s, Farm: %b, Frost Yield Factor: %f, Maize Zone: %s, Env Zone: %s, Yield Zone: %s",
-                getBaseYield(), getQuality(),
-                clan != null ? clan.getName() : "none",
-                farm != null ? farm.toString() : "none",
-                getFrostYieldFactor(), getMaizeZone(),
-                getEnvironmentZone(), getYieldZone());
+        return String.format("ID: %d, Base Yield: %f, Quality: %f, Farm: %s",
+                id, getBaseYield(), getQuality(),
+                farm != null ? Integer.toString(farm.id) : "none");
     }
 
 
@@ -119,6 +120,7 @@ public class Location extends Cell implements Comparable {
 
     public void initialize() {
         super.initialize();
+        id = nextId++;
         quality = getRandom().nextGaussian() * ((LHV) getRoot()).getHarvestVarianceLocation() + 1.0;
         quality = Math.max(quality, 0.0);
         //We'll sort them all at once...

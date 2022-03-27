@@ -24,8 +24,10 @@ public class HouseholdAggregate extends HouseholdBase {
     public void initialize() {
         super.initialize();
         setMembersActive(false);
-        age = randomInRange(((LHV) getRoot()).getHouseholdMinInitialAge(), ((LHV) getRoot()).getHouseholdMaxInitialAge());
-        nutritionNeed = randomInRange(((LHV) getRoot()).getHouseholdMinNutritionNeed(), ((LHV) getRoot()).getHouseholdMaxNutritionNeed());
+
+        LHV lhv = (LHV)getRoot();
+        age = randomInRange(lhv.getHouseholdMinInitialAge(), lhv.getHouseholdMaxInitialAge());
+        nutritionNeed = randomInRange(lhv.getHouseholdMinNutritionNeed(), lhv.getHouseholdMaxNutritionNeed());
     }
 
     public void metabolism() {
@@ -46,25 +48,38 @@ public class HouseholdAggregate extends HouseholdBase {
         scape.getData().getStatCollector("Fissions").addValue(0.0);
         //}
         //System.out.println(child.age);
+
+        Logger.INSTANCE.log(getScape().getPeriod(), id,
+                String.format("[Fission: Age: %d]",
+                        age));
     }
 
     public boolean deathCondition() {
         if (nutritionNeedRemaining > 0) {
             scape.getData().getStatCollector("Deaths Starvation").addValue(0.0);
+            Logger.INSTANCE.log(getScape().getPeriod(), id,
+                    String.format("[Die: Reason: Starvation, Nutrition Need Remaining: %d]",
+                            nutritionNeedRemaining));
             return true;
         }
         if (age > deathAge) {
             scape.getData().getStatCollector("Deaths Old Age").addValue(0.0);
+            Logger.INSTANCE.log(getScape().getPeriod(), id,
+                    String.format("[Die: Reason: Old Age, Age: %d]",
+                            age));
             return true;
         }
         return false;
-        //return ((age > ((LHV) getRoot()).getHouseholdDeathAge()) || (nutritionNeedRemaining > 0));
+        //return ((age > ((LHV) getRoot()).getHouseholdDeathAge())
+        // || (nutritionNeedRemaining > 0));
     }
 
     public boolean fissionCondition() {
-        //return ((age > ((LHV) getRoot()).getFertilityAge()) && (getRandom().nextDouble() < ((LHV) getRoot()).getFertility()));
+        //return ((age > ((LHV) getRoot()).getFertilityAge())
+        // && (getRandom().nextDouble() < ((LHV) getRoot()).getFertility()));
         //Rob's experiment
-        return ((age > fertilityAge) && (age <= fertilityEndsAge) && (getRandom().nextDouble() < fertility));
+        return ((age > fertilityAge) && (age <= fertilityEndsAge)
+                && (getRandom().nextDouble() < fertility));
     }
 
     public int getAge() {

@@ -22,6 +22,7 @@ import java.util.ListIterator;
 import java.util.Vector;
 import java.util.zip.GZIPInputStream;
 
+import edu.brook.aa.Logger;
 import org.ascape.model.Scape;
 import org.ascape.model.event.ControlEvent;
 import org.ascape.model.event.DefaultScapeListener;
@@ -293,6 +294,7 @@ public abstract class Runner implements Serializable, Runnable {
             if (period >= getStopPeriod()) {
                 waitForViewsUpdate();
                 running = false;
+                Logger.INSTANCE.close();
                 if (isAutoRestart()) {
                     restartRequested = true;
                 }

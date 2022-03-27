@@ -16,8 +16,11 @@ import org.ascape.model.Scape;
 import org.ascape.model.rule.Rule;
 import org.ascape.model.space.Singleton;
 
+/**
+ * A list that keeps itself sorted.
+ */
+// TODO: LSP violation
 class Locations extends ArrayList {
-
 
     private static final long serialVersionUID = 5450029191071931492L;
     private boolean needsSort = true;
@@ -27,29 +30,26 @@ class Locations extends ArrayList {
         return super.add(o);
     }
 
-    /*public boolean add(Object o) {
-        CSIterator i = listIterator(size());
-        while (i.hasPrevious()) {
-            if (((Comparable) o).compareTo((Comparable) i.previous()) >= 0) {
-                if (i.hasNext()) {
-                    i.next();
-                }
-                i.add(o);
-                return true;
-            }
-        }
-        i.add(o);
-        /*CSIterator j = listIterator();
-        while (j.hasNext()) {
-            System.out.print(((Location) j.next()).getQuality() + " ");
-        }
-        System.out.println();*/
-    //return true;
-    //}*/
-
     public boolean remove(Object o) {
         needsSort = true;
         return super.remove(o);
+    }
+
+    public final Object remove(int index) {
+        checkSort();
+        return super.remove(index);
+    }
+
+    public final Object get(int index) {
+        checkSort();
+        return super.get(index);
+    }
+
+    public void checkSort() {
+        if (needsSort) {
+            needsSort = false;
+            Collections.sort(this);
+        }
     }
 
     /*public Object removeFirst() {
@@ -71,23 +71,6 @@ class Locations extends ArrayList {
         checkSort();
 	    return super.getLast();
     }*/
-
-    public final Object remove(int index) {
-        checkSort();
-        return super.remove(index);
-    }
-
-    public final Object get(int index) {
-        checkSort();
-        return super.get(index);
-    }
-
-    public void checkSort() {
-        if (needsSort) {
-            needsSort = false;
-            Collections.sort(this);
-        }
-    }
 }
 
 public class YieldZone extends Scape {

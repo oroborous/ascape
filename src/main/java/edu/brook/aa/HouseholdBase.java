@@ -7,8 +7,7 @@
 
 package edu.brook.aa;
 
-import java.util.Enumeration;
-import java.util.Vector;
+import java.util.*;
 
 import org.ascape.model.Scape;
 import org.ascape.model.space.Coordinate2DDiscrete;
@@ -28,7 +27,9 @@ public abstract class HouseholdBase extends Scape {
         private static final long serialVersionUID = -1952585657699460589L;
 
         public boolean meetsCondition(Object o) {
-            return ((((Location) o).isOnMap()) && (((Location) o).getFarm() == null) && ((((Location) o).getClan() == null) || (((Location) o).getClan() == clan)) && (((Location) o).hasWithin(Location.LOW_EROSION, true, 1.0)));
+            return ((((Location) o).isOnMap()) && (((Location) o).getFarm() == null) &&
+                    ((((Location) o).getClan() == null) || (((Location) o).getClan() == clan)) &&
+                    (((Location) o).hasWithin(Location.LOW_EROSION, true, 1.0)));
         }
     };
 
@@ -36,7 +37,7 @@ public abstract class HouseholdBase extends Scape {
     private static int nextId = 1;
     int id;
 
-    Vector farms;
+    List<Farm> farms;
 
     Settlement settlement;
 
@@ -59,31 +60,36 @@ public abstract class HouseholdBase extends Scape {
     public void initialize() {
         super.initialize();
         id = nextId++;
+
+        LHV lhv = (LHV)getRoot();
         setMembersActive(false);
-        agedCornStocks = new int[((LHV) getRoot()).getYearsOfStock() + 1];
+        agedCornStocks = new int[lhv.getYearsOfStock() + 1];
         for (int i = 0; i < agedCornStocks.length - 1; i++) {
-            agedCornStocks[i] = randomInRange(((LHV) getRoot()).getHouseholdMinInitialCorn(), ((LHV) getRoot()).getHouseholdMaxInitialCorn());
+            agedCornStocks[i] = randomInRange(lhv.getHouseholdMinInitialCorn(), lhv.getHouseholdMaxInitialCorn());
         }
         lastHarvest = 0;
         //Change mtp 8/18/00
         //farm = new Farm();
-        farms = new Vector();
+        farms = new ArrayList<>();
         settlement = null;
         clan = null;
 
         //Support for hetergeneous fertility, etc..
         //added 6/7/2000 mtp
-        fertilityAge = randomInRange(((LHV) getRoot()).getMinFertilityAge(), ((LHV) getRoot()).getMaxFertilityAge());
-        deathAge = randomInRange(((LHV) getRoot()).getMinDeathAge(), ((LHV) getRoot()).getMaxDeathAge());
-        fertilityEndsAge = randomInRange(((LHV) getRoot()).getMinFertilityEndsAge(), ((LHV) getRoot()).getMaxFertilityEndsAge());
-        fertility = randomInRange(((LHV) getRoot()).getMinFertility(), ((LHV) getRoot()).getMaxFertility());
+
+        fertilityAge = randomInRange(lhv.getMinFertilityAge(), lhv.getMaxFertilityAge());
+        deathAge = randomInRange(lhv.getMinDeathAge(), lhv.getMaxDeathAge());
+        fertilityEndsAge = randomInRange(lhv.getMinFertilityEndsAge(), lhv.getMaxFertilityEndsAge());
+        fertility = randomInRange(lhv.getMinFertility(), lhv.getMaxFertility());
     }
 
     protected Farm addFarm() {
         Farm farm = new Farm();
         farm.setHousehold(this);
-        farms.addElement(farm);
-        Logger.INSTANCE.log(getScape().getPeriod(), id, "[AddNewFarm: " + farm.toString());
+        farms.add(farm);
+//        if (farms.size() > 1)
+//            System.out.println("Wow");
+//        Logger.INSTANCE.log(getScape().getPeriod(), id, String.format("[AddNewFarm: Farm ID: %d]", farm.id));
         return farm;
     }
 
@@ -110,33 +116,41 @@ public abstract class HouseholdBase extends Scape {
         settlement = location.getSettlement();
         settlement.add(this, false);
         Logger.INSTANCE.log(getScape().getPeriod(), id,
-                String.format("[Occupy: Settlement (Size: %d) @ Location: %s]",
-                settlement.getSize(),
-                location.toString()));
+                String.format("[Occupy Settlement: (Size: %d) @ Location: %s]",
+                        settlement.getSize(),
+                        location));
     }
 
     public void leave() {
         leaveAllFarms();
-        int settlementSize = 0;
+
         if (settlement != null) {
+            int currentSize = settlement.getSize();
             settlement.remove(this);
-            settlementSize = settlement.getSize();
+            int newSize = settlement.getSize();
             settlement = null;
+            Logger.INSTANCE.log(getScape().getPeriod(), id,
+                    String.format("[Leave: Settlement (Current Size: %d, New Size: %d)]",
+                            currentSize, newSize));
+        } else {
+            Logger.INSTANCE.log(getScape().getPeriod(), id, "[Leave: No Settlement]");
         }
-        Logger.INSTANCE.log(getScape().getPeriod(), id,
-                String.format("[Leave: Settlement (New Size: %d)]",
-                settlementSize));
+
     }
 
     public void findFarmAndSettlement() {
-        Vector farmsSearched = new Vector();
+        List<Location> farmsSearched = new ArrayList<>();
         int searchCount = 0;
         while (farms.size() == 0) {
             Location farmLocation = ((LHV) getRoot()).removeBestLocation();
             if (farmLocation != null) {
+                Location nearestWater = (Location) farmLocation.findNearest(Location.HAS_WATER, true, Double.MAX_VALUE);
+                int distanceToWater = (int)farmLocation.calculateDistance(nearestWater);
+
                 Logger.INSTANCE.log(getScape().getPeriod(), id,
-                        String.format("[ConsideringFarm: Location: %s]",
-                        farmLocation.toString()));
+                        String.format("[ConsideringFarm: Location: %s, Water Distance: %d]",
+                                farmLocation, distanceToWater));
+
                 //System.out.println(farmLocation.getClan() + " " + clan);
                 //if (farmLocation.getBaseYield() >= ((LHV) getRoot()).getHouseholdMinNutritionNeed()) {
                 if (farmLocation.getBaseYield() > 0) {
@@ -148,8 +162,8 @@ public abstract class HouseholdBase extends Scape {
                     	}
                     }) == 0) {*/
                     if ((farmLocation.getClan() == null) || (farmLocation.getClan() == clan)) {
-                        // TODO record farms that are too far away to consider
-                        Location nearestWater = (Location) farmLocation.findNearest(Location.HAS_WATER, true, ((LHV) getRoot()).getWaterSourceDistance());
+                        nearestWater = (Location) farmLocation
+                                .findNearest(Location.HAS_WATER, true, ((LHV) getRoot()).getWaterSourceDistance());
                         if (nearestWater != null) {
                             //System.out.println(farmLocation.getYieldZone().getName());
                             if (settlement != null) {
@@ -168,12 +182,12 @@ public abstract class HouseholdBase extends Scape {
                             occupy(nearestSettlementSite);
                             if (!findFarmsForNutritionalNeed()) {
                                 leave();
-                                farmsSearched.addElement(farmLocation);
+                                farmsSearched.add(farmLocation);
                                 break;
                             }
                         } else {
                             //No nearby water location found...
-                            farmsSearched.addElement(farmLocation);
+                            farmsSearched.add(farmLocation);
                             //((LHV) getRoot()).farmsSearchedThisYear.addElement(farmLocation);
                         }
                         /*}
@@ -184,12 +198,12 @@ public abstract class HouseholdBase extends Scape {
                         }*/
                     } else {
                         //No nearby water location found...
-                        farmsSearched.addElement(farmLocation);
+                        farmsSearched.add(farmLocation);
                         //((LHV) getRoot()).farmsSearchedThisYear.addElement(farmLocation);
                     }
                 } else {
                     //Yield < need, so give up search...
-                    farmsSearched.addElement(farmLocation);
+                    farmsSearched.add(farmLocation);
                     //((LHV) getRoot()).farmsSearchedThisYear.addElement(farmLocation);
                     //((LHV) getRoot()).farmSitesAvailable = false;
                     break;
@@ -201,9 +215,7 @@ public abstract class HouseholdBase extends Scape {
             }
             searchCount++;
         }
-        Enumeration e = farmsSearched.elements();
-        while (e.hasMoreElements()) {
-            Location unusedLocation = (Location) e.nextElement();
+        for (Location unusedLocation : farmsSearched) {
             unusedLocation.makeAvailable();
         }
     }
@@ -223,30 +235,35 @@ public abstract class HouseholdBase extends Scape {
     };
 
     public void leaveAllFarms() {
-        Enumeration e = farms.elements();
-        while (e.hasMoreElements()) {
-            ((Farm) e.nextElement()).leave();
+        for (Farm farm : farms) {
+            farm.leave();
         }
-        farms.removeAllElements();
+        farms.clear();
     }
 
     public boolean findFarmsForNutritionalNeed() {
         int need = getNutritionNeed();
         int adultCount = 0;
         int adults = getNumAdults();
-        int currentEstimate = 0;
-        Enumeration e = farms.elements();
-        while (e.hasMoreElements()) {
-            currentEstimate += ((Farm) e.nextElement()).getLocation().getBaseYield();
+        double currentEstimate = 0;
+
+        for(Farm farm : farms) {
+            currentEstimate += farm.getLocation().getBaseYield();
             adultCount++;
         }
         while (true) {
             //System.out.println(adults+" "+adultCount+", "+getSize());
             if (currentEstimate >= need) {
+                Logger.INSTANCE.log(getScape().getPeriod(), id,
+                        String.format("[Nutrition Check (Success): Needed: %d, Estimated: %f, Adults Present: %d, Adults Needed: %d]",
+                                need, currentEstimate, adults, adultCount));
                 return true;
             }
             adultCount++;
             if (adultCount > adults) {
+                Logger.INSTANCE.log(getScape().getPeriod(), id,
+                        String.format("[Nutrition Check (Failure): Needed: %d, Estimated: %f, Adults Present: %d, Adults Needed: %d]",
+                                need, currentEstimate, adults, adultCount));
                 return false;
             }
             Location best = (Location) settlement.getLocation().findMaximumWithin(BEST_FARM, false, (int) ((LHV) getRoot()).getWaterSourceDistance());
@@ -255,6 +272,9 @@ public abstract class HouseholdBase extends Scape {
                 currentEstimate += best.getBaseYield();
                 //System.out.println(adults+" "+adultCount+", "+getSize()+"-"+currentEstimate);
             } else {
+                Logger.INSTANCE.log(getScape().getPeriod(), id,
+                        String.format("[Nutrition Check (Failure): Needed: %d, Estimated: %f, Adults Present: %d, Adults Needed: %d]",
+                                need, currentEstimate, adults, adultCount));
                 return false;
             }
         }
@@ -262,9 +282,10 @@ public abstract class HouseholdBase extends Scape {
     }
 
     public void giveMaizeGift(HouseholdBase recipient) {
+        LHV lhv = (LHV)getRoot();
         for (int i = 0; i < agedCornStocks.length - 1; i++) {
-            recipient.agedCornStocks[i] = (int) (agedCornStocks[i] * ((LHV) getRoot()).getMaizeGiftToChild());
-            agedCornStocks[i] = (int) (agedCornStocks[i] * (1.0 - ((LHV) getRoot()).getMaizeGiftToChild()));
+            recipient.agedCornStocks[i] = (int) (agedCornStocks[i] * lhv.getMaizeGiftToChild());
+            agedCornStocks[i] = (int) (agedCornStocks[i] * (1.0 - lhv.getMaizeGiftToChild()));
         }
     }
 
@@ -296,9 +317,9 @@ public abstract class HouseholdBase extends Scape {
         lastHarvest = 0;
         int adultCount = 0;
         int adults = getNumAdults();
-        Enumeration e = farms.elements();
-        while (e.hasMoreElements()) {
-            lastHarvest += ((Farm) e.nextElement()).getLocation().findRandomYield();
+
+        for (Farm farm : farms) {
+            lastHarvest += farm.getLocation().findRandomYield();
             adultCount++;
             if (adultCount >= adults) {
                 break;
@@ -330,6 +351,8 @@ public abstract class HouseholdBase extends Scape {
         findFarmAndSettlement();
         if ((farms.size() == 0) || (settlement == null)) {
             //System.out.println("No settlements available");
+            Logger.INSTANCE.log(getScape().getPeriod(), id, String.format("[Die: Reason: %s]",
+                    farms.isEmpty() ? (settlement == null ? "No farms or settlement" : "No farms") : "No settlement"));
             die();
             scape.getData().getStatCollector("Departures").addValue(0.0);
         }
@@ -344,7 +367,7 @@ public abstract class HouseholdBase extends Scape {
         leave();
     }
 
-    class SettlementZoneStatCollector extends StatCollectorCond {
+    static class SettlementZoneStatCollector extends StatCollectorCond {
 
         private static final long serialVersionUID = 5283713940057557749L;
         EnvironmentZone zone;
@@ -363,7 +386,7 @@ public abstract class HouseholdBase extends Scape {
         }
     }
 
-    class FarmZoneStatCollector extends StatCollectorCond {
+    static class FarmZoneStatCollector extends StatCollectorCond {
 
 
         private static final long serialVersionUID = 6863625481169667385L;
@@ -436,7 +459,7 @@ public abstract class HouseholdBase extends Scape {
     public Object clone() {
         HouseholdBase clone = (HouseholdBase) super.clone();
         //clone.valley = this.valley;
-        clone.farms = new Vector();
+        clone.farms = new ArrayList<>();
         clone.settlement = null;
         //System.out.println(scape);
         return clone;
