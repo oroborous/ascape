@@ -41,26 +41,21 @@ public class HouseholdEvent {
 
 
     public String toString() {
-        if (household.getNumAdults() > 1) {
-            System.out.println("Wow");
-        }
         // period, hhID, eventType, decision,
         // age, hasSettlement, hasFarm,
         // nutritionAvail, totalCorn, nextYearCorn,
         // locYield, waterDist, isAvailable
+
+        // TODO change yield and water distance to binary Satisfactory/Unsatisfactory
         if (location == null) {
-            return String.format("%d, %d, %s, %b, %d, %b, %b, %f, %d, %d, %d, %d, %b",
+            return String.format("%d, %d, %s, %b, %d, %b, %b, %f, %d, %d",
                     period, household.id, eventType.toString(), decision,
                     household.getAge(), household.hasFarm(), household.hasSettlement(),
                     household.getEstimatedNutritionAvailable(),
-                    household.getTotalCornStocks(), household.getEstimateNextYearCorn(),
-                    -1, -1, false);
+                    household.getTotalCornStocks(), household.getEstimateNextYearCorn());
         }
-        return String.format("%d, %d, %s, %b, %d, %b, %b, %f, %d, %d, %f, %d, %b",
+        return String.format("%d, %d, %s, %b, %f, %d, %b",
                 period, household.id, eventType.toString(), decision,
-                household.getAge(), household.hasFarm(), household.hasSettlement(),
-                household.getEstimatedNutritionAvailable(),
-                household.getTotalCornStocks(), household.getEstimateNextYearCorn(),
                 location.getBaseYield(), distanceToWater,
                 location.isAvailable());
     }

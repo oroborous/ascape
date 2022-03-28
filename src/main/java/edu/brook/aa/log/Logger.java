@@ -2,7 +2,6 @@ package edu.brook.aa.log;
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
-import java.util.Map;
 
 public enum Logger {
     INSTANCE;

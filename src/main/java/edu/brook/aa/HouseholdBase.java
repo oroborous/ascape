@@ -140,7 +140,7 @@ public abstract class HouseholdBase extends Scape {
 
     public void findFarmAndSettlement() {
         List<Location> farmsSearched = new ArrayList<>();
-        int searchCount = 0;
+
         while (farms.size() == 0) {
             Location farmLocation = ((LHV) getRoot()).removeBestLocation();
             if (farmLocation != null) {
@@ -159,13 +159,13 @@ public abstract class HouseholdBase extends Scape {
                                 settlement = null;
                             }
 
-                            addFarm().occupy(farmLocation);
-
                             Logger.INSTANCE.log(new HouseholdEvent(getScape().getPeriod(),
                                     EventType.BUILD_FARM, true,
                                     (HouseholdAggregate) this,
                                     farmLocation,
                                     distanceToWater));
+
+                            addFarm().occupy(farmLocation);
 
                             Location nearestSettlementSite = (Location) nearestWater.findNearest(FIND_SETTLEMENT_RULE, true, Double.MAX_VALUE);
 
@@ -221,7 +221,6 @@ public abstract class HouseholdBase extends Scape {
                 //((LHV) getRoot()).farmSitesAvailable = false;
                 return;
             }
-            searchCount++;
         }
         for (Location unusedLocation : farmsSearched) {
             unusedLocation.makeAvailable();
