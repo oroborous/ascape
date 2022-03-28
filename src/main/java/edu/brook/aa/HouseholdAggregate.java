@@ -1,13 +1,16 @@
 /*
- * Copyright 1998-2007 The Brookings Institution, with revisions by Metascape LLC, and others. 
+ * Copyright 1998-2007 The Brookings Institution, with revisions by Metascape LLC, and others.
  * All rights reserved.
  * This program and the accompanying materials are made available solely under of the BSD license "brookings-models-license.txt".
- * Any referenced or included libraries carry licenses of their respective copyright holders. 
+ * Any referenced or included libraries carry licenses of their respective copyright holders.
  */
 
 package edu.brook.aa;
 
 
+import edu.brook.aa.log.EventType;
+import edu.brook.aa.log.HouseholdEvent;
+import edu.brook.aa.log.Logger;
 import org.ascape.util.data.StatCollector;
 import org.ascape.util.data.StatCollectorCSAMM;
 
@@ -25,7 +28,7 @@ public class HouseholdAggregate extends HouseholdBase {
         super.initialize();
         setMembersActive(false);
 
-        LHV lhv = (LHV)getRoot();
+        LHV lhv = (LHV) getRoot();
         age = randomInRange(lhv.getHouseholdMinInitialAge(), lhv.getHouseholdMaxInitialAge());
         nutritionNeed = randomInRange(lhv.getHouseholdMinNutritionNeed(), lhv.getHouseholdMaxNutritionNeed());
     }
@@ -48,25 +51,19 @@ public class HouseholdAggregate extends HouseholdBase {
         scape.getData().getStatCollector("Fissions").addValue(0.0);
         //}
         //System.out.println(child.age);
-
-        Logger.INSTANCE.log(getScape().getPeriod(), id,
-                String.format("[Fission: Age: %d]",
-                        age));
     }
 
     public boolean deathCondition() {
+        boolean isDeath = nutritionNeedRemaining > 0 || age > deathAge;
+        Logger.INSTANCE.log(new HouseholdEvent(getScape().getPeriod(),
+                EventType.DIE, isDeath, this));
+
         if (nutritionNeedRemaining > 0) {
             scape.getData().getStatCollector("Deaths Starvation").addValue(0.0);
-            Logger.INSTANCE.log(getScape().getPeriod(), id,
-                    String.format("[Die: Reason: Starvation, Nutrition Need Remaining: %d]",
-                            nutritionNeedRemaining));
             return true;
         }
         if (age > deathAge) {
             scape.getData().getStatCollector("Deaths Old Age").addValue(0.0);
-            Logger.INSTANCE.log(getScape().getPeriod(), id,
-                    String.format("[Die: Reason: Old Age, Age: %d]",
-                            age));
             return true;
         }
         return false;
@@ -78,8 +75,11 @@ public class HouseholdAggregate extends HouseholdBase {
         //return ((age > ((LHV) getRoot()).getFertilityAge())
         // && (getRandom().nextDouble() < ((LHV) getRoot()).getFertility()));
         //Rob's experiment
-        return ((age > fertilityAge) && (age <= fertilityEndsAge)
-                && (getRandom().nextDouble() < fertility));
+        boolean isFission = (age > fertilityAge) && (age <= fertilityEndsAge)
+                && (getRandom().nextDouble() < fertility);
+        Logger.INSTANCE.log(new HouseholdEvent(getScape().getPeriod(),
+                EventType.FISSION, isFission, this));
+        return isFission;
     }
 
     public int getAge() {
@@ -111,9 +111,7 @@ public class HouseholdAggregate extends HouseholdBase {
         stats[1] = new StatCollector("Deaths Old Age", false);
         stats[2] = new StatCollector("Births", false);
         stats[3] = new StatCollectorCSAMM("Household Size") {
-            /**
-             * 
-             */
+
             private static final long serialVersionUID = 5919164193477195628L;
 
             public final double getValue(Object o) {

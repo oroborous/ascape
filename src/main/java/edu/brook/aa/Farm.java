@@ -7,6 +7,7 @@
 
 package edu.brook.aa;
 
+import edu.brook.aa.log.Logger;
 import org.ascape.model.Cell;
 
 public class Farm extends Cell {
@@ -43,9 +44,6 @@ public class Farm extends Cell {
 
     public void leave() {
         if (location != null) {
-            //System.out.println(">   ");
-            Logger.INSTANCE.log(household.getScape().getPeriod(), household.id,
-                    String.format("[Leave Farm: Farm ID: %d, Location: %s]", id, location));
             location.setFarm(null);
             location = null;
         }
@@ -55,8 +53,6 @@ public class Farm extends Cell {
         if (this.location == null) {
             location.setFarm(this);
             this.location = location;
-            Logger.INSTANCE.log(household.getScape().getPeriod(), household.id,
-                    String.format("[Occupy Farm: Farm ID: %d, Location: %s]", id, location));
         } else {
             throw new RuntimeException("Farm must leave previous location before occupying new one.");
         }

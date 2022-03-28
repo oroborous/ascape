@@ -22,7 +22,7 @@ import java.util.ListIterator;
 import java.util.Vector;
 import java.util.zip.GZIPInputStream;
 
-import edu.brook.aa.Logger;
+import edu.brook.aa.log.Logger;
 import org.ascape.model.Scape;
 import org.ascape.model.event.ControlEvent;
 import org.ascape.model.event.DefaultScapeListener;

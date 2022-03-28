@@ -10,6 +10,7 @@ package edu.brook.aa;
 //Temporary for JDK 1.1 compatibility
 //import com.sun.java.util.collections.*;
 
+import edu.brook.aa.log.Logger;
 import org.ascape.model.Agent;
 import org.ascape.model.Scape;
 import org.ascape.model.rule.Rule;
@@ -49,14 +50,7 @@ public class LHVDisaggregate extends LHV {
                 int age = p.age;
 
                 p.householdFormation();
-
-                Logger.INSTANCE.log(getScape().getPeriod(),
-                        p.getHousehold().id,
-                        String.format("[FormHouseholdRule: age=%d]",
-                        age));
-
-
-            }
+             }
         });
         people.addRule(FISSIONING_RULE);
         people.setAutoCreate(true);

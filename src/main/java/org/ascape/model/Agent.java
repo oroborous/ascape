@@ -10,8 +10,6 @@ package org.ascape.model;
 import java.awt.Color;
 import java.awt.Image;
 
-import edu.brook.aa.Logger;
-import edu.brook.aa.Person;
 import org.ascape.model.rule.ExecuteThenUpdate;
 import org.ascape.model.rule.Propogate;
 import org.ascape.model.rule.Rule;
