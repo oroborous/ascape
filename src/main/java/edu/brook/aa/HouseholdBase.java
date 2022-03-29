@@ -13,6 +13,8 @@ import edu.brook.aa.log.EventType;
 import edu.brook.aa.log.HouseholdEvent;
 import edu.brook.aa.log.Logger;
 import org.ascape.model.Scape;
+import org.ascape.model.space.Coordinate;
+import org.ascape.model.space.Coordinate2DDiscrete;
 import org.ascape.util.Conditional;
 import org.ascape.util.data.DataPoint;
 import org.ascape.util.data.StatCollector;
@@ -138,21 +140,35 @@ public abstract class HouseholdBase extends Scape {
         }
     }
 
+    private double getDistance(Location l1, Location l2) {
+        if (l1 == null || l2 == null)
+            return -1;
+        Coordinate2DDiscrete c1 = (Coordinate2DDiscrete) l1.getCoordinate();
+        Coordinate2DDiscrete c2 = (Coordinate2DDiscrete) l2.getCoordinate();
+        return Math.sqrt(Math.pow(c1.getXValue() - c2.getXValue(), 2)
+                + Math.pow(c1.getYValue() - c2.getYValue(), 2));
+    }
+
     public void findFarmAndSettlement() {
         List<Location> farmsSearched = new ArrayList<>();
+        double maxWaterDistance = 5.656854249492381;
 
         while (farms.size() == 0) {
             Location farmLocation = ((LHV) getRoot()).removeBestLocation();
+
             if (farmLocation != null) {
-                Location nearestWater = (Location) farmLocation.findNearest(Location.HAS_WATER, true, Double.MAX_VALUE);
-                int distanceToWater = (int) farmLocation.calculateDistance(nearestWater);
+                Location nearestWater = (Location) farmLocation
+                        .findNearest(Location.HAS_WATER, true, Double.MAX_VALUE);
+                double distanceToWater = getDistance(farmLocation, nearestWater);
 
                 if (farmLocation.getBaseYield() > 0) {
 
                     if ((farmLocation.getClan() == null) || (farmLocation.getClan() == clan)) {
-                        nearestWater = (Location) farmLocation
-                                .findNearest(Location.HAS_WATER, true, ((LHV) getRoot()).getWaterSourceDistance());
-                        if (nearestWater != null) {
+                        Location nearestWaterInRange = (Location) farmLocation
+                                .findNearest(Location.HAS_WATER, true, maxWaterDistance);
+                        double distanceInRange = getDistance(farmLocation, nearestWaterInRange);
+
+                        if (nearestWaterInRange != null) {
 
                             if (settlement != null) {
                                 settlement.remove(this);
@@ -163,16 +179,17 @@ public abstract class HouseholdBase extends Scape {
                                     EventType.BUILD_FARM, true,
                                     (HouseholdAggregate) this,
                                     farmLocation,
-                                    distanceToWater));
+                                    distanceInRange));
 
                             addFarm().occupy(farmLocation);
 
-                            Location nearestSettlementSite = (Location) nearestWater.findNearest(FIND_SETTLEMENT_RULE, true, Double.MAX_VALUE);
+                            Location nearestSettlementSite = (Location) nearestWaterInRange.findNearest(FIND_SETTLEMENT_RULE, true, Double.MAX_VALUE);
 
                             if (nearestSettlementSite == null) {
                                 throw new RuntimeException("Unexpected model condition in household");
                             }
                             occupy(nearestSettlementSite);
+
                             if (!findFarmsForNutritionalNeed()) {
                                 leave();
                                 farmsSearched.add(farmLocation);

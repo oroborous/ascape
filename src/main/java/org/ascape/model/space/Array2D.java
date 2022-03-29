@@ -243,7 +243,8 @@ public abstract class Array2D extends Array2DBase {
      * @return the int
      */
     public int findNearestMatchRank(Coordinate origin, Conditional condition, boolean includeOrigin, double maximumDistance) {
-        for (int i = (includeOrigin ? 0 : 1); (i < relativeCoordinates.length) && (Array2D.relativeCoordinatesRankDistance[i] < maximumDistance); i++) {
+        for (int i = (includeOrigin ? 0 : 1); (i < relativeCoordinates.length)
+                && (Array2D.relativeCoordinatesRankDistance[i] < maximumDistance); i++) {
             if (findFirstMatchInRank(origin, condition, i) != null) {
                 return i;
             }

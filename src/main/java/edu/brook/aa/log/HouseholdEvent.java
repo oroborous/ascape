@@ -8,8 +8,19 @@ public class HouseholdEvent {
     private EventType eventType;
     private HouseholdAggregate household;
     private Location location;
-    private int distanceToWater;
+    private double distanceToWater;
     private boolean decision;
+
+    private static double maxWaterDistance;
+    private static int householdMaxNutrition;
+
+    public static void setMaxWaterDistance(double maxWaterDistance) {
+        HouseholdEvent.maxWaterDistance = maxWaterDistance;
+    }
+
+    public static void setHouseholdMaxNutrition(int householdMaxNutrition) {
+        HouseholdEvent.householdMaxNutrition = householdMaxNutrition;
+    }
 
     public HouseholdEvent(EventType eventType) {
         this.eventType = eventType;
@@ -30,7 +41,7 @@ public class HouseholdEvent {
                           boolean decision,
                           HouseholdAggregate household,
                           Location location,
-                          int distanceToWater) {
+                          double distanceToWater) {
         this.period = period;
         this.eventType = eventType;
         this.decision = decision;
@@ -46,7 +57,6 @@ public class HouseholdEvent {
         // nutritionAvail, totalCorn, nextYearCorn,
         // locYield, waterDist, isAvailable
 
-        // TODO change yield and water distance to binary Satisfactory/Unsatisfactory
         if (location == null) {
             return String.format("%d, %d, %s, %b, %d, %b, %b, %f, %d, %d",
                     period, household.id, eventType.toString(), decision,
@@ -54,9 +64,14 @@ public class HouseholdEvent {
                     household.getEstimatedNutritionAvailable(),
                     household.getTotalCornStocks(), household.getEstimateNextYearCorn());
         }
-        return String.format("%d, %d, %s, %b, %f, %d, %b",
+        if (distanceToWater < maxWaterDistance)
+            System.out.println("?");
+        return String.format("%d, %d, %s, %b, %f, %b, %f, %b, %b",
                 period, household.id, eventType.toString(), decision,
-                location.getBaseYield(), distanceToWater,
+                location.getBaseYield(),
+                location.getBaseYield() >= householdMaxNutrition,
+                distanceToWater,
+                distanceToWater <= maxWaterDistance,
                 location.isAvailable());
     }
 }

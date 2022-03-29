@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import edu.brook.aa.log.HouseholdEvent;
 import org.ascape.model.Agent;
 import org.ascape.model.HistoryValueSetter;
 import org.ascape.model.Scape;
@@ -44,9 +45,6 @@ import org.ascape.view.vis.Overhead2DView;
 
 class GeneralValleyStreamSource extends WaterSource {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = -3153973451588490393L;
 
     public boolean isExtant() {
@@ -60,9 +58,6 @@ class GeneralValleyStreamSource extends WaterSource {
 
 public class LHV extends Scape {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = -1892876266881188560L;
 
     public static EnvironmentZone ENVIRON_EMPTY = new EnvironmentZone("Empty", Color.white);
@@ -212,6 +207,9 @@ public class LHV extends Scape {
     }
 
     public void createScape() {
+        HouseholdEvent.setHouseholdMaxNutrition(householdMaxNutritionNeed);
+        HouseholdEvent.setMaxWaterDistance(5.656854249492381);
+
         setAutoRestart(true);
         setPrototypeAgent(new Scape());
         //setAutoCreate(false);
