@@ -152,7 +152,7 @@ public class LHV extends Scape {
      */
     protected int baseNutritionNeed = 160;
 
-    protected int householdMinNutritionNeed = baseNutritionNeed * typicalHouseholdSize;
+    protected int householdMinNutritionNeed = (int)Math.round(baseNutritionNeed * typicalHouseholdSize * 0.85);
 
     protected int householdMaxNutritionNeed = baseNutritionNeed * typicalHouseholdSize;
 
@@ -310,9 +310,7 @@ public class LHV extends Scape {
          * Create Historic Settlements
          */
         historicSettlements = new Scape() {
-            /**
-             *
-             */
+
             private static final long serialVersionUID = 8710583027169504915L;
 
             public void initialize() {
@@ -365,9 +363,7 @@ public class LHV extends Scape {
          * Create Simulation Settlements
          */
         settlements = new Scape() {
-            /**
-             *
-             */
+
             private static final long serialVersionUID = 2980206173636571476L;
 
             public void initialize() {
@@ -546,7 +542,7 @@ public class LHV extends Scape {
     }
 
     /**
-     * Import historical settlment data from binary data files.
+     * Import historical settlement data from binary data files.
      */
     protected void importSettlementHistory() {
         try {

@@ -53,23 +53,27 @@ public class HouseholdEvent {
 
     public String toString() {
         // period, hhID, eventType, decision,
-        // age, hasSettlement, hasFarm,
+        // age, hasFarm, hasSettlement,
+        // nutritionNeed,
         // nutritionAvail, totalCorn, nextYearCorn,
-        // locYield, waterDist, isAvailable
-
         if (location == null) {
-            return String.format("%d, %d, %s, %b, %d, %b, %b, %f, %d, %d",
+            return String.format("%d, %d, %s, %b, %d, %b, %b, %d, %f, %d, %d",
                     period, household.id, eventType.toString(), decision,
                     household.getAge(), household.hasFarm(), household.hasSettlement(),
+                    household.getNutritionNeed(),
                     household.getEstimatedNutritionAvailable(),
                     household.getTotalCornStocks(), household.getEstimateNextYearCorn());
         }
-        if (distanceToWater < maxWaterDistance)
-            System.out.println("?");
-        return String.format("%d, %d, %s, %b, %f, %b, %f, %b, %b",
+
+        // period, hhID, eventType, decision,
+        // baseYield, sufficientBaseYield,
+        // waterDist, sufficientWaterDist,
+        // isAvailable
+        return String.format("%d, %d, %s, %b, %d, %f, %b, %f, %b, %b",
                 period, household.id, eventType.toString(), decision,
+                household.getNutritionNeed(),
                 location.getBaseYield(),
-                location.getBaseYield() >= householdMaxNutrition,
+                location.getBaseYield() >= household.getNutritionNeed(),
                 distanceToWater,
                 distanceToWater <= maxWaterDistance,
                 location.isAvailable());

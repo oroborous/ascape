@@ -175,12 +175,6 @@ public abstract class HouseholdBase extends Scape {
                                 settlement = null;
                             }
 
-                            Logger.INSTANCE.log(new HouseholdEvent(getScape().getPeriod(),
-                                    EventType.BUILD_FARM, true,
-                                    (HouseholdAggregate) this,
-                                    farmLocation,
-                                    distanceInRange));
-
                             addFarm().occupy(farmLocation);
 
                             Location nearestSettlementSite = (Location) nearestWaterInRange.findNearest(FIND_SETTLEMENT_RULE, true, Double.MAX_VALUE);
@@ -193,7 +187,18 @@ public abstract class HouseholdBase extends Scape {
                             if (!findFarmsForNutritionalNeed()) {
                                 leave();
                                 farmsSearched.add(farmLocation);
+                                Logger.INSTANCE.log(new HouseholdEvent(getScape().getPeriod(),
+                                        EventType.BUILD_FARM, false,
+                                        (HouseholdAggregate) this,
+                                        farmLocation,
+                                        distanceInRange));
                                 break;
+                            } else {
+                                Logger.INSTANCE.log(new HouseholdEvent(getScape().getPeriod(),
+                                        EventType.BUILD_FARM, true,
+                                        (HouseholdAggregate) this,
+                                        farmLocation,
+                                        distanceInRange));
                             }
                         } else {
                             Logger.INSTANCE.log(new HouseholdEvent(getScape().getPeriod(),
