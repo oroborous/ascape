@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import edu.brook.aa.log.BuildFarmDecision;
 import edu.brook.aa.log.HouseholdEvent;
 import org.ascape.model.Agent;
 import org.ascape.model.HistoryValueSetter;
@@ -152,9 +153,9 @@ public class LHV extends Scape {
      */
     protected int baseNutritionNeed = 160;
 
-    protected int householdMinNutritionNeed = (int)Math.round(baseNutritionNeed * typicalHouseholdSize * 0.85);
+    protected int householdMinNutritionNeed = (int)Math.round(baseNutritionNeed * typicalHouseholdSize * 0.95);
 
-    protected int householdMaxNutritionNeed = baseNutritionNeed * typicalHouseholdSize;
+    protected int householdMaxNutritionNeed = (int)Math.round(baseNutritionNeed * typicalHouseholdSize * 1.05); //baseNutritionNeed * typicalHouseholdSize;
 
     protected int minFertilityAge = 16;//16
 
@@ -207,8 +208,7 @@ public class LHV extends Scape {
     }
 
     public void createScape() {
-        HouseholdEvent.setHouseholdMaxNutrition(householdMaxNutritionNeed);
-        HouseholdEvent.setMaxWaterDistance(5.656854249492381);
+        BuildFarmDecision.setMaxWaterDistance(5.656854249492381);
 
         setAutoRestart(true);
         setPrototypeAgent(new Scape());

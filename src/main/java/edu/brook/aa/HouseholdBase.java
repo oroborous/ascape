@@ -9,6 +9,7 @@ package edu.brook.aa;
 
 import java.util.*;
 
+import edu.brook.aa.log.BuildFarmDecision;
 import edu.brook.aa.log.EventType;
 import edu.brook.aa.log.HouseholdEvent;
 import edu.brook.aa.log.Logger;
@@ -187,21 +188,21 @@ public abstract class HouseholdBase extends Scape {
                             if (!findFarmsForNutritionalNeed()) {
                                 leave();
                                 farmsSearched.add(farmLocation);
-                                Logger.INSTANCE.log(new HouseholdEvent(getScape().getPeriod(),
+                                Logger.INSTANCE.log(new BuildFarmDecision(getScape().getPeriod(),
                                         EventType.BUILD_FARM, false,
                                         (HouseholdAggregate) this,
                                         farmLocation,
                                         distanceInRange));
                                 break;
                             } else {
-                                Logger.INSTANCE.log(new HouseholdEvent(getScape().getPeriod(),
+                                Logger.INSTANCE.log(new BuildFarmDecision(getScape().getPeriod(),
                                         EventType.BUILD_FARM, true,
                                         (HouseholdAggregate) this,
                                         farmLocation,
                                         distanceInRange));
                             }
                         } else {
-                            Logger.INSTANCE.log(new HouseholdEvent(getScape().getPeriod(),
+                            Logger.INSTANCE.log(new BuildFarmDecision(getScape().getPeriod(),
                                     EventType.BUILD_FARM, false,
                                     (HouseholdAggregate) this,
                                     farmLocation,
@@ -217,7 +218,7 @@ public abstract class HouseholdBase extends Scape {
                             //((LHV) getRoot()).farmsSearchedThisYear.addElement(farmLocation);
                         }*/
                     } else {
-                        Logger.INSTANCE.log(new HouseholdEvent(getScape().getPeriod(),
+                        Logger.INSTANCE.log(new BuildFarmDecision(getScape().getPeriod(),
                                 EventType.BUILD_FARM, false,
                                 (HouseholdAggregate) this,
                                 farmLocation,
@@ -227,7 +228,7 @@ public abstract class HouseholdBase extends Scape {
                         //((LHV) getRoot()).farmsSearchedThisYear.addElement(farmLocation);
                     }
                 } else {
-                    Logger.INSTANCE.log(new HouseholdEvent(getScape().getPeriod(),
+                    Logger.INSTANCE.log(new BuildFarmDecision(getScape().getPeriod(),
                             EventType.BUILD_FARM, false,
                             (HouseholdAggregate) this,
                             farmLocation,
@@ -299,7 +300,7 @@ public abstract class HouseholdBase extends Scape {
 
             if (best != null) {
                 boolean isOccupy = (best.isAvailable()) && (best.getBaseYield() > 0.0);
-                Logger.INSTANCE.log(new HouseholdEvent(getScape().getPeriod(), EventType.BUILD_FARM, isOccupy,
+                Logger.INSTANCE.log(new BuildFarmDecision(getScape().getPeriod(), EventType.BUILD_FARM, isOccupy,
                         (HouseholdAggregate) this, best, distanceToWater));
             }
             if ((best != null) && (best.isAvailable()) && (best.getBaseYield() > 0.0)) {

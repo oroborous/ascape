@@ -5,5 +5,6 @@ public enum EventType {
     DIE,
     MOVE,
     DEPART,
-    FISSION
+    FISSION,
+    NONE
 }
