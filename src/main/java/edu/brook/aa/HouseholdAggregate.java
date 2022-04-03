@@ -11,10 +11,61 @@ package edu.brook.aa;
 import edu.brook.aa.log.EventType;
 import edu.brook.aa.log.HouseholdEvent;
 import edu.brook.aa.log.Logger;
+import edu.brook.aa.weka.WekaDecisionClassifier;
+import org.ascape.model.Agent;
+import org.ascape.model.rule.Rule;
 import org.ascape.util.data.StatCollector;
 import org.ascape.util.data.StatCollectorCSAMM;
 
 public class HouseholdAggregate extends HouseholdBase {
+
+    public static final Rule DECISION_TREE_RULE = new Rule("Obey Decision Tree") {
+        private static final long serialVersionUID = 1L;
+
+        public void execute(Agent agent) {
+            HouseholdAggregate hha = (HouseholdAggregate) agent;
+            /*
+            @attribute 'age' numeric
+            @attribute 'has farm' { true, false }
+            @attribute 'nutrition need' numeric
+            @attribute 'est nutrition available' numeric
+            @attribute 'total corn stocks' numeric
+            @attribute 'fertility' numeric
+            @attribute 'decision' { DIE, DEPART, MOVE, FISSION, NONE }
+            */
+            Object[] props = new Object[]{
+                    (double)hha.getAge(),
+                    Boolean.toString(hha.hasFarm()),
+                    (double)hha.getNutritionNeed(),
+                    hha.getEstimatedNutritionAvailable(),
+                    (double)hha.getTotalCornStocks(),
+                    getRandom().nextDouble()};
+            EventType decision = WekaDecisionClassifier.classify(props);
+
+            switch(decision) {
+                case DIE:
+                    hha.die();
+                    break;
+                case DEPART:
+                    hha.depart();
+                    break;
+                case MOVE:
+                    hha.move();
+                    break;
+                case FISSION:
+                    hha.fission();
+                    break;
+            }
+        }
+
+        public boolean isRandomExecution() {
+            return false;
+        }
+
+        public boolean isCauseRemoval() {
+            return true;
+        }
+    };
 
     private static final long serialVersionUID = 5091800912116536871L;
 
@@ -75,10 +126,11 @@ public class HouseholdAggregate extends HouseholdBase {
         //return ((age > ((LHV) getRoot()).getFertilityAge())
         // && (getRandom().nextDouble() < ((LHV) getRoot()).getFertility()));
         //Rob's experiment
+        double fissionRandom = getRandom().nextDouble();
         boolean isFission = (age > fertilityAge) && (age <= fertilityEndsAge)
-                && (getRandom().nextDouble() < fertility);
+                && (fissionRandom < fertility);
         Logger.INSTANCE.log(new HouseholdEvent(getScape().getPeriod(),
-                EventType.FISSION, isFission, this));
+                EventType.FISSION, isFission, this, 1 - fissionRandom));
         return isFission;
     }
 
@@ -102,9 +154,10 @@ public class HouseholdAggregate extends HouseholdBase {
         super.scapeCreated();
         //scape.addInitialRule(FORCE_MOVE_RULE);
         scape.addRule(METABOLISM_RULE);
-        scape.addRule(DEATH_RULE);
-        scape.addRule(MOVEMENT_RULE);
-        scape.addRule(FISSIONING_RULE);
+//        scape.addRule(DEATH_RULE);
+//        scape.addRule(MOVEMENT_RULE);
+//        scape.addRule(FISSIONING_RULE);
+        scape.addRule(DECISION_TREE_RULE);
 
         StatCollector[] stats = new StatCollector[4];
         stats[0] = new StatCollector("Deaths Starvation", false);

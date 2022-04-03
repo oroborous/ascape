@@ -208,8 +208,6 @@ public class LHV extends Scape {
     }
 
     public void createScape() {
-        BuildFarmDecision.setMaxWaterDistance(5.656854249492381);
-
         setAutoRestart(true);
         setPrototypeAgent(new Scape());
         //setAutoCreate(false);

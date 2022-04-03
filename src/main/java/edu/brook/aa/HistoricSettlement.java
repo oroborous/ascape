@@ -54,16 +54,6 @@ public class HistoricSettlement extends Cell implements Drawable {
     private Location location;
     private Coordinate2DDiscrete coordinates;
 
-    private static PrintWriter writer;
-
-    static {
-        try {
-            writer = new PrintWriter("historic.txt");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     public HistoricSettlement() {
     }
 
@@ -164,7 +154,7 @@ public class HistoricSettlement extends Cell implements Drawable {
             }));
 
     public void scapeCreated() {
-        StatCollector[] stats = new StatCollector[3];
+        StatCollector[] stats = new StatCollector[2];
         stats[0] = new StatCollectorCondCSA("Historic Households") {
 
             private static final long serialVersionUID = -890759850053222387L;
@@ -189,21 +179,7 @@ public class HistoricSettlement extends Cell implements Drawable {
                 return 5 * ((HistoricSettlement) object).getHouseholdCount();
             }
         };
-        stats[2] = new StatCollectorCond("Training Data") {
 
-            @Override
-            public boolean meetsCondition(Object object) {
-                return ((HistoricSettlement) object).isExtant();
-            }
-
-            public double getValue(Object object) {
-                HistoricSettlement histSet = ((HistoricSettlement) object);
-                double hhCount = histSet.getHouseholdCount();
-                writer.printf("%s%n", histSet);
-                writer.flush();
-                return hhCount;
-            }
-        };
         getScape().addStatCollectors(stats);
     }
 

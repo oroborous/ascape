@@ -14,7 +14,6 @@ import edu.brook.aa.log.EventType;
 import edu.brook.aa.log.HouseholdEvent;
 import edu.brook.aa.log.Logger;
 import org.ascape.model.Scape;
-import org.ascape.model.space.Coordinate;
 import org.ascape.model.space.Coordinate2DDiscrete;
 import org.ascape.util.Conditional;
 import org.ascape.util.data.DataPoint;
@@ -398,9 +397,13 @@ public abstract class HouseholdBase extends Scape {
                 (HouseholdAggregate) this));
 
         if ((farms.size() == 0) || (settlement == null)) {
-            die();
-            scape.getData().getStatCollector("Departures").addValue(0.0);
+            depart();
         }
+    }
+
+    public void depart() {
+        die();
+        scape.getData().getStatCollector("Departures").addValue(0.0);
     }
 
     public void die() {

@@ -13,7 +13,7 @@ public enum Logger {
 
     private int currentPeriod = 0;
 
-    private Map<Integer, HouseholdDecisions> householdMap = new HashMap<>();
+    private final Map<Integer, HouseholdDecisions> householdMap = new HashMap<>();
 
 
     Logger() {
@@ -31,11 +31,12 @@ public enum Logger {
             decisionWriter.println("@relation anasazi-household-decision");
             decisionWriter.println("@attribute 'age' numeric");
             decisionWriter.println("@attribute 'has farm' { true, false }");
-            decisionWriter.println("@attribute 'has settlement' { true, false }");
+//            decisionWriter.println("@attribute 'has settlement' { true, false }");
             decisionWriter.println("@attribute 'nutrition need' numeric");
             decisionWriter.println("@attribute 'est nutrition available' numeric");
             decisionWriter.println("@attribute 'total corn stocks' numeric");
-            decisionWriter.println("@attribute 'est next year corn' numeric");
+//            decisionWriter.println("@attribute 'est next year corn' numeric");
+            decisionWriter.println("@attribute 'fertility' numeric");
             decisionWriter.println("@attribute 'decision' { DIE, DEPART, MOVE, FISSION, NONE }");
             decisionWriter.println("@data");
         } catch (FileNotFoundException e) {
@@ -64,7 +65,7 @@ public enum Logger {
                 householdMap.put(event.household.id, new HouseholdDecisions(event.household));
             }
 
-            householdMap.get(event.household.id).setDecision(event.eventType, event.decision);
+            householdMap.get(event.household.id).setDecision(event);
 
         }
     }

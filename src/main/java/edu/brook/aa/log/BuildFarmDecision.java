@@ -11,11 +11,6 @@ public class BuildFarmDecision {
     private double distanceToWater;
     private boolean decision;
 
-    private static double maxWaterDistance;
-
-    public static void setMaxWaterDistance(double maxWaterDistance) {
-        BuildFarmDecision.maxWaterDistance = maxWaterDistance;
-    }
 
     public BuildFarmDecision(int period,
                           EventType eventType,

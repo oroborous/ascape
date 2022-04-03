@@ -4,25 +4,27 @@ import edu.brook.aa.HouseholdAggregate;
 
 public class HouseholdDecisions {
     private HouseholdAggregate household;
+    private double fissionRandom;
     private boolean die, move, depart, fission;
 
     public HouseholdDecisions(HouseholdAggregate household) {
         this.household = household;
     }
 
-    public void setDecision(EventType eventType, boolean decision) {
-        switch(eventType) {
+    public void setDecision(HouseholdEvent event) {
+        switch(event.eventType) {
             case DIE:
-                die = decision;
+                die = event.decision;
                 break;
             case DEPART:
-                depart = decision;
+                depart = event.decision;
                 break;
             case MOVE:
-                move = decision;
+                move = event.decision;
                 break;
             case FISSION:
-                fission = decision;
+                fission = event.decision;
+                fissionRandom = event.fissionRandom;
                 break;
         }
     }
@@ -32,11 +34,6 @@ public class HouseholdDecisions {
         // age, hasFarm, hasSettlement,
         // nutritionNeed,
         // nutritionAvail, totalCorn, nextYearCorn
-
-        if (die && depart) {
-            System.out.println("??");
-        }
-
         EventType choice = EventType.NONE;
         if (die) {
             choice = EventType.DIE;
@@ -48,14 +45,15 @@ public class HouseholdDecisions {
             choice = EventType.MOVE;
         }
 
-        return String.format("%d,%b,%b,%d,%f,%d,%d,%s",
+        return String.format("%d,%b,%d,%f,%d,%f,%s",
                 household.getAge(),
                 household.hasFarm(),
-                household.hasSettlement(),
+//                household.hasSettlement(),
                 household.getNutritionNeed(),
                 household.getEstimatedNutritionAvailable(),
                 household.getTotalCornStocks(),
-                household.getEstimateNextYearCorn(),
+//                household.getEstimateNextYearCorn(),
+                fissionRandom,
                 choice.toString());
 
 //        return String.format("%d, %d, %b, %b, %d, %f, %d, %d, DIE %b, DEPART %b, MOVE %b, FISSION %b",
