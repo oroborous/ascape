@@ -18,8 +18,26 @@ public enum Logger {
 
     Logger() {
         try {
-            farmWriter = new PrintWriter("buildFarm.csv");
-            decisionWriter = new PrintWriter("decisions.csv");
+            farmWriter = new PrintWriter("C:\\Users\\moogi\\Documents\\data-weka\\anasazi-farms.arff");
+            farmWriter.println("@relation anasazi-build-farm");
+            farmWriter.println("@attribute 'nutrition need' numeric");
+            farmWriter.println("@attribute 'base yield' numeric");
+            farmWriter.println("@attribute 'distance to water' numeric");
+            farmWriter.println("@attribute 'is available' { true, false }");
+            farmWriter.println("@attribute 'build farm' { true, false }");
+            farmWriter.println("@data");
+
+            decisionWriter = new PrintWriter("C:\\Users\\moogi\\Documents\\data-weka\\anasazi-decisions.arff");
+            decisionWriter.println("@relation anasazi-household-decision");
+            decisionWriter.println("@attribute 'age' numeric");
+            decisionWriter.println("@attribute 'has farm' { true, false }");
+            decisionWriter.println("@attribute 'has settlement' { true, false }");
+            decisionWriter.println("@attribute 'nutrition need' numeric");
+            decisionWriter.println("@attribute 'est nutrition available' numeric");
+            decisionWriter.println("@attribute 'total corn stocks' numeric");
+            decisionWriter.println("@attribute 'est next year corn' numeric");
+            decisionWriter.println("@attribute 'decision' { DIE, DEPART, MOVE, FISSION, NONE }");
+            decisionWriter.println("@data");
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -52,8 +70,8 @@ public enum Logger {
     }
 
     private void printDecisions() {
-        for(HouseholdDecisions decisions : householdMap.values()) {
-            decisionWriter.println(currentPeriod + ", " + decisions.toString());
+        for (HouseholdDecisions decisions : householdMap.values()) {
+            decisionWriter.println(decisions.toString());
         }
     }
 

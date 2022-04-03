@@ -33,6 +33,10 @@ public class HouseholdDecisions {
         // nutritionNeed,
         // nutritionAvail, totalCorn, nextYearCorn
 
+        if (die && depart) {
+            System.out.println("??");
+        }
+
         EventType choice = EventType.NONE;
         if (die) {
             choice = EventType.DIE;
@@ -44,8 +48,7 @@ public class HouseholdDecisions {
             choice = EventType.MOVE;
         }
 
-        return String.format("%d, %d, %b, %b, %d, %f, %d, %d, %s",
-                household.id,
+        return String.format("%d,%b,%b,%d,%f,%d,%d,%s",
                 household.getAge(),
                 household.hasFarm(),
                 household.hasSettlement(),

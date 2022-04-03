@@ -37,13 +37,11 @@ public class BuildFarmDecision {
         // baseYield, sufficientBaseYield,
         // waterDist, sufficientWaterDist,
         // isAvailable
-        return String.format("%d, %d, %s, %b, %d, %f, %b, %f, %b, %b",
-                period, household.id, eventType.toString(), decision,
+        return String.format("%d,%f,%f,%b,%b",
                 household.getNutritionNeed(),
                 location.getBaseYield(),
-                location.getBaseYield() >= household.getNutritionNeed(),
                 distanceToWater,
-                distanceToWater <= maxWaterDistance,
-                location.isAvailable());
+                location.isAvailable(),
+                decision);
     }
 }
