@@ -82,7 +82,7 @@ public class HouseholdDisaggregate extends HouseholdBase {
         //only occurs once
         if (!isDelete()) {
             super.die();
-            scape.getData().getStatCollector("Households Disbanded").addValue(0.0);
+            getStatCollector(HOUSEHOLDS_DISBANDED ).addValue(0.0);
         }
     }
 
@@ -126,10 +126,12 @@ public class HouseholdDisaggregate extends HouseholdBase {
         scape.addRule(METABOLISM_RULE);
         scape.addRule(MOVEMENT_RULE);
 
+        String suffix = getStatCollectorSuffix();
+
         StatCollector[] stats = new StatCollector[3];
-        stats[0] = new StatCollector("Households Formed", false);
-        stats[1] = new StatCollector("Households Disbanded", false);
-        stats[2] = new StatCollectorCSAMM("Household Size") {
+        stats[0] = new StatCollector(HOUSEHOLDS_FORMED + suffix, false);
+        stats[1] = new StatCollector(HOUSEHOLDS_DISBANDED + suffix, false);
+        stats[2] = new StatCollectorCSAMM(HOUSEHOLD_SIZE + suffix) {
 
             private static final long serialVersionUID = -6891269369011896010L;
 
@@ -144,6 +146,11 @@ public class HouseholdDisaggregate extends HouseholdBase {
             clanStats[i] = new ClanStat(Clan.clans[i]);
         }
         scape.addStatCollectors(clanStats);
+    }
+
+    @Override
+    public String getStatCollectorSuffix() {
+        return " (RB)";
     }
 }
 

@@ -22,7 +22,7 @@ public class HouseholdGreedy extends HouseholdAggregate {
         child.move();
         //if ((child.farm.getLocation() != null) && (child.settlement != null)) {
         //For now, record fissions regardless of successful move to match C++ code
-        scape.getData().getStatCollector("Fissions").addValue(0.0);
+        getStatCollector(FISSIONS).addValue(0.0);
         //}
         //System.out.println(child.age);
     }

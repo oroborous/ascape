@@ -1121,17 +1121,17 @@ public class LHV extends Scape {
         valley.addView(chart);
         //And add some of the stat series we've just created to it
         chart.addSeries("Sum Historic Households", Color.red);
-        chart.addSeries("Count Households", Color.black);
+        chart.addSeries("Count Households (RB)", Color.black);
         //chart.addSeries("Sum Historic Household Size", Color.red);
         //chart.addSeries("Sum Household Size", Color.black);
         //chart.addSeries("Count Potential Yield", Color.blue);
         //chart.addSeries("Sum Historic Population", Color.red);
         //chart.addSeries("Count People", Color.black);
-        /*chart.addSeries("Count Deaths Starvation", Color.black);
-        chart.addSeries("Count Deaths Old Age", Color.gray);
-        chart.addSeries("Count Movements", Color.red);
-        chart.addSeries("Count Fissions", Color.green);
-        chart.addSeries("Count Departures", Color.white);*/
+//        chart.addSeries("Count Deaths Starvation (RB)", Color.black);
+//        chart.addSeries("Count Deaths Old Age (RB)", Color.gray);
+//        chart.addSeries("Count Movements (RB)", Color.red);
+//        chart.addSeries("Count Fissions (RB)", Color.green);
+//        chart.addSeries("Count Departures (RB)", Color.white);
         /*chart.addSeries("Count Households in General Valley Floor", Color.black);
 chart.addSeries("Count Households in North Valley Floor", Color.red);
 chart.addSeries("Count Households in Mid-Valley Floor", Color.green);

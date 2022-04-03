@@ -14,12 +14,14 @@ public class WekaDecisionClassifier {
         int result = WekaDecisionClassifier.N825e24e81(i);
         switch (result) {
             case 0:
-                return EventType.DIE;
+                return EventType.DIE_STARVATION;
             case 1:
-                return EventType.DEPART;
+                return EventType.DIE_OLD_AGE;
             case 2:
-                return EventType.MOVE;
+                return EventType.DEPART;
             case 3:
+                return EventType.MOVE;
+            case 4:
                 return EventType.FISSION;
             default:
                 return EventType.NONE;

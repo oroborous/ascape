@@ -5,7 +5,7 @@ import edu.brook.aa.HouseholdAggregate;
 public class HouseholdDecisions {
     private HouseholdAggregate household;
     private double fissionRandom;
-    private boolean die, move, depart, fission;
+    private boolean starvation, oldAge, move, depart, fission;
 
     public HouseholdDecisions(HouseholdAggregate household) {
         this.household = household;
@@ -13,8 +13,11 @@ public class HouseholdDecisions {
 
     public void setDecision(HouseholdEvent event) {
         switch(event.eventType) {
-            case DIE:
-                die = event.decision;
+            case DIE_STARVATION:
+                starvation = event.decision;
+                break;
+            case DIE_OLD_AGE:
+                oldAge = event.decision;
                 break;
             case DEPART:
                 depart = event.decision;
@@ -35,8 +38,10 @@ public class HouseholdDecisions {
         // nutritionNeed,
         // nutritionAvail, totalCorn, nextYearCorn
         EventType choice = EventType.NONE;
-        if (die) {
-            choice = EventType.DIE;
+        if (oldAge) {
+            choice = EventType.DIE_OLD_AGE;
+        } else if (starvation) {
+            choice = EventType.DIE_STARVATION;
         } else if (depart) {
             choice = EventType.DEPART;
         } else if (fission) {

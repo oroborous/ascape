@@ -25,6 +25,13 @@ public abstract class HouseholdBase extends Scape {
 
 
     private static final long serialVersionUID = 4016766647753095651L;
+    public static final String DEATHS_OLD_AGE = "Deaths Old Age";
+    public static final String DEATHS_STARVATION = "Deaths Starvation";
+    public static final String FISSIONS = "Fissions";
+    public static final String BIRTHS = "Births";
+    public static final String HOUSEHOLD_SIZE = "Household Size";
+    public static final String HOUSEHOLDS_DISBANDED = "Households Disbanded";
+    public static final String HOUSEHOLDS_FORMED = "Households Formed";
 
     public Conditional FIND_SETTLEMENT_RULE = new Conditional() {
 
@@ -41,23 +48,23 @@ public abstract class HouseholdBase extends Scape {
     private static int nextId = 1;
     public int id;
 
-    List<Farm> farms;
+    protected List<Farm> farms;
 
-    Settlement settlement;
+    protected Settlement settlement;
 
-    int lastHarvest;
+    protected int lastHarvest;
 
-    int fertilityAge;
+    protected int fertilityAge;
 
-    int deathAge;
+    protected int deathAge;
 
-    int fertilityEndsAge;
+    protected int fertilityEndsAge;
 
-    double fertility;
+    protected double fertility;
 
     //The last item in cornstocks is unusable, except as a holder for
     //use when aging a years cornstocks.
-    int[] agedCornStocks;
+    protected int[] agedCornStocks;
 
     private Clan clan;
 
@@ -100,8 +107,6 @@ public abstract class HouseholdBase extends Scape {
         Farm farm = new Farm();
         farm.setHousehold(this);
         farms.add(farm);
-        if (farms.size() > 1)
-            System.out.println("Wow");
         return farm;
     }
 
@@ -270,6 +275,8 @@ public abstract class HouseholdBase extends Scape {
         farms.clear();
     }
 
+    public abstract String getStatCollectorSuffix();
+
     public double getEstimatedNutritionAvailable() {
         return farms.stream().mapToDouble(farm -> farm.getLocation().getBaseYield()).sum();
     }
@@ -307,9 +314,6 @@ public abstract class HouseholdBase extends Scape {
                 currentEstimate += best.getBaseYield();
                 //System.out.println(adults+" "+adultCount+", "+getSize()+"-"+currentEstimate);
             } else {
-//                Logger.INSTANCE.log(getScape().getPeriod(), id,
-//                        String.format("[Nutrition Check (Failure): Needed: %d, Estimated: %f, Adults Present: %d, Adults Needed: %d]",
-//                                need, currentEstimate, adults, adultCount));
                 return false;
             }
         }
@@ -372,7 +376,7 @@ public abstract class HouseholdBase extends Scape {
             if (!findFarmsForNutritionalNeed()) {
                 Logger.INSTANCE.log(new HouseholdEvent(getScape().getPeriod(),
                         EventType.MOVE, true, (HouseholdAggregate) this));
-                scape.getData().getStatCollector("Movements").addValue(0.0);
+                getStatCollector("Movements").addValue(0.0);
                 return true;
             } else {
                 Logger.INSTANCE.log(new HouseholdEvent(getScape().getPeriod(),
@@ -403,7 +407,7 @@ public abstract class HouseholdBase extends Scape {
 
     public void depart() {
         die();
-        scape.getData().getStatCollector("Departures").addValue(0.0);
+        getStatCollector("Departures").addValue(0.0);
     }
 
     public void die() {
@@ -455,14 +459,20 @@ public abstract class HouseholdBase extends Scape {
         }
     }
 
+    protected StatCollector getStatCollector(String name) {
+        return scape.getData().getStatCollector(name + getStatCollectorSuffix());
+    }
+
     public void scapeCreated() {
         scape.addInitialRule(FORCE_MOVE_RULE);
+        String suffix = getStatCollectorSuffix();
+
         StatCollector[] stats = new StatCollector[5];
-        stats[0] = new StatCollector("Households");
-        stats[1] = new StatCollector("Movements", false);
-        stats[2] = new StatCollector("Fissions", false);
-        stats[3] = new StatCollector("Departures", false);
-        stats[4] = new StatCollectorCSAMM("Farms Per Household") {
+        stats[0] = new StatCollector("Households" + suffix);
+        stats[1] = new StatCollector("Movements" + suffix, false);
+        stats[2] = new StatCollector("Fissions" + suffix, false);
+        stats[3] = new StatCollector("Departures" + suffix, false);
+        stats[4] = new StatCollectorCSAMM("Farms Per Household" + suffix) {
 
             private static final long serialVersionUID = -3060585396202230071L;
 

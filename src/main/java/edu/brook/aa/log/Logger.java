@@ -37,7 +37,7 @@ public enum Logger {
             decisionWriter.println("@attribute 'total corn stocks' numeric");
 //            decisionWriter.println("@attribute 'est next year corn' numeric");
             decisionWriter.println("@attribute 'fertility' numeric");
-            decisionWriter.println("@attribute 'decision' { DIE, DEPART, MOVE, FISSION, NONE }");
+            decisionWriter.println("@attribute 'decision' { DIE_STARVATION, DIE_OLD_AGE, DEPART, MOVE, FISSION, NONE }");
             decisionWriter.println("@data");
         } catch (FileNotFoundException e) {
             e.printStackTrace();
