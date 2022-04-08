@@ -21,6 +21,7 @@ import java.util.List;
 
 import edu.brook.aa.log.BuildFarmDecision;
 import edu.brook.aa.log.HouseholdEvent;
+import edu.brook.aa.weka.HouseholdAggregateML;
 import org.ascape.model.Agent;
 import org.ascape.model.HistoryValueSetter;
 import org.ascape.model.Scape;
@@ -109,11 +110,11 @@ public class LHV extends Scape {
 
     protected Scape valley;
 
-    protected Scape households;
+    protected Scape households, householdsML;
 
-    protected Scape settlements;
+    protected Scape settlements, settlementsML;
 
-    protected Scape farms;
+    protected Scape farms, farmsML;
 
     protected Scape historicSettlements;
 
@@ -153,9 +154,9 @@ public class LHV extends Scape {
      */
     protected int baseNutritionNeed = 160;
 
-    protected int householdMinNutritionNeed = (int)Math.round(baseNutritionNeed * typicalHouseholdSize * 0.95);
+    protected int householdMinNutritionNeed = (int) Math.round(baseNutritionNeed * typicalHouseholdSize * 0.95);
 
-    protected int householdMaxNutritionNeed = (int)Math.round(baseNutritionNeed * typicalHouseholdSize * 1.05); //baseNutritionNeed * typicalHouseholdSize;
+    protected int householdMaxNutritionNeed = (int) Math.round(baseNutritionNeed * typicalHouseholdSize * 1.05); //baseNutritionNeed * typicalHouseholdSize;
 
     protected int minFertilityAge = 16;//16
 
@@ -357,6 +358,13 @@ public class LHV extends Scape {
         protoHousehold.setMembersActive(false);
         households.setPrototypeAgent(protoHousehold);
 
+        householdsML = new Scape();
+        householdsML.setName("Households ML");
+        add(householdsML);
+        HouseholdAggregateML protoHouseholdML = new HouseholdAggregateML();
+        protoHouseholdML.setMembersActive(false);
+        householdsML.setPrototypeAgent(protoHouseholdML);
+
         /*
          * Create Simulation Settlements
          */
@@ -375,12 +383,31 @@ public class LHV extends Scape {
         add(settlements);
         settlements.setPrototypeAgent(protoSettlement);
 
+        settlementsML = new Scape() {
+
+            private static final long serialVersionUID = 2980206173636571476L;
+
+            public void initialize() {
+                //setExtent(new Coordinate1DDiscrete(0));
+                super.initialize();
+            }
+        };
+        settlementsML.setName("Settlements ML");
+        Settlement protoSettlementML = new Settlement();
+        protoSettlementML.setMembersActive(false);
+        add(settlementsML);
+        settlementsML.setPrototypeAgent(protoSettlementML);
+
         /*
          * Create Farms
          */
         farms = new Scape();
-        settlements.setName("Farms");
+        farms.setName("Farms");
         farms.setPrototypeAgent(new Farm());
+
+        farmsML = new Scape();
+        farmsML.setName("Farms ML");
+        farmsML.setPrototypeAgent(new Farm());
 
         createDrawFeatures();
     }
@@ -420,15 +447,13 @@ public class LHV extends Scape {
                     Location location = (Location) valley.get(locCoordinate);
                     location.setWaterSource(importedSource);
                     waterSources.add(importedSource);
-                } else {
-                    //System.out.println("Bad data; ignored.");
                 }
             }
             int[][] streamLocations = {{72, 5}, {70, 6}, {69, 7}, {68, 8}, {67, 9}, {66, 10}, {65, 11}, {65, 12}};
-            for (int i = 0; i < streamLocations.length; i++) {
+            for (int[] streamLocation : streamLocations) {
                 WaterSource streamSource = new GeneralValleyStreamSource();
                 waterSources.add(streamSource);
-                Location location = (Location) ((Array2D) valley.getSpace()).get(streamLocations[i][0], streamLocations[i][1]);
+                Location location = (Location) ((Array2D) valley.getSpace()).get(streamLocation[0], streamLocation[1]);
                 location.setWaterSource(streamSource);
             }
 
@@ -499,9 +524,9 @@ public class LHV extends Scape {
         try {
             DataInputStream envStream = new DataInputStream(this.getClass().getResourceAsStream("MapData/environment.bin"));
             DataInputStream apdsiStream = new DataInputStream(this.getClass().getResourceAsStream("MapData/adjustedPDSI.bin"));
-            for (int zoneIndex = 0; zoneIndex < historyValues.length; zoneIndex++) {
+            for (HistoryValueSetter[] historyValue : historyValues) {
                 for (int k = 0; k < historyValues[0].length; k++) {
-                    historyValues[zoneIndex][k].setPeriodRange(LHV.EARLIEST_YEAR, LHV.LATEST_YEAR);
+                    historyValue[k].setPeriodRange(LHV.EARLIEST_YEAR, LHV.LATEST_YEAR);
                 }
             }
             for (int period = LHV.EARLIEST_YEAR; period <= LHV.LATEST_YEAR; period++) {
@@ -561,8 +586,6 @@ public class LHV extends Scape {
                         location.addHistoricSettlement(settlement);
                         settlement.setCoordinates(locCoordinate);
                         historicSettlements.add(settlement);
-                    } else {
-                        //System.out.println("Bad data; ignored.");
                     }
                 }
             }
@@ -782,13 +805,13 @@ public class LHV extends Scape {
         }
 
         private Location bestLocation;
-        private List bestList;
+        private Locations bestList;
 
         public void execute(Agent agent) {
             try {
                 //Location currentLocation = (Location) ((YieldZone) agent).getAvailableLocations().getLast();
                 Location currentLocation = null;
-                ArrayList l = ((YieldZone) agent).getAvailableLocations();
+                Locations l = ((YieldZone) agent).getAvailableLocations();
                 if (l.size() > 0) {
                     currentLocation = (Location) (l.get(l.size() - 1));
                 }
@@ -796,7 +819,7 @@ public class LHV extends Scape {
                     bestLocation = currentLocation;
                     bestList = l;
                 }
-            } catch (java.util.NoSuchElementException e) {
+            } catch (java.util.NoSuchElementException ignored) {
             }
         }
 
@@ -804,7 +827,7 @@ public class LHV extends Scape {
             return bestLocation;
         }
 
-        public List getBestList() {
+        public Locations getBestList() {
             return bestList;
         }
 
@@ -824,7 +847,7 @@ public class LHV extends Scape {
         yieldZones.executeOnMembers(finder);
         if ((finder.getBestLocation() != null) && (finder.getBestLocation().getBaseYield() > 0)) {
             //return (Location) finder.getBestList().removeLast();
-            ArrayList l = (ArrayList) finder.getBestList();
+            Locations l = finder.getBestList();
             return (Location) l.remove(l.size() - 1);
         } else {
             return null;
@@ -885,9 +908,7 @@ public class LHV extends Scape {
 
         FillValleyCellFeature maizeZoneFill =
                 new FillValleyCellFeature("Maize Zone", new ColorFeatureConcrete() {
-                    /**
-                     *
-                     */
+
                     private static final long serialVersionUID = -7825780654109831237L;
 
                     public Color getColor(Object o) {
@@ -898,9 +919,7 @@ public class LHV extends Scape {
 
         FillValleyCellFeature yieldZoneFill =
                 new FillValleyCellFeature("Yield Zone", new ColorFeatureConcrete() {
-                    /**
-                     *
-                     */
+
                     private static final long serialVersionUID = -8182575802685007681L;
 
                     public Color getColor(Object o) {
@@ -911,9 +930,7 @@ public class LHV extends Scape {
 
         FillValleyCellFeature hydroFill =
                 new FillValleyCellFeature("Hydrology", new ColorFeatureGradiated(Color.blue, new UnitIntervalDataPoint() {
-                    /**
-                     *
-                     */
+
                     private static final long serialVersionUID = -2268057702246783384L;
 
                     public double getValue(Object object) {
@@ -924,9 +941,7 @@ public class LHV extends Scape {
 
         FillValleyCellFeature apdsiFill =
                 new FillValleyCellFeature("APDSI", new ColorFeatureGradiated(Color.red, new UnitIntervalDataPoint() {
-                    /**
-                     *
-                     */
+
                     private static final long serialVersionUID = 7338600146527039554L;
 
                     public double getValue(Object object) {
@@ -1012,9 +1027,7 @@ public class LHV extends Scape {
 
         final ColorFeatureGradiated historicSettlementSizeColor = new ColorFeatureGradiated("Households");
         historicSettlementSizeColor.setDataPoint(new UnitIntervalDataPoint() {
-            /**
-             *
-             */
+
             private static final long serialVersionUID = 6295840997659754327L;
 
             public double getValue(Object object) {
@@ -1039,9 +1052,7 @@ public class LHV extends Scape {
 
         final ColorFeatureGradiated settlementSizeColor = new ColorFeatureGradiated("Settlements");
         settlementSizeColor.setDataPoint(new UnitIntervalDataPoint() {
-            /**
-             *
-             */
+
             private static final long serialVersionUID = 1044376827552903900L;
 
             public double getValue(Object object) {
@@ -1122,6 +1133,7 @@ public class LHV extends Scape {
         //And add some of the stat series we've just created to it
         chart.addSeries("Sum Historic Households", Color.red);
         chart.addSeries("Count Households (RB)", Color.black);
+        chart.addSeries("Count Households (ML)", Color.blue);
         //chart.addSeries("Sum Historic Household Size", Color.red);
         //chart.addSeries("Sum Household Size", Color.black);
         //chart.addSeries("Count Potential Yield", Color.blue);
@@ -1175,16 +1187,12 @@ chart.addSeries("Count Households in Kinbiko Canyon", Color.pink);*/
 
     }
 
-    /**
-     * @return
-     */
+
     public int getTypicalHouseholdSize() {
         return (typicalHouseholdSize);
     }
 
-    /**
-     * @param typicalHouseholdSize
-     */
+
     public void setTypicalHouseholdSize(int typicalHouseholdSize) {
         this.typicalHouseholdSize = typicalHouseholdSize;
     }

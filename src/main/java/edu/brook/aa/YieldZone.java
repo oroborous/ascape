@@ -111,7 +111,7 @@ public class YieldZone extends Scape {
 
     public void calculateYield() {
         double apdsi = environmentZone.getAPDSI();
-        if (maizeZone == LHV.MAIZE_NO_YIELD) {
+        if ((maizeZone == LHV.MAIZE_NO_YIELD) || (maizeZone == LHV.MAIZE_EMPTY)) {
             yield = 0;
         } else if (maizeZone == LHV.MAIZE_YIELD_1) {
             if (apdsi >= 3.0) {
@@ -161,9 +161,7 @@ public class YieldZone extends Scape {
             } else {
                 yield = 642;
             }
-        } else if ((maizeZone == LHV.MAIZE_NO_YIELD) || (maizeZone == LHV.MAIZE_EMPTY)) {
-            yield = 0;
-        } else {
+        }  else {
             throw new RuntimeException("Bad data or logic in Location#getYield");
         }
         //yield = (int) (yield * getFrostYieldFactor());

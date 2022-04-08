@@ -162,16 +162,16 @@ public abstract class HouseholdBase extends Scape {
             Location farmLocation = ((LHV) getRoot()).removeBestLocation();
 
             if (farmLocation != null) {
-                Location nearestWater = (Location) farmLocation
-                        .findNearest(Location.HAS_WATER, true, Double.MAX_VALUE);
-                double distanceToWater = getDistance(farmLocation, nearestWater);
+//                Location nearestWater = (Location) farmLocation
+//                        .findNearest(Location.HAS_WATER, true, Double.MAX_VALUE);
+//                double distanceToWater = getDistance(farmLocation, nearestWater);
 
                 if (farmLocation.getBaseYield() > 0) {
 
                     if ((farmLocation.getClan() == null) || (farmLocation.getClan() == clan)) {
                         Location nearestWaterInRange = (Location) farmLocation
                                 .findNearest(Location.HAS_WATER, true, maxWaterDistance);
-                        double distanceInRange = getDistance(farmLocation, nearestWaterInRange);
+//                        double distanceInRange = getDistance(farmLocation, nearestWaterInRange);
 
                         if (nearestWaterInRange != null) {
 
@@ -192,25 +192,25 @@ public abstract class HouseholdBase extends Scape {
                             if (!findFarmsForNutritionalNeed()) {
                                 leave();
                                 farmsSearched.add(farmLocation);
-                                Logger.INSTANCE.log(new BuildFarmDecision(getScape().getPeriod(),
-                                        EventType.BUILD_FARM, false,
-                                        (HouseholdAggregate) this,
-                                        farmLocation,
-                                        distanceInRange));
+//                                Logger.INSTANCE.log(new BuildFarmDecision(getScape().getPeriod(),
+//                                        EventType.BUILD_FARM, false,
+//                                        (HouseholdAggregate) this,
+//                                        farmLocation,
+//                                        distanceInRange));
                                 break;
                             } else {
-                                Logger.INSTANCE.log(new BuildFarmDecision(getScape().getPeriod(),
-                                        EventType.BUILD_FARM, true,
-                                        (HouseholdAggregate) this,
-                                        farmLocation,
-                                        distanceInRange));
+//                                Logger.INSTANCE.log(new BuildFarmDecision(getScape().getPeriod(),
+//                                        EventType.BUILD_FARM, true,
+//                                        (HouseholdAggregate) this,
+//                                        farmLocation,
+//                                        distanceInRange));
                             }
                         } else {
-                            Logger.INSTANCE.log(new BuildFarmDecision(getScape().getPeriod(),
-                                    EventType.BUILD_FARM, false,
-                                    (HouseholdAggregate) this,
-                                    farmLocation,
-                                    distanceToWater));
+//                            Logger.INSTANCE.log(new BuildFarmDecision(getScape().getPeriod(),
+//                                    EventType.BUILD_FARM, false,
+//                                    (HouseholdAggregate) this,
+//                                    farmLocation,
+//                                    distanceToWater));
                             //No nearby water location found...
                             farmsSearched.add(farmLocation);
                             //((LHV) getRoot()).farmsSearchedThisYear.addElement(farmLocation);
@@ -222,21 +222,21 @@ public abstract class HouseholdBase extends Scape {
                             //((LHV) getRoot()).farmsSearchedThisYear.addElement(farmLocation);
                         }*/
                     } else {
-                        Logger.INSTANCE.log(new BuildFarmDecision(getScape().getPeriod(),
-                                EventType.BUILD_FARM, false,
-                                (HouseholdAggregate) this,
-                                farmLocation,
-                                distanceToWater));
+//                        Logger.INSTANCE.log(new BuildFarmDecision(getScape().getPeriod(),
+//                                EventType.BUILD_FARM, false,
+//                                (HouseholdAggregate) this,
+//                                farmLocation,
+//                                distanceToWater));
                         //No nearby water location found...
                         farmsSearched.add(farmLocation);
                         //((LHV) getRoot()).farmsSearchedThisYear.addElement(farmLocation);
                     }
                 } else {
-                    Logger.INSTANCE.log(new BuildFarmDecision(getScape().getPeriod(),
-                            EventType.BUILD_FARM, false,
-                            (HouseholdAggregate) this,
-                            farmLocation,
-                            distanceToWater));
+//                    Logger.INSTANCE.log(new BuildFarmDecision(getScape().getPeriod(),
+//                            EventType.BUILD_FARM, false,
+//                            (HouseholdAggregate) this,
+//                            farmLocation,
+//                            distanceToWater));
                     //Yield < need, so give up search...
                     farmsSearched.add(farmLocation);
                     //((LHV) getRoot()).farmsSearchedThisYear.addElement(farmLocation);

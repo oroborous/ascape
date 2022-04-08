@@ -56,10 +56,10 @@ public class HouseholdAggregate extends HouseholdBase {
     public boolean deathCondition() {
         boolean starvation = nutritionNeedRemaining > 0;
         boolean oldAge = age > deathAge;
-        Logger.INSTANCE.log(new HouseholdEvent(getScape().getPeriod(),
-                EventType.DIE_STARVATION, starvation, this));
-        Logger.INSTANCE.log(new HouseholdEvent(getScape().getPeriod(),
-                EventType.DIE_OLD_AGE, oldAge, this));
+//        Logger.INSTANCE.log(new HouseholdEvent(getScape().getPeriod(),
+//                EventType.DIE_STARVATION, starvation, this));
+//        Logger.INSTANCE.log(new HouseholdEvent(getScape().getPeriod(),
+//                EventType.DIE_OLD_AGE, oldAge, this));
 
         if (nutritionNeedRemaining > 0) {
             getStatCollector(DEATHS_STARVATION).addValue(0.0);
@@ -81,8 +81,8 @@ public class HouseholdAggregate extends HouseholdBase {
         double fissionRandom = getRandom().nextDouble();
         boolean isFission = (age > fertilityAge) && (age <= fertilityEndsAge)
                 && (fissionRandom < fertility);
-        Logger.INSTANCE.log(new HouseholdEvent(getScape().getPeriod(),
-                EventType.FISSION, isFission, this, 1 - fissionRandom));
+//        Logger.INSTANCE.log(new HouseholdEvent(getScape().getPeriod(),
+//                EventType.FISSION, isFission, this, 1 - fissionRandom));
         return isFission;
     }
 

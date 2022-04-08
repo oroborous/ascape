@@ -347,6 +347,7 @@ public class StatCollector implements Comparable, DataPoint, Serializable {
     /**
      * Creates a data series for every measure of this statistic collector.
      */
+    // TODO: What the everloving heck is going here??!
     public synchronized void createDataSeries(boolean collectingLongitudinalData) {
         List<DataSeries> tempSeries = new ArrayList<DataSeries>();
         // Vector tempSeries = new Vector();
@@ -357,9 +358,7 @@ public class StatCollector implements Comparable, DataPoint, Serializable {
             DataSeries countSeries;
             if (collectingLongitudinalData) {
                 countSeries = new DataSeriesStore() {
-                    /**
-                     * 
-                     */
+
                     private static final long serialVersionUID = 1L;
 
                     public double getValue() {
@@ -372,9 +371,7 @@ public class StatCollector implements Comparable, DataPoint, Serializable {
                 };
             } else {
                 countSeries = new DataSeries() {
-                    /**
-                     * 
-                     */
+
                     private static final long serialVersionUID = 1L;
 
                     public double getValue() {
@@ -397,9 +394,7 @@ public class StatCollector implements Comparable, DataPoint, Serializable {
             DataSeries minSeries;
             if (collectingLongitudinalData) {
                 minSeries = new DataSeriesStore() {
-                    /**
-                     * 
-                     */
+
                     private static final long serialVersionUID = 1L;
 
                     public double getValue() {
@@ -412,9 +407,7 @@ public class StatCollector implements Comparable, DataPoint, Serializable {
                 };
             } else {
                 minSeries = new DataSeries() {
-                    /**
-                     * 
-                     */
+
                     private static final long serialVersionUID = 1L;
 
                     public double getValue() {
@@ -437,9 +430,7 @@ public class StatCollector implements Comparable, DataPoint, Serializable {
             DataSeries maxSeries;
             if (collectingLongitudinalData) {
                 maxSeries = new DataSeriesStore() {
-                    /**
-                     * 
-                     */
+
                     private static final long serialVersionUID = 1L;
 
                     public double getValue() {
@@ -452,9 +443,7 @@ public class StatCollector implements Comparable, DataPoint, Serializable {
                 };
             } else {
                 maxSeries = new DataSeries() {
-                    /**
-                     * 
-                     */
+
                     private static final long serialVersionUID = 1L;
 
                     public double getValue() {
@@ -477,9 +466,7 @@ public class StatCollector implements Comparable, DataPoint, Serializable {
             DataSeries varianceSeries;
             if (collectingLongitudinalData) {
                 varianceSeries = new DataSeriesStore() {
-                    /**
-                     * 
-                     */
+
                     private static final long serialVersionUID = 1L;
 
                     public double getValue() {
@@ -492,9 +479,7 @@ public class StatCollector implements Comparable, DataPoint, Serializable {
                 };
             } else {
                 varianceSeries = new DataSeries() {
-                    /**
-                     * 
-                     */
+
                     private static final long serialVersionUID = 1L;
 
                     public double getValue() {
@@ -517,9 +502,7 @@ public class StatCollector implements Comparable, DataPoint, Serializable {
             DataSeries stdevSeries;
             if (collectingLongitudinalData) {
                 stdevSeries = new DataSeriesStore() {
-                    /**
-                     * 
-                     */
+
                     private static final long serialVersionUID = 1L;
 
                     public double getValue() {
@@ -532,9 +515,7 @@ public class StatCollector implements Comparable, DataPoint, Serializable {
                 };
             } else {
                 stdevSeries = new DataSeries() {
-                    /**
-                     * 
-                     */
+
                     private static final long serialVersionUID = 1L;
 
                     public double getValue() {
@@ -558,9 +539,7 @@ public class StatCollector implements Comparable, DataPoint, Serializable {
             DataSeries sumSeries;
             if (collectingLongitudinalData) {
                 sumSeries = new DataSeriesStore() {
-                    /**
-                     * 
-                     */
+
                     private static final long serialVersionUID = 1L;
 
                     public double getValue() {
@@ -573,9 +552,7 @@ public class StatCollector implements Comparable, DataPoint, Serializable {
                 };
             } else {
                 sumSeries = new DataSeries() {
-                    /**
-                     * 
-                     */
+
                     private static final long serialVersionUID = 1L;
 
                     public double getValue() {
@@ -598,9 +575,7 @@ public class StatCollector implements Comparable, DataPoint, Serializable {
             DataSeries avgSeries;
             if (collectingLongitudinalData) {
                 avgSeries = new DataSeriesStore() {
-                    /**
-                     * 
-                     */
+
                     private static final long serialVersionUID = 1L;
 
                     public double getValue() {
@@ -613,9 +588,7 @@ public class StatCollector implements Comparable, DataPoint, Serializable {
                 };
             } else {
                 avgSeries = new DataSeries() {
-                    /**
-                     * 
-                     */
+
                     private static final long serialVersionUID = 1L;
 
                     public double getValue() {
