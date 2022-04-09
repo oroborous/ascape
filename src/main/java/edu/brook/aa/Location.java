@@ -21,7 +21,7 @@ import org.ascape.util.data.StatCollectorCondCSA;
 import org.ascape.util.data.StatCollectorCondCSAMM;
 
 
-public class Location extends Cell implements Comparable {
+public class Location extends Cell implements Comparable<Location> {
 
     private static final long serialVersionUID = -748678910819856437L;
 
@@ -76,6 +76,13 @@ public class Location extends Cell implements Comparable {
     private WaterSource waterSource;
 
     private HistoricSettlement[] historicSettlements = new HistoricSettlement[0];
+
+    @Override
+    public int compareTo(Location o) {
+        if (this == o)
+            return 0;
+        return Double.compare(this.quality, o.quality);
+    }
 
 
     public String toString() {
@@ -336,16 +343,6 @@ public class Location extends Cell implements Comparable {
 
     public double getQuality() {
         return quality;
-    }
-
-    public final int compareTo(Object o) {
-        if (quality < ((Location) o).getQuality()) {
-            return -1;
-        } else if (quality > ((Location) o).getQuality()) {
-            return 1;
-        } else {
-            return 0;
-        }
     }
 
     public static org.ascape.model.space.Coordinate2DDiscrete getCoordinateFromMeters(int metersNorth, int metersEast) {

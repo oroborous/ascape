@@ -110,11 +110,11 @@ public class LHV extends Scape {
 
     protected Scape valley;
 
-    protected Scape households, householdsML;
+    protected Scape households;
 
-    protected Scape settlements, settlementsML;
+    protected Scape settlements;
 
-    protected Scape farms, farmsML;
+    protected Scape farms;
 
     protected Scape historicSettlements;
 
@@ -189,7 +189,7 @@ public class LHV extends Scape {
 
     protected int householdMaxInitialCorn = 2400;
 
-    class FillValleyCellFeature extends FillCellFeature {
+    static class FillValleyCellFeature extends FillCellFeature {
 
         private static final long serialVersionUID = 3823585979723128174L;
 
@@ -226,16 +226,6 @@ public class LHV extends Scape {
         valley.setExtent(new Coordinate2DDiscrete(80, 120));
         valley.setAutoCreate(false);
         valley.getRules().clear();
-        /*StatCollector[] stats = new StatCollector[1];
-        stats[0] = new StatCollectorCondCSAMM("Potential Yield") {
-        	public boolean meetsCondition(Object o) {
-        		return (((Location) o).getBaseYield() > 0.0);
-        	}
-        	public double getValue(Object o) {
-        		return ((Location) o).getBaseYield();
-        	}
-        };
-        valley.addStatCollectors(stats);*/
 
         setEarliestPeriod(EARLIEST_YEAR);
         setLatestPeriod(LATEST_YEAR);
@@ -292,7 +282,7 @@ public class LHV extends Scape {
         yieldZones.add(YIELD_UPLANDS_ARABLE);
         yieldZones.add(YIELD_KINBIKO_CANYON);
         yieldZones.setAutoCreate(false);
-        //We sort all at once to avoid sorting penalites per addition
+        //We sort all at once to avoid sorting penalties per addition
         yieldZones.addInitialRule(new Rule("Sort Available Locations") {
             private static final long serialVersionUID = 8923085455603538447L;
 
@@ -358,12 +348,6 @@ public class LHV extends Scape {
         protoHousehold.setMembersActive(false);
         households.setPrototypeAgent(protoHousehold);
 
-        householdsML = new Scape();
-        householdsML.setName("Households ML");
-        add(householdsML);
-        HouseholdAggregateML protoHouseholdML = new HouseholdAggregateML();
-        protoHouseholdML.setMembersActive(false);
-        householdsML.setPrototypeAgent(protoHouseholdML);
 
         /*
          * Create Simulation Settlements
@@ -373,7 +357,6 @@ public class LHV extends Scape {
             private static final long serialVersionUID = 2980206173636571476L;
 
             public void initialize() {
-                //setExtent(new Coordinate1DDiscrete(0));
                 super.initialize();
             }
         };
@@ -383,31 +366,12 @@ public class LHV extends Scape {
         add(settlements);
         settlements.setPrototypeAgent(protoSettlement);
 
-        settlementsML = new Scape() {
-
-            private static final long serialVersionUID = 2980206173636571476L;
-
-            public void initialize() {
-                //setExtent(new Coordinate1DDiscrete(0));
-                super.initialize();
-            }
-        };
-        settlementsML.setName("Settlements ML");
-        Settlement protoSettlementML = new Settlement();
-        protoSettlementML.setMembersActive(false);
-        add(settlementsML);
-        settlementsML.setPrototypeAgent(protoSettlementML);
-
         /*
          * Create Farms
          */
         farms = new Scape();
         farms.setName("Farms");
         farms.setPrototypeAgent(new Farm());
-
-        farmsML = new Scape();
-        farmsML.setName("Farms ML");
-        farmsML.setPrototypeAgent(new Farm());
 
         createDrawFeatures();
     }
@@ -606,96 +570,48 @@ public class LHV extends Scape {
         return harvestAdjustment;
     }
 
-    public void setHarvestAdjustment(double harvestAdjustment) {
-        this.harvestAdjustment = harvestAdjustment;
-    }
-
     public double getHarvestVarianceYear() {
         return harvestVarianceYear;
-    }
-
-    public void setHarvestVarianceYear(double harvestVarianceYear) {
-        this.harvestVarianceYear = harvestVarianceYear;
     }
 
     public double getHarvestVarianceLocation() {
         return harvestVarianceLocation;
     }
 
-    public void setHarvestVarianceLocation(double harvestVarianceLocation) {
-        this.harvestVarianceLocation = harvestVarianceLocation;
-    }
-
     public int getBaseNutritionNeed() {
         return baseNutritionNeed;
-    }
-
-    public void setBaseNutritionNeed(int baseNutritionNeed) {
-        this.baseNutritionNeed = baseNutritionNeed;
     }
 
     public int getHouseholdMinNutritionNeed() {
         return householdMinNutritionNeed;
     }
 
-    public void setHouseholdMinNutritionNeed(int householdMinNutritionNeed) {
-        this.householdMinNutritionNeed = householdMinNutritionNeed;
-    }
-
     public int getHouseholdMaxNutritionNeed() {
         return householdMaxNutritionNeed;
-    }
-
-    public void setHouseholdMaxNutritionNeed(int householdMaxNutritionNeed) {
-        this.householdMaxNutritionNeed = householdMaxNutritionNeed;
     }
 
     public int getMinFertilityAge() {
         return minFertilityAge;
     }
 
-    public void setMinFertilityAge(int minFertilityAge) {
-        this.minFertilityAge = minFertilityAge;
-    }
-
     public int getMaxFertilityAge() {
         return maxFertilityAge;
-    }
-
-    public void setMaxFertilityAge(int maxFertilityAge) {
-        this.maxFertilityAge = maxFertilityAge;
     }
 
     public int getMinFertilityEndsAge() {
         return minFertilityEndsAge;
     }
 
-    public void setMinFertilityEndsAge(int minFertilityEndsAge) {
-        this.minFertilityEndsAge = minFertilityEndsAge;
-    }
-
     public int getMaxFertilityEndsAge() {
         return maxFertilityEndsAge;
-    }
-
-    public void setMaxFertilityEndsAge(int maxFertilityEndsAge) {
-        this.maxFertilityEndsAge = maxFertilityEndsAge;
     }
 
     public int getMinDeathAge() {
         return minDeathAge;
     }
 
-    public void setMinDeathAge(int minDeathAge) {
-        this.minDeathAge = minDeathAge;
-    }
-
     public int getMaxDeathAge() {
         return maxDeathAge;
-    }
-
-    public void setMaxDeathAge(int maxDeathAge) {
-        this.maxDeathAge = maxDeathAge;
     }
 
     public double getMinFertility() {
@@ -710,64 +626,32 @@ public class LHV extends Scape {
         return maxFertility;
     }
 
-    public void setMaxFertility(double maxFertility) {
-        this.maxFertility = maxFertility;
-    }
-
     public double getMaizeGiftToChild() {
         return maizeGiftToChild;
-    }
-
-    public void setMaizeGiftToChild(double maizeGiftToChild) {
-        this.maizeGiftToChild = maizeGiftToChild;
     }
 
     public double getWaterSourceDistance() {
         return waterSourceDistance;
     }
 
-    public void setWaterSourceDistance(double waterSourceDistance) {
-        this.waterSourceDistance = waterSourceDistance;
-    }
-
     public int getYearsOfStock() {
         return yearsOfStock;
-    }
-
-    public void setYearsOfStock(int yearsOfStock) {
-        this.yearsOfStock = yearsOfStock;
     }
 
     public int getHouseholdMinInitialAge() {
         return householdMinInitialAge;
     }
 
-    public void setHouseholdMinInitialAge(int householdMinInitialAge) {
-        this.householdMinInitialAge = householdMinInitialAge;
-    }
-
     public int getHouseholdMaxInitialAge() {
         return householdMaxInitialAge;
-    }
-
-    public void setHouseholdMaxInitialAge(int householdMaxInitialAge) {
-        this.householdMaxInitialAge = householdMaxInitialAge;
     }
 
     public int getHouseholdMinInitialCorn() {
         return householdMinInitialCorn;
     }
 
-    public void setHouseholdMinInitialCorn(int householdMinInitialCorn) {
-        this.householdMinInitialCorn = householdMinInitialCorn;
-    }
-
     public int getHouseholdMaxInitialCorn() {
         return householdMaxInitialCorn;
-    }
-
-    public void setHouseholdMaxInitialCorn(int householdMaxInitialCorn) {
-        this.householdMaxInitialCorn = householdMaxInitialCorn;
     }
 
     public Scape getHouseholds() {
@@ -809,7 +693,6 @@ public class LHV extends Scape {
 
         public void execute(Agent agent) {
             try {
-                //Location currentLocation = (Location) ((YieldZone) agent).getAvailableLocations().getLast();
                 Location currentLocation = null;
                 Locations l = ((YieldZone) agent).getAvailableLocations();
                 if (l.size() > 0) {
@@ -860,14 +743,14 @@ public class LHV extends Scape {
                 ((date >= 1300) && (date < 1450)));
     }
 
-    public static boolean isAlluviumExists(int date) {
+    private static boolean isAlluviumExists(int date) {
         return (((date >= 420) && (date < 560)) ||
                 ((date >= 630) && (date < 680)) ||
                 ((date >= 980) && (date < 1120)) ||
                 ((date >= 1180) && (date < 1230)));
     }
 
-    public static boolean isWaterSource(EnvironmentZone zone, int date) {
+    private static boolean isWaterSource(EnvironmentZone zone, int date) {
         if ((isAlluviumExists(date)) && ((zone == ENVIRON_GENERAL_VALLEY) || (zone == ENVIRON_NORTH_VALLEY) || (zone == ENVIRON_MID_VALLEY) || (zone == ENVIRON_KINBIKO_CANYON))) {
             return true;
         }
@@ -877,17 +760,10 @@ public class LHV extends Scape {
         return false;
     }
 
-    //public Vector farmsSearchedThisYear = new Vector();
 
     public boolean farmSitesAvailable = true;
 
     public void scapeIterated(ScapeEvent event) {
-        /*Enumeration e = farmsSearchedThisYear.elements();
-        while(e.hasMoreElements()) {
-            Location unusedLocation = (Location) e.nextElement();
-            unusedLocation.getYieldZone().getAvailableLocations().add(unusedLocation);
-        }
-        farmsSearchedThisYear = new Vector();*/
         farmSitesAvailable = true;
         super.scapeIterated(event);
     }
@@ -895,9 +771,7 @@ public class LHV extends Scape {
     public void createDrawFeatures() {
         FillValleyCellFeature zoneFill =
                 new FillValleyCellFeature("Environment Zone", new ColorFeatureConcrete() {
-                    /**
-                     *
-                     */
+
                     private static final long serialVersionUID = 8060365487620083420L;
 
                     public Color getColor(Object o) {
@@ -952,9 +826,7 @@ public class LHV extends Scape {
 
         FillValleyCellFeature yieldFill =
                 new FillValleyCellFeature("Plot Yield", new ColorFeatureGradiated(Color.orange, new UnitIntervalDataPoint() {
-                    /**
-                     *
-                     */
+
                     private static final long serialVersionUID = -5294758012864949871L;
 
                     public double getValue(Object object) {
@@ -965,9 +837,7 @@ public class LHV extends Scape {
 
         FillValleyCellFeature zoneYieldFill =
                 new FillValleyCellFeature("Zone Yield", new ColorFeatureGradiated(Color.orange, new UnitIntervalDataPoint() {
-                    /**
-                     *
-                     */
+
                     private static final long serialVersionUID = 322526470426236151L;
 
                     public double getValue(Object object) {
@@ -1001,16 +871,6 @@ public class LHV extends Scape {
             }
         };
         valley.addDrawFeature(drawFarmFeature);
-
-        /*DrawFeature drawMaxFeature = new DrawFeature("Best Yield") {
-            public void draw(Graphics g, Object object, int width, int height) {
-                if (object == (((Location) object).getYieldZone().getAvailableLocations().getLast())) {
-                    g.setColor(Color.red);
-                    DrawSymbol.DRAW_RECT.draw(g, width, height);
-                }
-            }
-        };
-        valley.addDrawFeature(drawMaxFeature);*/
 
         DrawFeature sandDuneFeature = new DrawFeature("Sand Dunes") {
 
@@ -1091,6 +951,7 @@ public class LHV extends Scape {
             }
         };
         valley.addDrawFeature(simSettlementTierFeature);
+
         DrawFeature histSettlementTierFeature = new DrawFeature("Historical Settlement Tier") {
 
             private static final long serialVersionUID = 8151081684304662162L;
@@ -1125,7 +986,6 @@ public class LHV extends Scape {
 
     public void createViews() {
         super.createViews();
-        //valley.setCellsRequestUpdates(true);
         //Create a new chart
         ChartView chart = new ChartView();
         //Add it to the agents view, just like any other view
@@ -1184,16 +1044,7 @@ chart.addSeries("Count Households in Kinbiko Canyon", Color.pink);*/
         views[1].getDrawSelection().setSelected("Farms", true);
         views[1].getDrawSelection().setSelected("Historical Settlement Tier", true);
         views[1].getDrawSelection().setSelected("Water Sources", true);
-
     }
 
 
-    public int getTypicalHouseholdSize() {
-        return (typicalHouseholdSize);
-    }
-
-
-    public void setTypicalHouseholdSize(int typicalHouseholdSize) {
-        this.typicalHouseholdSize = typicalHouseholdSize;
-    }
 }
