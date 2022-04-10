@@ -221,12 +221,28 @@ public class LHVMachineLearning extends Scape {
         valley.setPrototypeAgent(new Location());
         valley.setExtent(new Coordinate2DDiscrete(80, 120));
         valley.getRules().clear();
+        valley.setAutoCreate(false);
+
+        /*
+         * Create water sources
+         */
+        waterSources = new Scape();
+        add(waterSources);
+        waterSources.setName("Water Sources");
+        waterSources.setPrototypeAgent(new WaterSource());
+        waterSources.setAutoCreate(false);
+        waterSources.getRules().clear();
 
         /*
          * Create Yield Zones
          */
         yieldZones = new YieldZones();
         add(yieldZones);
+
+        valley.createScape();
+
+        DataImporter.importMap(valley, yieldZones);
+        DataImporter.importWaterSources(waterSources, valley);
 
         /*
          * Create Households
@@ -254,16 +270,6 @@ public class LHVMachineLearning extends Scape {
         farms.setName("Farms");
         farms.setPrototypeAgent(new Farm());
 
-        /*
-         * Create water sources
-         */
-        waterSources = new Scape();
-        add(waterSources);
-        waterSources.setName("Water Sources");
-        waterSources.setPrototypeAgent(new WaterSource());
-        waterSources.setAutoCreate(false);
-        waterSources.getRules().clear();
-
         createDrawFeatures();
     }
 
@@ -279,16 +285,6 @@ public class LHVMachineLearning extends Scape {
         views[0].getDrawSelection().setSelected("Farms", true);
         views[0].getDrawSelection().setSelected("Simulation Settlement Tier", true);
         views[0].getDrawSelection().setSelected("Water Sources", true);
-    }
-
-    public Scape getValley() {
-        return valley;
-    }
-
-    public void initialize() {
-        farmSitesAvailable = true;
-        DataImporter.importMap(valley, yieldZones);
-        DataImporter.importWaterSources(waterSources, valley);
     }
 
     public Location removeBestLocation() {
