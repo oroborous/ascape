@@ -13,69 +13,16 @@ import org.ascape.util.data.StatCollector;
 
 public class Person extends Cell {
 
-    private static final long serialVersionUID = 2643326983426692833L;
-
     public final static boolean FEMALE = true;
-
     public final static boolean MALE = false;
-
+    private static final long serialVersionUID = 2643326983426692833L;
+    public FindMateRule findMate = new FindMateRule(this);
     protected int age;
-
     protected boolean sex;
-
     protected boolean headOfHousehold;
-
     protected Person mate;
-
     protected HouseholdDisaggregate household;
-
     private int nutritionNeedRemaining;
-
-    public void initialize() {
-        super.initialize();
-        age = randomInRange(((LHVDisaggregate) getRoot()).getPersonMinInitialAge(), ((LHVDisaggregate) getRoot()).getPersonMaxInitialAge());
-        sex = randomIs();
-        household = null;
-        mate = null;
-        headOfHousehold = false;
-        nutritionNeedRemaining = 0;
-        //((LHVDisaggregate) getRoot()).getPeople().add(this);
-    }
-
-    public int getNutritionNeed() {
-        if (age > ((LHVDisaggregate) getRoot()).getMinFertilityAge()) {
-            return ((LHVDisaggregate) getRoot()).getBaseNutritionNeed();
-        } else {
-            return (int) ((float) ((LHVDisaggregate) getRoot()).getBaseNutritionNeed() * (.2 + (.8 * ((float) age / (float) ((LHVDisaggregate) getRoot()).getMinFertilityAge()))));
-        }
-    }
-
-    public void metabolism() {
-        if (!household.contains(this)) {
-            throw new RuntimeException("Internal Error: Agent not in household");
-        }
-        super.metabolism();
-        age++;
-        //Deplete current inventory of nutrition need
-        //nutritionNeedRemaining = consumeCorn(getNutritionNeed());
-    }
-
-    public void leave() {
-        if ((household != null) && (!household.remove(this))) {
-            throw new RuntimeException("Internal Error: Agent Couldn't be deleted");
-        }
-        household = null;
-    }
-
-    public void die() {
-        scape.getData().getStatCollector("Deaths").addValue(0.0);
-        if (mate != null) {
-            mate.setMate(null);
-            setMate(null);
-        }
-        leave();
-        super.die();
-    }
 
     public boolean deathCondition() {
         if (nutritionNeedRemaining > 0) {
@@ -121,6 +68,16 @@ public class Person extends Cell {
         //return ((age > ((LHV) getRoot()).getHouseholdDeathAge()) || (nutritionNeedRemaining > 0));
     }
 
+    public void die() {
+        scape.getData().getStatCollector("Deaths").addValue(0.0);
+        if (mate != null) {
+            mate.setMate(null);
+            setMate(null);
+        }
+        leave();
+        super.die();
+    }
+
     public void fission() {
         Person child = new PersonClan();
         scape.add(child);
@@ -137,7 +94,7 @@ public class Person extends Cell {
     public boolean fissionCondition() {
         //The table below is based on data Alan Sweedlund developed for female births per woman, hence we double the chance
         if ((mate != null) && (sex == FEMALE)) {
-            if (age < ((LHVDisaggregate) getRoot()).getMinFertilityAge()) {
+            if (age < LHV.minFertilityAge) {
                 return false;
             } else if (age < 20) {
                 if (getRandom().nextFloat() < .047 * 2.0) {
@@ -172,13 +129,6 @@ public class Person extends Cell {
         }
     }
 
-    public FindMateRule findMate = new FindMateRule(this);
-
-    public boolean householdCondition() {
-        //mtp 8/19/00 note change, once head of household you never form a new household
-        return ((mate == null) && (!headOfHousehold) && (sex != MALE) && (age > ((LHV) getRoot()).getMinFertilityAge()));
-    }
-
     public void formHousehold() {
         findMate.clear();
         scape.executeOnMembers(findMate);
@@ -188,57 +138,13 @@ public class Person extends Cell {
             mate.setMate(this);
             scape.getData().getStatCollector("Households Formed").addValue(0.0);
             HouseholdDisaggregate newHousehold = new HouseholdDisaggregate();
-            ((LHVDisaggregate) getRoot()).getHouseholds().add(newHousehold);
+            ((LHVDisaggregate) getRoot()).addHousehold(newHousehold);
             newHousehold.initialize();
             this.setHousehold(newHousehold);
             mate.setHousehold(newHousehold);
             oldHousehold.giveMaizeGift(newHousehold);
             newHousehold.move();
         }
-    }
-
-    public void householdFormation() {
-        if (householdCondition()) {
-            formHousehold();
-        }
-    }
-
-    public void scapeCreated() {
-        super.scapeCreated();
-
-        StatCollector[] stats = new StatCollector[4];
-        stats[0] = new StatCollector("Deaths", false);
-        stats[1] = new StatCollector("Deaths Starvation", false);
-        stats[2] = new StatCollector("Deaths Old Age", false);
-        stats[3] = new StatCollector("Births", false);
-        scape.addStatCollectors(stats);
-    }
-
-    public Person getMate() {
-        return mate;
-    }
-
-    public void setMate(Person mate) {
-        if (mate != null) {
-            headOfHousehold = true;
-        }
-        this.mate = mate;
-    }
-
-    public boolean getSex() {
-        return sex;
-    }
-
-    public String getSexName() {
-        if (sex == FEMALE) {
-            return "Female";
-        } else {
-            return "Male";
-        }
-    }
-
-    public void setSex(boolean sex) {
-        this.sex = sex;
     }
 
     public int getAge() {
@@ -263,6 +169,94 @@ public class Person extends Cell {
         leave();
         this.household = household;
         household.add(this, false);
+    }
+
+    public Person getMate() {
+        return mate;
+    }
+
+    public void setMate(Person mate) {
+        if (mate != null) {
+            headOfHousehold = true;
+        }
+        this.mate = mate;
+    }
+
+    public int getNutritionNeed() {
+        if (age > LHV.minFertilityAge) {
+            return LHV.baseNutritionNeed;
+        } else {
+            return (int) (LHV.baseNutritionNeed * (.2 + (.8 * ((float) age / LHV.minFertilityAge))));
+        }
+    }
+
+    public boolean getSex() {
+        return sex;
+    }
+
+    public void setSex(boolean sex) {
+        this.sex = sex;
+    }
+
+    public String getSexName() {
+        if (sex == FEMALE) {
+            return "Female";
+        } else {
+            return "Male";
+        }
+    }
+
+    public boolean householdCondition() {
+        //mtp 8/19/00 note change, once head of household you never form a new household
+        return ((mate == null) &&
+                (!headOfHousehold) &&
+                (sex != MALE) &&
+                (age > LHV.minFertilityAge));
+    }
+
+    public void householdFormation() {
+        if (householdCondition()) {
+            formHousehold();
+        }
+    }
+
+    public void initialize() {
+        super.initialize();
+        age = randomInRange(((LHVDisaggregate) getRoot()).getPersonMinInitialAge(), ((LHVDisaggregate) getRoot()).getPersonMaxInitialAge());
+        sex = randomIs();
+        household = null;
+        mate = null;
+        headOfHousehold = false;
+        nutritionNeedRemaining = 0;
+        //((LHVDisaggregate) getRoot()).getPeople().add(this);
+    }
+
+    public void leave() {
+        if ((household != null) && (!household.remove(this))) {
+            throw new RuntimeException("Internal Error: Agent Couldn't be deleted");
+        }
+        household = null;
+    }
+
+    public void metabolism() {
+        if (!household.contains(this)) {
+            throw new RuntimeException("Internal Error: Agent not in household");
+        }
+        super.metabolism();
+        age++;
+        //Deplete current inventory of nutrition need
+        //nutritionNeedRemaining = consumeCorn(getNutritionNeed());
+    }
+
+    public void scapeCreated() {
+        super.scapeCreated();
+
+        StatCollector[] stats = new StatCollector[4];
+        stats[0] = new StatCollector("Deaths", false);
+        stats[1] = new StatCollector("Deaths Starvation", false);
+        stats[2] = new StatCollector("Deaths Old Age", false);
+        stats[3] = new StatCollector("Births", false);
+        scape.addStatCollectors(stats);
     }
 
     /**

@@ -23,7 +23,7 @@ public class PersonClan extends Person {
             //System.out.println("A " + this.toInnerString() + " marries a " + mate.toInnerString());
             scape.getData().getStatCollector("Households Formed").addValue(0.0);
             HouseholdDisaggregate newHousehold = new HouseholdDisaggregate();
-            ((LHVDisaggregate) getRoot()).getHouseholds().add(newHousehold);
+            ((LHVDisaggregate) getRoot()).addHousehold(newHousehold);
             newHousehold.initialize();
             //System.out.println(oldHousehold.getClan());
             newHousehold.setClan(oldHousehold.getClan());

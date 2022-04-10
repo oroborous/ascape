@@ -10,6 +10,9 @@ import org.ascape.util.data.StatCollectorCSAMM;
 
 public class HouseholdAggregateML extends HouseholdBase {
 
+    private static final long serialVersionUID = 5091800912116536871L;
+    private int age;
+    private int nutritionNeed;
     public final Rule DECISION_TREE_RULE = new Rule("Obey Decision Tree") {
         private static final long serialVersionUID = 1L;
 
@@ -48,37 +51,15 @@ public class HouseholdAggregateML extends HouseholdBase {
             }
         }
 
-        public boolean isRandomExecution() {
-            return false;
-        }
-
         public boolean isCauseRemoval() {
             return true;
         }
+
+        public boolean isRandomExecution() {
+            return false;
+        }
     };
-
-    private static final long serialVersionUID = 5091800912116536871L;
-
-    private int age;
-
-    private int nutritionNeed;
-
     private int nutritionNeedRemaining;
-
-    public void initialize() {
-        super.initialize();
-        setMembersActive(false);
-
-        LHV lhv = (LHV) getRoot();
-        age = randomInRange(lhv.getHouseholdMinInitialAge(), lhv.getHouseholdMaxInitialAge());
-        nutritionNeed = randomInRange(lhv.getHouseholdMinNutritionNeed(), lhv.getHouseholdMaxNutritionNeed());
-    }
-
-    public void metabolism() {
-        super.metabolism();
-        age++;
-        nutritionNeedRemaining = consumeCorn(nutritionNeed);
-    }
 
     public void fission() {
         HouseholdAggregateML child = new HouseholdAggregateML();//(Household) this.clone();
@@ -94,13 +75,16 @@ public class HouseholdAggregateML extends HouseholdBase {
         //System.out.println(child.age);
     }
 
-
     public int getAge() {
         return age;
     }
 
     public void setAge(int age) {
         this.age = age;
+    }
+
+    public int getNumAdults() {
+        return 1;
     }
 
     public int getNutritionNeed() {
@@ -112,8 +96,18 @@ public class HouseholdAggregateML extends HouseholdBase {
         return " (ML)";
     }
 
-    public int getNumAdults() {
-        return 1;
+    public void initialize() {
+        super.initialize();
+        setMembersActive(false);
+
+        age = randomInRange(LHV.householdMinInitialAge, LHV.householdMaxInitialAge);
+        nutritionNeed = randomInRange(LHV.householdMinNutritionNeed, LHV.householdMaxNutritionNeed);
+    }
+
+    public void metabolism() {
+        super.metabolism();
+        age++;
+        nutritionNeedRemaining = consumeCorn(nutritionNeed);
     }
 
     public void scapeCreated() {

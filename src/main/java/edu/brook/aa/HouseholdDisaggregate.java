@@ -20,15 +20,17 @@ import org.ascape.util.data.StatCollectorCond;
 public class HouseholdDisaggregate extends HouseholdBase {
 
     private static final long serialVersionUID = 479643522137191595L;
+    private final static StatCollectorCSA[] calculateNutritionNeed = {new StatCollectorCSA() {
+        /**
+         *
+         */
+        private static final long serialVersionUID = -129288260390992758L;
 
-    public void initialize() {
-        setAutoCreate(false);
-        clear();
-        super.initialize();
-        //members = new Scape();
-        //setPrototypeAgent(new Person());
-        //setExtent(new Coordinate1DDiscrete(((LHV) getRoot()).getTypicalHouseholdSize()));
-    }
+        public double getValue(Object object) {
+            return ((Person) object).getNutritionNeed();
+        }
+    }};
+    private final static CollectStats collectNutritionNeed = new CollectStats(calculateNutritionNeed);
 
     public void createScape() {
         setClan(Clan.randomClan(this));
@@ -42,13 +44,13 @@ public class HouseholdDisaggregate extends HouseholdBase {
         ((LHVDisaggregate) getRoot()).getPeople().add(mom);
         mom.initialize();
         mom.setHousehold(this);
-        mom.setAge(randomInRange(((LHV) getRoot()).getMinFertilityAge(), ((LHV) getRoot()).getMinDeathAge()));
+        mom.setAge(randomInRange(LHV.minFertilityAge, LHV.minDeathAge));
         mom.setSex(Person.FEMALE);
         PersonClan dad = new PersonClan();
         ((LHVDisaggregate) getRoot()).getPeople().add(dad);
         dad.initialize();
         dad.setHousehold(this);
-        dad.setAge(randomInRange(((LHV) getRoot()).getMinFertilityAge(), ((LHV) getRoot()).getMinDeathAge()));
+        dad.setAge(randomInRange(LHV.minFertilityAge, LHV.minDeathAge));
         dad.setSex(Person.MALE);
         dad.setMate(mom);
         mom.setMate(dad);
@@ -57,19 +59,7 @@ public class HouseholdDisaggregate extends HouseholdBase {
             ((LHVDisaggregate) getRoot()).getPeople().add(child);
             child.initialize();
             child.setHousehold(this);
-            child.setAge(randomInRange(0, ((LHV) getRoot()).getMinFertilityAge()));
-        }
-    }
-
-    public boolean remove(Agent agent) {
-        if (super.remove(agent)) {
-            //We don't want to call die if allready called
-            if ((this.getSize() == 0) && (!isDelete())) {
-                die();
-            }
-            return true;
-        } else {
-            return false;
+            child.setAge(randomInRange(0, LHV.minFertilityAge));
         }
     }
 
@@ -82,27 +72,8 @@ public class HouseholdDisaggregate extends HouseholdBase {
         //only occurs once
         if (!isDelete()) {
             super.die();
-            getStatCollector(HOUSEHOLDS_DISBANDED ).addValue(0.0);
+            getStatCollector(HOUSEHOLDS_DISBANDED).addValue(0.0);
         }
-    }
-
-    private final static StatCollectorCSA[] calculateNutritionNeed = {new StatCollectorCSA() {
-        /**
-         *
-         */
-        private static final long serialVersionUID = -129288260390992758L;
-
-        public double getValue(Object object) {
-            return ((Person) object).getNutritionNeed();
-        }
-    }};
-
-    private final static CollectStats collectNutritionNeed = new CollectStats(calculateNutritionNeed);
-
-    public int getNutritionNeed() {
-        collectNutritionNeed.clear();
-        executeOnMembers(collectNutritionNeed);
-        return (int) calculateNutritionNeed[0].getSum();
     }
 
     public int getNumAdults() {
@@ -119,6 +90,38 @@ public class HouseholdDisaggregate extends HouseholdBase {
 	        System.out.println();
         }
         return (int) calculateAdults[0].getCount();*/
+    }
+
+    public int getNutritionNeed() {
+        collectNutritionNeed.clear();
+        executeOnMembers(collectNutritionNeed);
+        return (int) calculateNutritionNeed[0].getSum();
+    }
+
+    @Override
+    public String getStatCollectorSuffix() {
+        return " (RB)";
+    }
+
+    public void initialize() {
+        setAutoCreate(false);
+        clear();
+        super.initialize();
+        //members = new Scape();
+        //setPrototypeAgent(new Person());
+        //setExtent(new Coordinate1DDiscrete(((LHV) getRoot()).getTypicalHouseholdSize()));
+    }
+
+    public boolean remove(Agent agent) {
+        if (super.remove(agent)) {
+            //We don't want to call die if already called
+            if ((this.getSize() == 0) && (!isDelete())) {
+                die();
+            }
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public void scapeCreated() {
@@ -146,11 +149,6 @@ public class HouseholdDisaggregate extends HouseholdBase {
             clanStats[i] = new ClanStat(Clan.clans[i]);
         }
         scape.addStatCollectors(clanStats);
-    }
-
-    @Override
-    public String getStatCollectorSuffix() {
-        return " (RB)";
     }
 }
 

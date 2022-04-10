@@ -10,9 +10,9 @@ package edu.brook.aa;
 //Temporary for JDK 1.1 compatibility
 //import com.sun.java.util.collections.*;
 
-import java.awt.Color;
-
 import org.ascape.view.vis.ChartView;
+
+import java.awt.*;
 
 
 /**
@@ -38,7 +38,7 @@ public class LHVClan extends LHVDisaggregate {
 
     public void createViews() {
         ChartView chart = new ChartView();
-        valley.addView(chart);
+//        valley.addView(chart);
         //And add some of the stat series we've just created to it
         chart.addSeries("Count Orange Clan", Color.orange);
         chart.addSeries("Count Red Clan", Color.red);

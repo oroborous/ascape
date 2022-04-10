@@ -13,15 +13,6 @@ import java.io.InputStream;
 import static edu.brook.aa.LHV.*;
 
 public class DataImporter {
-    static class GeneralValleyStreamSource extends WaterSource {
-
-        private static final long serialVersionUID = -3153973451588490393L;
-
-        public boolean isExtant() {
-            return isStreamsExist(getScape().getPeriod());
-        }
-    }
-
     private static boolean isStreamsExist(int date) {
         return (((date >= 280) && (date < 360)) ||
                 ((date >= 800) && (date < 930)) ||
@@ -50,7 +41,7 @@ public class DataImporter {
     /**
      * Import map and water sources from binary data files.
      */
-    public static void importMap(Scape valley) {
+    public static void importMap(Scape valley, YieldZones yieldZones) {
         try (InputStream fs = DataImporter.class.getResourceAsStream("MapData/map.bin")) {
             assert fs != null;
             try (DataInputStream ds = new DataInputStream(fs)) {
@@ -58,19 +49,17 @@ public class DataImporter {
                     for (int y = 0; y < 120; y++) {
                         Location location = (Location) ((Array2D) valley.getSpace()).get(x, y);
                         location.streamToState(ds);
+                        location.setYieldZone(yieldZones);
                     }
                 }
             }
         } catch (IOException ex) {
             throw new RuntimeException("IO exception while importing data " + ex);
         }
+    }
 
-        Scape waterSources = new Scape();
-        waterSources.setName("Water Sources");
-        waterSources.setPrototypeAgent(new WaterSource());
-        waterSources.setAutoCreate(false);
-        valley.add(waterSources);
-        waterSources.getRules().clear();
+    public static void importWaterSources(Scape waterSources, Scape valley) {
+
 
         try (InputStream fws = DataImporter.class.getResourceAsStream("MapData/water.bin")) {
             assert fws != null;
@@ -98,7 +87,6 @@ public class DataImporter {
             Location location = (Location) ((Array2D) valley.getSpace()).get(streamLocation[0], streamLocation[1]);
             location.setWaterSource(streamSource);
         }
-
     }
 
     public static void importEnvironmentalHistory(Scape environmentZones) {
@@ -229,6 +217,15 @@ public class DataImporter {
             }
         } catch (IOException e) {
             throw new RuntimeException("IO exception while importing data " + e);
+        }
+    }
+
+    static class GeneralValleyStreamSource extends WaterSource {
+
+        private static final long serialVersionUID = -3153973451588490393L;
+
+        public boolean isExtant() {
+            return isStreamsExist(getScape().getPeriod());
         }
     }
 }

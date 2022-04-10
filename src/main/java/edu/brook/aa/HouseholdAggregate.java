@@ -8,9 +8,6 @@
 package edu.brook.aa;
 
 
-import edu.brook.aa.log.EventType;
-import edu.brook.aa.log.HouseholdEvent;
-import edu.brook.aa.log.Logger;
 import org.ascape.util.data.StatCollector;
 import org.ascape.util.data.StatCollectorCSAMM;
 
@@ -23,35 +20,6 @@ public class HouseholdAggregate extends HouseholdBase {
     private int nutritionNeed;
 
     private int nutritionNeedRemaining;
-
-    public void initialize() {
-        super.initialize();
-        setMembersActive(false);
-
-        LHV lhv = (LHV) getRoot();
-        age = randomInRange(lhv.getHouseholdMinInitialAge(), lhv.getHouseholdMaxInitialAge());
-        nutritionNeed = randomInRange(lhv.getHouseholdMinNutritionNeed(), lhv.getHouseholdMaxNutritionNeed());
-    }
-
-    public void metabolism() {
-        super.metabolism();
-        age++;
-        nutritionNeedRemaining = consumeCorn(nutritionNeed);
-    }
-
-    public void fission() {
-        HouseholdAggregate child = new HouseholdAggregate();//(Household) this.clone();
-        scape.add(child);
-        child.initialize();
-        child.age = 0;
-        giveMaizeGift(child);
-        child.move();
-        //if ((child.farm.getLocation() != null) && (child.settlement != null)) {
-        //For now, record fissions regardless of successful move to match C++ code
-        getStatCollector(FISSIONS).addValue(0.0);
-        //}
-        //System.out.println(child.age);
-    }
 
     public boolean deathCondition() {
         boolean starvation = nutritionNeedRemaining > 0;
@@ -74,6 +42,20 @@ public class HouseholdAggregate extends HouseholdBase {
         // || (nutritionNeedRemaining > 0));
     }
 
+    public void fission() {
+        HouseholdAggregate child = new HouseholdAggregate();//(Household) this.clone();
+        scape.add(child);
+        child.initialize();
+        child.age = 0;
+        giveMaizeGift(child);
+        child.move();
+        //if ((child.farm.getLocation() != null) && (child.settlement != null)) {
+        //For now, record fissions regardless of successful move to match C++ code
+        getStatCollector(FISSIONS).addValue(0.0);
+        //}
+        //System.out.println(child.age);
+    }
+
     public boolean fissionCondition() {
         //return ((age > ((LHV) getRoot()).getFertilityAge())
         // && (getRandom().nextDouble() < ((LHV) getRoot()).getFertility()));
@@ -94,12 +76,31 @@ public class HouseholdAggregate extends HouseholdBase {
         this.age = age;
     }
 
+    public int getNumAdults() {
+        return 1;
+    }
+
     public int getNutritionNeed() {
         return nutritionNeed;
     }
 
-    public int getNumAdults() {
-        return 1;
+    @Override
+    public String getStatCollectorSuffix() {
+        return " (RB)";
+    }
+
+    public void initialize() {
+        super.initialize();
+        setMembersActive(false);
+
+        age = randomInRange(LHV.householdMinInitialAge, LHV.householdMaxInitialAge);
+        nutritionNeed = randomInRange(LHV.householdMinNutritionNeed, LHV.householdMaxNutritionNeed);
+    }
+
+    public void metabolism() {
+        super.metabolism();
+        age++;
+        nutritionNeedRemaining = consumeCorn(nutritionNeed);
     }
 
     public void scapeCreated() {
@@ -125,10 +126,5 @@ public class HouseholdAggregate extends HouseholdBase {
             }
         };
         scape.addStatCollectors(stats);
-    }
-
-    @Override
-    public String getStatCollectorSuffix() {
-        return " (RB)";
     }
 }

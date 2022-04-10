@@ -10,7 +10,6 @@ package edu.brook.aa;
 //Temporary for JDK 1.1 compatibility
 //import com.sun.java.util.collections.*;
 
-import edu.brook.aa.log.Logger;
 import org.ascape.model.Agent;
 import org.ascape.model.Scape;
 import org.ascape.model.rule.Rule;
@@ -26,11 +25,15 @@ public class LHVDisaggregate extends LHV {
 
     private static final long serialVersionUID = -6752232051261561854L;
 
-    public Scape people;
+    public Scape people, households;
 
     protected int personMinInitialAge = 0;
 
     protected int personMaxInitialAge = 32;
+
+    public void addHousehold(HouseholdDisaggregate household) {
+        this.households.add(household);
+    }
 
     public void createScape() {
         super.createScape();
@@ -50,24 +53,18 @@ public class LHVDisaggregate extends LHV {
                 int age = p.age;
 
                 p.householdFormation();
-             }
+            }
         });
         people.addRule(FISSIONING_RULE);
         people.setAutoCreate(true);
+
+        households = new Scape();
         HouseholdDisaggregate protoHousehold = new HouseholdDisaggregate();
         protoHousehold.setMembersActive(false);
         households.setPrototypeAgent(protoHousehold);
         households.addInitialRule(CREATE_SCAPE_RULE);
-        setMinFertility(.25);
+        minFertility = .25;
         //households.setAutoPopulate(false);
-    }
-
-    public void initialize() {
-        super.initialize();
-        //This is a little awkward.
-        //We have to set the size of the people vector to 0 because it will be populated from households.
-        //If we didn't resize it to sero, we might leave people hanging around from the previous run.
-        people.setExtent(new Coordinate1DDiscrete(0));
     }
 
     public void createViews() {
@@ -173,6 +170,14 @@ public class LHVDisaggregate extends LHV {
         return people;
     }
 
+    public int getPersonMaxInitialAge() {
+        return personMaxInitialAge;
+    }
+
+    public void setPersonMaxInitialAge(int personMaxInitialAge) {
+        this.personMaxInitialAge = personMaxInitialAge;
+    }
+
     public int getPersonMinInitialAge() {
         return personMinInitialAge;
     }
@@ -181,11 +186,11 @@ public class LHVDisaggregate extends LHV {
         this.personMinInitialAge = personMinInitialAge;
     }
 
-    public int getPersonMaxInitialAge() {
-        return personMaxInitialAge;
-    }
-
-    public void setPersonMaxInitialAge(int personMaxInitialAge) {
-        this.personMaxInitialAge = personMaxInitialAge;
+    public void initialize() {
+        super.initialize();
+        //This is a little awkward.
+        //We have to set the size of the people vector to 0 because it will be populated from households.
+        //If we didn't resize it to zero, we might leave people hanging around from the previous run.
+        people.setExtent(new Coordinate1DDiscrete(0));
     }
 }

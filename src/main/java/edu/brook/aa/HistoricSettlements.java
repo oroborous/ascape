@@ -1,12 +1,10 @@
 package edu.brook.aa;
 
-import org.ascape.model.Agent;
 import org.ascape.model.Scape;
-import org.ascape.model.event.ScapeEvent;
-import org.ascape.model.rule.Rule;
+import org.ascape.model.rule.CollectStats;
 import org.ascape.model.space.Array2DMoore;
-import org.ascape.model.space.Coordinate1DDiscrete;
 import org.ascape.model.space.Coordinate2DDiscrete;
+import org.ascape.util.data.StatCollectorCondCSA;
 import org.ascape.util.data.UnitIntervalDataPoint;
 import org.ascape.util.vis.ColorFeatureConcrete;
 import org.ascape.util.vis.ColorFeatureGradiated;
@@ -16,37 +14,17 @@ import org.ascape.view.vis.Overhead2DView;
 
 import java.awt.*;
 
-import static edu.brook.aa.LHV.FillValleyCellFeature;
+public class HistoricSettlements extends Scape {
 
-
-public class LHVMachineLearning extends Scape {
-
-    public boolean farmSitesAvailable = true;
-    public YieldZones yieldZones;
+    private Scape historicSettlements;
     private Scape valley;
-    private Scape households;
-    private Scape settlements;
-    private Scape farms;
     private Scape waterSources;
-
-    private HouseholdBase protoHousehold;
-
-    public LHVMachineLearning(String name, HouseholdBase protoHousehold) {
-        setName("Long House Valley " + name);
-
-        this.protoHousehold = protoHousehold;
-
-        setPrototypeAgent(new Scape());
-        getRules().clear();
-    }
-
-    public void addSettlement(Settlement settlement) {
-        this.settlements.add(settlement);
-    }
+    private YieldZones yieldZones;
+    private int householdCount;
 
     private void createDrawFeatures() {
-        FillValleyCellFeature zoneFill =
-                new FillValleyCellFeature("Environment Zone", new ColorFeatureConcrete() {
+        LHV.FillValleyCellFeature zoneFill =
+                new LHV.FillValleyCellFeature("Environment Zone", new ColorFeatureConcrete() {
 
                     private static final long serialVersionUID = 8060365487620083420L;
 
@@ -56,8 +34,8 @@ public class LHVMachineLearning extends Scape {
                 });
         valley.addDrawFeature(zoneFill);
 
-        FillValleyCellFeature maizeZoneFill =
-                new FillValleyCellFeature("Maize Zone", new ColorFeatureConcrete() {
+        LHV.FillValleyCellFeature maizeZoneFill =
+                new LHV.FillValleyCellFeature("Maize Zone", new ColorFeatureConcrete() {
 
                     private static final long serialVersionUID = -7825780654109831237L;
 
@@ -67,8 +45,8 @@ public class LHVMachineLearning extends Scape {
                 });
         valley.addDrawFeature(maizeZoneFill);
 
-        FillValleyCellFeature yieldZoneFill =
-                new FillValleyCellFeature("Yield Zone", new ColorFeatureConcrete() {
+        LHV.FillValleyCellFeature yieldZoneFill =
+                new LHV.FillValleyCellFeature("Yield Zone", new ColorFeatureConcrete() {
 
                     private static final long serialVersionUID = -8182575802685007681L;
 
@@ -78,8 +56,8 @@ public class LHVMachineLearning extends Scape {
                 });
         valley.addDrawFeature(yieldZoneFill);
 
-        FillValleyCellFeature hydroFill =
-                new FillValleyCellFeature("Hydrology", new ColorFeatureGradiated(Color.blue, new UnitIntervalDataPoint() {
+        LHV.FillValleyCellFeature hydroFill =
+                new LHV.FillValleyCellFeature("Hydrology", new ColorFeatureGradiated(Color.blue, new UnitIntervalDataPoint() {
 
                     private static final long serialVersionUID = -2268057702246783384L;
 
@@ -89,8 +67,8 @@ public class LHVMachineLearning extends Scape {
                 }));
         valley.addDrawFeature(hydroFill);
 
-        FillValleyCellFeature apdsiFill =
-                new FillValleyCellFeature("APDSI", new ColorFeatureGradiated(Color.red, new UnitIntervalDataPoint() {
+        LHV.FillValleyCellFeature apdsiFill =
+                new LHV.FillValleyCellFeature("APDSI", new ColorFeatureGradiated(Color.red, new UnitIntervalDataPoint() {
 
                     private static final long serialVersionUID = 7338600146527039554L;
 
@@ -100,8 +78,8 @@ public class LHVMachineLearning extends Scape {
                 }));
         valley.addDrawFeature(apdsiFill);
 
-        FillValleyCellFeature yieldFill =
-                new FillValleyCellFeature("Plot Yield", new ColorFeatureGradiated(Color.orange, new UnitIntervalDataPoint() {
+        LHV.FillValleyCellFeature yieldFill =
+                new LHV.FillValleyCellFeature("Plot Yield", new ColorFeatureGradiated(Color.orange, new UnitIntervalDataPoint() {
 
                     private static final long serialVersionUID = -5294758012864949871L;
 
@@ -111,8 +89,8 @@ public class LHVMachineLearning extends Scape {
                 }));
         valley.addDrawFeature(yieldFill);
 
-        FillValleyCellFeature zoneYieldFill =
-                new FillValleyCellFeature("Zone Yield", new ColorFeatureGradiated(Color.orange, new UnitIntervalDataPoint() {
+        LHV.FillValleyCellFeature zoneYieldFill =
+                new LHV.FillValleyCellFeature("Zone Yield", new ColorFeatureGradiated(Color.orange, new UnitIntervalDataPoint() {
 
                     private static final long serialVersionUID = 322526470426236151L;
 
@@ -171,38 +149,30 @@ public class LHVMachineLearning extends Scape {
             }
         });
         historicSettlementSizeColor.setMaximumColor(Color.red);
+        DrawFeature historicSettlementFeature = new DrawFeature("Historic Settlements") {
 
-        final ColorFeatureGradiated settlementSizeColor = new ColorFeatureGradiated("Settlements");
-        settlementSizeColor.setDataPoint(new UnitIntervalDataPoint() {
-            private static final long serialVersionUID = 1044376827552903900L;
-
-            public double getValue(Object object) {
-                return ((double) (((Settlement) object).getSize() - 1) / 10.0);
-            }
-        });
-        DrawFeature settlementFeature = new DrawFeature("Simulation Settlements") {
-
-            private static final long serialVersionUID = 886210092045835742L;
-
-            public void draw(Graphics g, Object object, int width, int height) {
-                if (((Location) object).getSettlement() != null) {
-                    g.setColor(settlementSizeColor.getColor(((Location) object).getSettlement()));
-                    DrawSymbol.FILL_OVOID.draw(g, width - 1, height - 1);
-                    g.setColor(Color.black);
-                    DrawSymbol.DRAW_OVOID.draw(g, width - 1, height - 1);
-                }
-            }
-        };
-        valley.addDrawFeature(settlementFeature);
-        DrawFeature simSettlementTierFeature = new DrawFeature("Simulation Settlement Tier") {
-
-            private static final long serialVersionUID = 2663578481949934207L;
+            private static final long serialVersionUID = -3243407849851172816L;
 
             public void draw(Graphics g, Object object, int width, int height) {
                 if (((Location) object).isCurrentHistoricSettlement()) {
-                    if (((Location) object).getHistoricSettlementHouseholdCount() < 5) {
+                    g.setColor(historicSettlementSizeColor.getColor(object));
+                    DrawSymbol.FILL_OVOID.draw(g, width, height);
+                    g.setColor(Color.red);
+                    DrawSymbol.DRAW_OVOID.draw(g, width, height);
+                }
+            }
+        };
+        valley.addDrawFeature(historicSettlementFeature);
+
+        DrawFeature histSettlementTierFeature = new DrawFeature("Historical Settlement Tier") {
+
+            private static final long serialVersionUID = 8151081684304662162L;
+
+            public void draw(Graphics g, Object object, int width, int height) {
+                if (((Location) object).getSettlement() != null) {
+                    if (((Location) object).getSettlement().getSize() < 5) {
                         g.setColor(Color.black);
-                    } else if (((Location) object).getHistoricSettlementHouseholdCount() < 20) {
+                    } else if (((Location) object).getSettlement().getSize() < 20) {
                         g.setColor(Color.green);
                     } else {
                         g.setColor(Color.red);
@@ -211,48 +181,53 @@ public class LHVMachineLearning extends Scape {
                 }
             }
         };
-        valley.addDrawFeature(simSettlementTierFeature);
+        valley.addDrawFeature(histSettlementTierFeature);
+
     }
 
     public void createScape() {
         valley = new Scape(new Array2DMoore());
         add(valley);
-        valley.setName("Long House Valley");
+        valley.setName("Long House Valley (Historical)");
         valley.setPrototypeAgent(new Location());
         valley.setExtent(new Coordinate2DDiscrete(80, 120));
         valley.getRules().clear();
 
-        /*
-         * Create Yield Zones
-         */
         yieldZones = new YieldZones();
         add(yieldZones);
 
-        /*
-         * Create Households
-         */
-        households = new Scape();
-        households.setName("Households");
-        add(households);
-        protoHousehold.setMembersActive(false);
-        households.setPrototypeAgent(protoHousehold);
 
         /*
-         * Create Simulation Settlements
+         * Create Historic Settlements
          */
-        settlements = new Scape();
-        settlements.setName("Settlements");
-        Settlement protoSettlement = new Settlement();
-        protoSettlement.setMembersActive(false);
-        add(settlements);
-        settlements.setPrototypeAgent(protoSettlement);
+        historicSettlements = new Scape() {
 
-        /*
-         * Create Farms
-         */
-        farms = new Scape();
-        farms.setName("Farms");
-        farms.setPrototypeAgent(new Farm());
+            private static final long serialVersionUID = 8710583027169504915L;
+
+            public void initialize() {
+                super.initialize();
+                CollectStats collector = new CollectStats();
+                StatCollectorCondCSA countHouseholds = new StatCollectorCondCSA() {
+                    private static final long serialVersionUID = -8509781010737527704L;
+
+                    public double getValue(Object object) {
+                        return ((HistoricSettlement) object).getHouseholdCount();
+                    }
+
+                    public boolean meetsCondition(Object object) {
+                        return ((HistoricSettlement) object).isExtant();
+                    }
+                };
+                collector.addStatCollector(countHouseholds);
+                historicSettlements.executeOnMembers(collector);
+                householdCount = (int) countHouseholds.getSum();
+            }
+        };
+        add(historicSettlements);
+        historicSettlements.setPrototypeAgent(new HistoricSettlement());
+        historicSettlements.setAutoCreate(false);
+        historicSettlements.setName("Historic Settlements");
+        historicSettlements.getRules().clear();
 
         /*
          * Create water sources
@@ -267,91 +242,29 @@ public class LHVMachineLearning extends Scape {
         createDrawFeatures();
     }
 
+    @Override
     public void createViews() {
         Overhead2DView[] views = new Overhead2DView[1];
         views[0] = new Overhead2DView();
         views[0].setCellSize(5);
-        views[0].setName(String.format("Simulation (%s)", name));
+        views[0].setName("Historic");
         valley.addViews(views);
 
         views[0].getDrawSelection().clearSelection();
         views[0].getDrawSelection().setSelected("Hydrology", true);
         views[0].getDrawSelection().setSelected("Farms", true);
-        views[0].getDrawSelection().setSelected("Simulation Settlement Tier", true);
+        views[0].getDrawSelection().setSelected("Historical Settlement Tier", true);
         views[0].getDrawSelection().setSelected("Water Sources", true);
     }
 
-    public Scape getValley() {
-        return valley;
+    public int getHouseholdCount() {
+        return householdCount;
     }
 
+    @Override
     public void initialize() {
-        farmSitesAvailable = true;
         DataImporter.importMap(valley, yieldZones);
         DataImporter.importWaterSources(waterSources, valley);
-    }
-
-    public Location removeBestLocation() {
-        FindBestLocation finder = new FindBestLocation();
-        yieldZones.executeOnMembers(finder);
-        if ((finder.getBestLocation() != null) && (finder.getBestLocation().getBaseYield() > 0)) {
-            Locations l = finder.getBestList();
-            return (Location) l.remove(l.size() - 1);
-        } else {
-            return null;
-        }
-    }
-
-    public void scapeIterated(ScapeEvent event) {
-        farmSitesAvailable = true;
-        super.scapeIterated(event);
-    }
-
-    public void setHouseholdsExtent(Coordinate1DDiscrete extent) {
-        this.households.setExtent(extent);
-    }
-
-
-}
-
-//Replace w/ comparison
-class FindBestLocation extends Rule {
-
-
-    private static final long serialVersionUID = 4269530128883979605L;
-    private Location bestLocation;
-    private Locations bestList;
-
-    public FindBestLocation() {
-        super("Find Best Location");
-    }
-
-    public void execute(Agent agent) {
-        try {
-            Location currentLocation = null;
-            Locations l = ((YieldZone) agent).getAvailableLocations();
-            if (l.size() > 0) {
-                currentLocation = (Location) (l.get(l.size() - 1));
-            }
-            if ((currentLocation != null) &&
-                    ((bestLocation == null) ||
-                            (currentLocation.getBaseYield() > bestLocation.getBaseYield()))) {
-                bestLocation = currentLocation;
-                bestList = l;
-            }
-        } catch (java.util.NoSuchElementException ignored) {
-        }
-    }
-
-    public Locations getBestList() {
-        return bestList;
-    }
-
-    public Location getBestLocation() {
-        return bestLocation;
-    }
-
-    public boolean isRandomExecution() {
-        return false;
+        DataImporter.importSettlementHistory(valley, historicSettlements);
     }
 }

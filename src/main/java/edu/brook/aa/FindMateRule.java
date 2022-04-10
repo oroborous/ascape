@@ -7,7 +7,6 @@
 
 package edu.brook.aa;
 
-import edu.brook.aa.log.Logger;
 import org.ascape.model.Agent;
 import org.ascape.model.rule.Rule;
 
@@ -30,13 +29,13 @@ public class FindMateRule extends Rule {
         Person p = (Person) a;
         boolean isSingle = p.getMate() == null;
         boolean isMale = p.getSex() == Person.MALE;
-        boolean isOldEnough = p.getAge() > ((LHV) a.getRoot()).getMinFertilityAge();
+        boolean isOldEnough = p.getAge() > LHV.minFertilityAge;
         boolean differentHousehold = p.getHousehold() != candidate.getHousehold();
 
         if (lastMate == null) {
             if ((p.getMate() == null) &&
                     (p.getSex() == Person.MALE) &&
-                    (p.getAge() > ((LHV) a.getRoot()).getMinFertilityAge()) &&
+                    (p.getAge() > LHV.minFertilityAge) &&
                     (p.getHousehold() != candidate.getHousehold())) {
                 lastMate = p;
             }

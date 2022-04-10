@@ -21,6 +21,6 @@ public class LHVGreedy extends LHV {
 
     public void createScape() {
         super.createScape();
-        households.setPrototypeAgent(new HouseholdGreedy());
+//        households.setPrototypeAgent(new HouseholdGreedy());
     }
 }

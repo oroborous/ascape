@@ -7,7 +7,6 @@
 
 package edu.brook.aa;
 
-import edu.brook.aa.log.Logger;
 import org.ascape.model.Agent;
 
 public class ClanFindMateRule extends FindMateRule {
@@ -22,13 +21,13 @@ public class ClanFindMateRule extends FindMateRule {
         Person p = (Person) a;
         boolean isSingle = p.getMate() == null;
         boolean isMale = p.getSex() == Person.MALE;
-        boolean isOldEnough = p.getAge() > ((LHV) a.getRoot()).getMinFertilityAge();
+        boolean isOldEnough = p.getAge() > LHV.minFertilityAge;
         boolean differentClan = p.getHousehold().getClan() != candidate.getHousehold().getClan();
         boolean differentHousehold = p.getHousehold() != candidate.getHousehold();
 
         if ((p.getMate() == null) &&
                 (p.getSex() == Person.MALE) &&
-                (p.getAge() > ((LHV) a.getRoot()).getMinFertilityAge()) &&
+                (p.getAge() > LHV.minFertilityAge) &&
                 (p.getHousehold().getClan() != candidate.getHousehold().getClan()) &&
                 (p.getHousehold() != candidate.getHousehold())) {
             lastMate = p;

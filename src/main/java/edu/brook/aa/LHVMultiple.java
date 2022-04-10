@@ -16,7 +16,7 @@ public class LHVMultiple extends LHV {
     public void createViews() {
         super.createViews();
         DataOutputView dataView = new DataOutputView();
-        valley.addView(dataView);
+//        valley.addView(dataView);
         /*dataView.getSweep().setRunsPer(3);
         try {
         valley.setStopPeriod(5);
