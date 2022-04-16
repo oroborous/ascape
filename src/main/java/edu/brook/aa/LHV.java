@@ -142,14 +142,12 @@ public class LHV extends Scape {
 
     public void createViews() {
         super.createViews();
-        valleyRB.createViews();
-        valleyML.createViews();
 
         //Create a new chart
         ChartView chart = new ChartView();
         //Add it to the agents view, just like any other view
 //        valleyRB.addView(chart);
-        valleyML.addView(chart);
+        historicSettlements.addView(chart);
         //And add some of the stat series we've just created to it
         chart.addSeries("Sum Historic Households", Color.red);
 //        chart.addSeries("Count Households (RB)", Color.black);
