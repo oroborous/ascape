@@ -22,6 +22,13 @@ public class HistoricSettlements extends Scape {
     private YieldZones yieldZones;
     private int householdCount;
 
+    public HistoricSettlements() {
+        setName("Long House Valley (Historical)");
+
+        setPrototypeAgent(new Scape());
+        getRules().clear();
+    }
+
     private void createDrawFeatures() {
         LHV.FillValleyCellFeature zoneFill =
                 new LHV.FillValleyCellFeature("Environment Zone", new ColorFeatureConcrete() {
@@ -188,7 +195,7 @@ public class HistoricSettlements extends Scape {
     public void createScape() {
         valley = new Scape(new Array2DMoore());
         add(valley);
-        valley.setName("Long House Valley (Historical)");
+        valley.setName("Locations");
         valley.setPrototypeAgent(new Location());
         valley.setExtent(new Coordinate2DDiscrete(80, 120));
         valley.getRules().clear();
@@ -250,6 +257,8 @@ public class HistoricSettlements extends Scape {
         DataImporter.importSettlementHistory(valley, historicSettlements);
 
         createDrawFeatures();
+
+        setAutoCreate(false);
     }
 
     @Override

@@ -217,7 +217,7 @@ public class LHVMachineLearning extends Scape {
     public void createScape() {
         valley = new Scape(new Array2DMoore());
         add(valley);
-        valley.setName("Long House Valley");
+        valley.setName("Locations");
         valley.setPrototypeAgent(new Location());
         valley.setExtent(new Coordinate2DDiscrete(80, 120));
         valley.getRules().clear();
@@ -237,6 +237,7 @@ public class LHVMachineLearning extends Scape {
          * Create Yield Zones
          */
         yieldZones = new YieldZones();
+        yieldZones.createScape();
         add(yieldZones);
 
         valley.createScape();
@@ -271,6 +272,8 @@ public class LHVMachineLearning extends Scape {
         farms.setPrototypeAgent(new Farm());
 
         createDrawFeatures();
+
+        setAutoCreate(false);
     }
 
     public void createViews() {
