@@ -13,6 +13,7 @@ import org.ascape.util.vis.DrawSymbol;
 import org.ascape.view.vis.Overhead2DView;
 
 import java.awt.*;
+import java.util.Arrays;
 
 public class HistoricSettlements extends Scape {
 
@@ -20,9 +21,11 @@ public class HistoricSettlements extends Scape {
     private Scape valley;
     private Scape waterSources;
     private YieldZones yieldZones;
-    private int householdCount;
+    private LHVMachineLearning[] simScapes;
 
-    public HistoricSettlements() {
+    public HistoricSettlements(LHVMachineLearning... simScapes) {
+        this.simScapes = simScapes;
+
         setName("Long House Valley (Historical)");
 
         setPrototypeAgent(new Scape());
@@ -215,6 +218,7 @@ public class HistoricSettlements extends Scape {
          * Create Yield Zones
          */
         yieldZones = new YieldZones();
+        yieldZones.createScape();
         add(yieldZones);
 
 
@@ -241,7 +245,10 @@ public class HistoricSettlements extends Scape {
                 };
                 collector.addStatCollector(countHouseholds);
                 historicSettlements.executeOnMembers(collector);
-                householdCount = (int) countHouseholds.getSum();
+                int householdCount = (int) countHouseholds.getSum();
+                Arrays.stream(HistoricSettlements.this.simScapes)
+                        .forEach(s -> s.setHouseholdCount(householdCount));
+
             }
         };
         add(historicSettlements);
@@ -253,7 +260,7 @@ public class HistoricSettlements extends Scape {
         valley.createScape();
 
         DataImporter.importMap(valley, yieldZones);
-        DataImporter.importWaterSources(waterSources, valley);
+        DataImporter.importWaterSources(valley, waterSources);
         DataImporter.importSettlementHistory(valley, historicSettlements);
 
         createDrawFeatures();
@@ -274,10 +281,6 @@ public class HistoricSettlements extends Scape {
         views[0].getDrawSelection().setSelected("Farms", true);
         views[0].getDrawSelection().setSelected("Historical Settlement Tier", true);
         views[0].getDrawSelection().setSelected("Water Sources", true);
-    }
-
-    public int getHouseholdCount() {
-        return householdCount;
     }
 
 }

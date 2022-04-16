@@ -300,7 +300,11 @@ public abstract class HouseholdBase extends Scape {
     }
 
     private LHVMachineLearning getLHVRoot() {
-        return (LHVMachineLearning) getRoot();
+        Scape parent = getScape();
+        while (!(parent instanceof LHVMachineLearning)) {
+            parent = parent.getScape();
+        }
+        return (LHVMachineLearning) parent;
     }
 
     public abstract int getNumAdults();
@@ -412,8 +416,7 @@ public abstract class HouseholdBase extends Scape {
         boolean isMove = farms.isEmpty() || settlement == null;
 
         Logger.INSTANCE.log(new HouseholdEvent(getScape().getPeriod(),
-                EventType.DEPART, isMove,
-                (HouseholdAggregate) this));
+                EventType.DEPART, isMove, this));
 
         if ((farms.size() == 0) || (settlement == null)) {
             depart();

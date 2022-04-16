@@ -243,7 +243,7 @@ public class LHVMachineLearning extends Scape {
         valley.createScape();
 
         DataImporter.importMap(valley, yieldZones);
-        DataImporter.importWaterSources(waterSources, valley);
+        DataImporter.importWaterSources(valley, waterSources);
 
         /*
          * Create Households
@@ -304,6 +304,10 @@ public class LHVMachineLearning extends Scape {
     public void scapeIterated(ScapeEvent event) {
         farmSitesAvailable = true;
         super.scapeIterated(event);
+    }
+
+    public void setHouseholdCount(int count) {
+        households.setExtent(new Coordinate1DDiscrete(count));
     }
 
     public void setHouseholdsExtent(Coordinate1DDiscrete extent) {

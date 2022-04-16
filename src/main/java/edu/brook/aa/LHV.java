@@ -123,11 +123,12 @@ public class LHV extends Scape {
          */
         valleyRB = new LHVMachineLearning("RB", new HouseholdAggregate());
         valleyML = new LHVMachineLearning("ML", new HouseholdAggregateML());
-        historicSettlements = new HistoricSettlements();
+        historicSettlements = new HistoricSettlements(valleyRB, valleyML);
 
+        add(historicSettlements);
         add(valleyRB);
         add(valleyML);
-        add(historicSettlements);
+
 
         setAutoRestart(false);
         try {
@@ -136,8 +137,6 @@ public class LHV extends Scape {
         } catch (SpatialTemporalException e) {
             System.out.println("Bad start/stop periods: " + e);
         }
-
-
     }
 
     public void createViews() {

@@ -8,12 +8,10 @@ import java.util.Map;
 public enum Logger {
     INSTANCE;
 
+    private final Map<Integer, HouseholdDecisions> householdMap = new HashMap<>();
     private PrintWriter farmWriter, decisionWriter;
     private boolean isClosed = false;
-
     private int currentPeriod = 0;
-
-    private final Map<Integer, HouseholdDecisions> householdMap = new HashMap<>();
 
 
     Logger() {
@@ -44,14 +42,19 @@ public enum Logger {
         }
     }
 
-    public void log(BuildFarmDecision event) {
-        if (!isClosed) {
-            farmWriter.println(event.toString());
-        }
+    public void close() {
+        // print final decisions
+        printDecisions();
+
+        isClosed = true;
+        farmWriter.flush();
+        farmWriter.close();
+        decisionWriter.flush();
+        decisionWriter.close();
     }
 
     public void log(HouseholdEvent event) {
-        if (!isClosed) {
+        if (!isClosed && event.household != null) {
             if (event.period != currentPeriod) {
                 if (currentPeriod != 0) {
                     printDecisions();
@@ -70,22 +73,16 @@ public enum Logger {
         }
     }
 
+    public void log(BuildFarmDecision event) {
+        if (!isClosed) {
+            farmWriter.println(event.toString());
+        }
+    }
+
     private void printDecisions() {
         for (HouseholdDecisions decisions : householdMap.values()) {
             decisionWriter.println(decisions.toString());
         }
-    }
-
-
-    public void close() {
-        // print final decisions
-        printDecisions();
-
-        isClosed = true;
-        farmWriter.flush();
-        farmWriter.close();
-        decisionWriter.flush();
-        decisionWriter.close();
     }
 
 

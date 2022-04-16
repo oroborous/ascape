@@ -58,7 +58,7 @@ public class DataImporter {
         }
     }
 
-    public static void importWaterSources(Scape waterSources, Scape valley) {
+    public static void importWaterSources(Scape valley, Scape waterSources) {
 
 
         try (InputStream fws = DataImporter.class.getResourceAsStream("MapData/water.bin")) {
