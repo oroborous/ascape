@@ -1,23 +1,14 @@
 /*
- * Copyright 1998-2007 The Brookings Institution, with revisions by Metascape LLC, and others. 
+ * Copyright 1998-2007 The Brookings Institution, with revisions by Metascape LLC, and others.
  * All rights reserved.
  * This program and the accompanying materials are made available solely under of the BSD license "brookings-models-license.txt".
- * Any referenced or included libraries carry licenses of their respective copyright holders. 
+ * Any referenced or included libraries carry licenses of their respective copyright holders.
  */
 
 package edu.brook.aa;
 
 //Temporary for JDK 1.1 compatibility
 //import com.sun.java.util.collections.*;
-
-import java.awt.Color;
-import java.awt.Graphics;
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 import org.ascape.model.Agent;
 import org.ascape.model.HistoryValueSetter;
@@ -26,26 +17,25 @@ import org.ascape.model.event.ScapeEvent;
 import org.ascape.model.rule.CollectStats;
 import org.ascape.model.rule.Rule;
 import org.ascape.model.rule.SetValues;
-import org.ascape.model.space.Array2D;
-import org.ascape.model.space.Array2DMoore;
-import org.ascape.model.space.Coordinate1DDiscrete;
-import org.ascape.model.space.Coordinate2DDiscrete;
-import org.ascape.model.space.SpatialTemporalException;
+import org.ascape.model.space.*;
 import org.ascape.util.data.StatCollectorCondCSA;
 import org.ascape.util.data.UnitIntervalDataPoint;
-import org.ascape.util.vis.ColorFeature;
-import org.ascape.util.vis.ColorFeatureConcrete;
-import org.ascape.util.vis.ColorFeatureGradiated;
-import org.ascape.util.vis.DrawFeature;
-import org.ascape.util.vis.DrawSymbol;
-import org.ascape.util.vis.FillCellFeature;
+import org.ascape.util.vis.*;
 import org.ascape.view.vis.ChartView;
 import org.ascape.view.vis.Overhead2DView;
+
+import java.awt.*;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 class GeneralValleyStreamSource extends WaterSource {
 
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = -3153973451588490393L;
 
@@ -61,7 +51,7 @@ class GeneralValleyStreamSource extends WaterSource {
 public class LHV extends Scape {
 
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = -1892876266881188560L;
 
@@ -110,108 +100,332 @@ public class LHV extends Scape {
     public static YieldZone YIELD_UPLANDS_ARABLE = new YieldZone("Uplands Arable", Color.blue, ENVIRON_UPLANDS_ARABLE, MAIZE_YIELD_3);
 
     public static YieldZone YIELD_KINBIKO_CANYON = new YieldZone("Kinbiko Canyon", Color.pink, ENVIRON_KINBIKO_CANYON, MAIZE_YIELD_1);
-
-    protected Scape valley;
-
-    protected Scape households;
-
-    protected Scape settlements;
-
-    protected Scape farms;
-
-    protected Scape historicSettlements;
-
-    protected Scape waterSources;
-
-    protected LocationRanking locationRankings;
-
-    protected Scape environmentZones;
-
-    protected Scape maizeZones;
-
-    protected Scape yieldZones;
-
-    protected Overhead2DView view;
-
     protected static int EARLIEST_YEAR = 200;
-
     protected static int LATEST_YEAR = 1499;
-
     protected static int PDSI_EARLIEST_YEAR = 382;
-
     protected static int MAXIMUM_YEARS = LHV.LATEST_YEAR - LHV.EARLIEST_YEAR;
-
-    protected double harvestAdjustment = 1.0;
-
+    public boolean farmSitesAvailable = true;
+    protected Scape valley;
+    protected Scape households;
+    protected Scape settlements;
+    protected Scape farms;
+    protected Scape historicSettlements;
+    protected Scape waterSources;
+    protected LocationRanking locationRankings;
+    protected Scape environmentZones;
+    protected Scape maizeZones;
+    protected Scape yieldZones;
+    protected Overhead2DView view;
+    protected double harvestAdjustment = 0.6; //1.0;
     protected double harvestVarianceYear = 0.1;
-
-    protected double harvestVarianceLocation = 0.1;
-
+    protected double harvestVarianceLocation = 0.4; //0.1;
     /**
      * The size an aggregate (household not individual level) household is assumed to be.
      */
     protected int typicalHouseholdSize = 5;
-
     /**
      * The amount of food assumed to be needed for one average adult.
      */
     protected int baseNutritionNeed = 160;
-
     protected int householdMinNutritionNeed = baseNutritionNeed * typicalHouseholdSize;
-
     protected int householdMaxNutritionNeed = baseNutritionNeed * typicalHouseholdSize;
-
     protected int minFertilityAge = 16;//16
-
     protected int maxFertilityAge = 16;//16
-
     protected int minDeathAge = 30;//30
-
-    protected int maxDeathAge = 30;//30
-
+    protected int maxDeathAge = 36;//30
     //For Rob's experiment
     protected int minFertilityEndsAge = 30;
-
-    protected int maxFertilityEndsAge = 30;
-
+    protected int maxFertilityEndsAge = 32; //30;
     protected double minFertility = 0.125;//0.125
-
     protected double maxFertility = 0.125;//0.125
-
     protected double maizeGiftToChild = .33;
-
     protected double waterSourceDistance = 16.0;
-
     protected int yearsOfStock = 2;
-
     protected int householdMinInitialAge = 0;
-
     protected int householdMaxInitialAge = 29;
-
     protected int householdMinInitialCorn = 2000;
-
     protected int householdMaxInitialCorn = 2400;
 
-    class FillValleyCellFeature extends FillCellFeature {
+    public static boolean isStreamsExist(int date) {
+        return (((date >= 280) && (date < 360)) ||
+                ((date >= 800) && (date < 930)) ||
+                ((date >= 1300) && (date < 1450)));
+    }
 
-        /**
-         * 
-         */
-        private static final long serialVersionUID = 3823585979723128174L;
+    public static boolean isAlluviumExists(int date) {
+        return (((date >= 420) && (date < 560)) ||
+                ((date >= 630) && (date < 680)) ||
+                ((date >= 980) && (date < 1120)) ||
+                ((date >= 1180) && (date < 1230)));
+    }
 
-        public FillValleyCellFeature(String name, ColorFeature colorFeature) {
-            super(name, colorFeature);
+    public static boolean isWaterSource(EnvironmentZone zone, int date) {
+        if ((isAlluviumExists(date)) && ((zone == ENVIRON_GENERAL_VALLEY) || (zone == ENVIRON_NORTH_VALLEY) || (zone == ENVIRON_MID_VALLEY) || (zone == ENVIRON_KINBIKO_CANYON))) {
+            return true;
         }
+        if ((isStreamsExist(date)) && (zone == ENVIRON_KINBIKO_CANYON)) {
+            return true;
+        }
+        return false;
+    }
 
-        public void draw(Graphics g, Object object, int width, int height) {
-            if (((Location) object).getEnvironmentZone() != ENVIRON_EMPTY) {
-                g.setColor(getColor(object));
-                g.fillRect(0, 0, width, height);
-            } else {
-                g.setColor(Color.lightGray);
-                g.fillRect(0, 0, width, height);
+    public void createDrawFeatures() {
+        FillValleyCellFeature zoneFill =
+                new FillValleyCellFeature("Environment Zone", new ColorFeatureConcrete() {
+                    /**
+                     *
+                     */
+                    private static final long serialVersionUID = 8060365487620083420L;
+
+                    public Color getColor(Object o) {
+                        return (((Location) o).getEnvironmentZone().getColor());
+                    }
+                });
+        valley.addDrawFeature(zoneFill);
+
+        FillValleyCellFeature maizeZoneFill =
+                new FillValleyCellFeature("Maize Zone", new ColorFeatureConcrete() {
+                    /**
+                     *
+                     */
+                    private static final long serialVersionUID = -7825780654109831237L;
+
+                    public Color getColor(Object o) {
+                        return (((Location) o).getMaizeZone().getColor());
+                    }
+                });
+        valley.addDrawFeature(maizeZoneFill);
+
+        FillValleyCellFeature yieldZoneFill =
+                new FillValleyCellFeature("Yield Zone", new ColorFeatureConcrete() {
+                    /**
+                     *
+                     */
+                    private static final long serialVersionUID = -8182575802685007681L;
+
+                    public Color getColor(Object o) {
+                        return (((Location) o).getYieldZone().getColor());
+                    }
+                });
+        valley.addDrawFeature(yieldZoneFill);
+
+        FillValleyCellFeature hydroFill =
+                new FillValleyCellFeature("Hydrology", new ColorFeatureGradiated(Color.blue, new UnitIntervalDataPoint() {
+                    /**
+                     *
+                     */
+                    private static final long serialVersionUID = -2268057702246783384L;
+
+                    public double getValue(Object object) {
+                        return ((((Location) object).getEnvironmentZone().getHydrology()) / 10.0);
+                    }
+                }));
+        valley.addDrawFeature(hydroFill);
+
+        FillValleyCellFeature apdsiFill =
+                new FillValleyCellFeature("APDSI", new ColorFeatureGradiated(Color.red, new UnitIntervalDataPoint() {
+                    /**
+                     *
+                     */
+                    private static final long serialVersionUID = 7338600146527039554L;
+
+                    public double getValue(Object object) {
+                        return ((((Location) object).getEnvironmentZone().getAPDSI()) / 10.0);
+                    }
+                }));
+        valley.addDrawFeature(apdsiFill);
+
+        FillValleyCellFeature yieldFill =
+                new FillValleyCellFeature("Plot Yield", new ColorFeatureGradiated(Color.orange, new UnitIntervalDataPoint() {
+                    /**
+                     *
+                     */
+                    private static final long serialVersionUID = -5294758012864949871L;
+
+                    public double getValue(Object object) {
+                        return ((((Location) object).getBaseYield()) / 1200.0);
+                    }
+                }));
+        valley.addDrawFeature(yieldFill);
+
+        FillValleyCellFeature zoneYieldFill =
+                new FillValleyCellFeature("Zone Yield", new ColorFeatureGradiated(Color.orange, new UnitIntervalDataPoint() {
+                    /**
+                     *
+                     */
+                    private static final long serialVersionUID = 322526470426236151L;
+
+                    public double getValue(Object object) {
+                        return ((double) (((Location) object).getYieldZone().getYield()) / 1200.0);
+                    }
+                }));
+        valley.addDrawFeature(zoneYieldFill);
+
+        DrawFeature drawWaterFeature = new DrawFeature("Water Sources") {
+            /**
+             *
+             */
+            private static final long serialVersionUID = 8533411178579775478L;
+
+            public void draw(Graphics g, Object object, int width, int height) {
+                if (((Location) object).isCurrentWaterSource()) {
+                    g.setColor(Color.blue);
+                    g.fillOval(0, 0, width - 2, height - 2);
+                }
             }
-        }
+        };
+        valley.addDrawFeature(drawWaterFeature);
+
+        DrawFeature drawFarmFeature = new DrawFeature("Farms") {
+            /**
+             *
+             */
+            private static final long serialVersionUID = -1940011486883417752L;
+
+            public void draw(Graphics g, Object object, int width, int height) {
+                if (((Location) object).getFarm() != null) {
+                    g.setColor(Color.yellow);
+                    DrawSymbol.DRAW_HATCH.draw(g, width - 2, height - 2);
+                }
+            }
+        };
+        valley.addDrawFeature(drawFarmFeature);
+
+        /*DrawFeature drawMaxFeature = new DrawFeature("Best Yield") {
+            public void draw(Graphics g, Object object, int width, int height) {
+                if (object == (((Location) object).getYieldZone().getAvailableLocations().getLast())) {
+                    g.setColor(Color.red);
+                    DrawSymbol.DRAW_RECT.draw(g, width, height);
+                }
+            }
+        };
+        valley.addDrawFeature(drawMaxFeature);*/
+
+        DrawFeature sandDuneFeature = new DrawFeature("Sand Dunes") {
+            /**
+             *
+             */
+            private static final long serialVersionUID = -2391074808277172861L;
+
+            public void draw(Graphics g, Object object, int width, int height) {
+                if (((Location) object).isSandDune()) {
+                    g.setColor(Color.green);
+                    g.fillOval(0 + 2, 0 + 2, width - 2, height - 2);
+                }
+            }
+        };
+        valley.addDrawFeature(sandDuneFeature);
+
+        final ColorFeatureGradiated historicSettlementSizeColor = new ColorFeatureGradiated("Households");
+        historicSettlementSizeColor.setDataPoint(new UnitIntervalDataPoint() {
+            /**
+             *
+             */
+            private static final long serialVersionUID = 6295840997659754327L;
+
+            public double getValue(Object object) {
+                return ((double) (((Location) object).getHistoricSettlementHouseholdCount() - 1) / 10.0);
+            }
+        });
+        historicSettlementSizeColor.setMaximumColor(Color.red);
+        DrawFeature historicSettlementFeature = new DrawFeature("Historic Settlements") {
+            /**
+             *
+             */
+            private static final long serialVersionUID = -3243407849851172816L;
+
+            public void draw(Graphics g, Object object, int width, int height) {
+                if (((Location) object).isCurrentHistoricSettlement()) {
+                    g.setColor(historicSettlementSizeColor.getColor(object));
+                    DrawSymbol.FILL_OVOID.draw(g, width, height);
+                    g.setColor(Color.red);
+                    DrawSymbol.DRAW_OVOID.draw(g, width, height);
+                }
+            }
+        };
+        valley.addDrawFeature(historicSettlementFeature);
+
+        final ColorFeatureGradiated settlementSizeColor = new ColorFeatureGradiated("Settlements");
+        settlementSizeColor.setDataPoint(new UnitIntervalDataPoint() {
+            /**
+             *
+             */
+            private static final long serialVersionUID = 1044376827552903900L;
+
+            public double getValue(Object object) {
+                return ((double) (((Settlement) object).getSize() - 1) / 10.0);
+            }
+        });
+        DrawFeature settlementFeature = new DrawFeature("Simulation Settlements") {
+            /**
+             *
+             */
+            private static final long serialVersionUID = 886210092045835742L;
+
+            public void draw(Graphics g, Object object, int width, int height) {
+                if (((Location) object).getSettlement() != null) {
+                    g.setColor(settlementSizeColor.getColor(((Location) object).getSettlement()));
+                    DrawSymbol.FILL_OVOID.draw(g, width - 1, height - 1);
+                    g.setColor(Color.black);
+                    DrawSymbol.DRAW_OVOID.draw(g, width - 1, height - 1);
+                }
+            }
+        };
+        valley.addDrawFeature(settlementFeature);
+        DrawFeature simSettlementTierFeature = new DrawFeature("Simulation Settlement Tier") {
+            /**
+             *
+             */
+            private static final long serialVersionUID = 2663578481949934207L;
+
+            public void draw(Graphics g, Object object, int width, int height) {
+                if (((Location) object).isCurrentHistoricSettlement()) {
+                    if (((Location) object).getHistoricSettlementHouseholdCount() < 5) {
+                        g.setColor(Color.black);
+                    } else if (((Location) object).getHistoricSettlementHouseholdCount() < 20) {
+                        g.setColor(Color.green);
+                    } else {
+                        g.setColor(Color.red);
+                    }
+                    DrawSymbol.FILL_OVOID.draw(g, width, height);
+                }
+            }
+        };
+        valley.addDrawFeature(simSettlementTierFeature);
+        DrawFeature histSettlementTierFeature = new DrawFeature("Historical Settlement Tier") {
+            /**
+             *
+             */
+            private static final long serialVersionUID = 8151081684304662162L;
+
+            public void draw(Graphics g, Object object, int width, int height) {
+                if (((Location) object).getSettlement() != null) {
+                    if (((Location) object).getSettlement().getSize() < 5) {
+                        g.setColor(Color.black);
+                    } else if (((Location) object).getSettlement().getSize() < 20) {
+                        g.setColor(Color.green);
+                    } else {
+                        g.setColor(Color.red);
+                    }
+                    DrawSymbol.FILL_OVOID.draw(g, width, height);
+                }
+            }
+        };
+        valley.addDrawFeature(histSettlementTierFeature);
+        DrawFeature drawClanFeature = new DrawFeature("Clan") {
+            /**
+             *
+             */
+            private static final long serialVersionUID = 4722116535511174556L;
+
+            public void draw(Graphics g, Object object, int width, int height) {
+                if (((Location) object).getClan() != null) {
+                    g.setColor(((Location) object).getClan().getColor());
+                    g.drawRect(0, 0, width - 1, height - 1);
+                }
+            }
+        };
+        valley.addDrawFeature(drawClanFeature);
     }
 
     public void createScape() {
@@ -299,7 +513,7 @@ public class LHV extends Scape {
         //We sort all at once to avoid sorting penalites per addition
         yieldZones.addInitialRule(new Rule("Sort Available Locations") {
             /**
-             * 
+             *
              */
             private static final long serialVersionUID = 8923085455603538447L;
 
@@ -317,7 +531,7 @@ public class LHV extends Scape {
          */
         historicSettlements = new Scape() {
             /**
-             * 
+             *
              */
             private static final long serialVersionUID = 8710583027169504915L;
 
@@ -326,16 +540,16 @@ public class LHV extends Scape {
                 CollectStats collector = new CollectStats();
                 StatCollectorCondCSA countHouseholds = new StatCollectorCondCSA() {
                     /**
-                     * 
+                     *
                      */
                     private static final long serialVersionUID = -8509781010737527704L;
 
-                    public boolean meetsCondition(Object object) {
-                        return ((HistoricSettlement) object).isExtant();
-                    }
-
                     public double getValue(Object object) {
                         return ((HistoricSettlement) object).getHouseholdCount();
+                    }
+
+                    public boolean meetsCondition(Object object) {
+                        return ((HistoricSettlement) object).isExtant();
                     }
                 };
                 collector.addStatCollector(countHouseholds);
@@ -379,7 +593,7 @@ public class LHV extends Scape {
          */
         settlements = new Scape() {
             /**
-             * 
+             *
              */
             private static final long serialVersionUID = 2980206173636571476L;
 
@@ -404,58 +618,279 @@ public class LHV extends Scape {
         createDrawFeatures();
     }
 
+    public void createViews() {
+        super.createViews();
+        //valley.setCellsRequestUpdates(true);
+        //Create a new chart
+        ChartView chart = new ChartView();
+        //Add it to the agents view, just like any other view
+        valley.addView(chart);
+        //And add some of the stat series we've just created to it
+        chart.addSeries("Sum Historic Households", Color.red);
+        chart.addSeries("Count Households", Color.black);
+        //chart.addSeries("Sum Historic Household Size", Color.red);
+        //chart.addSeries("Sum Household Size", Color.black);
+        //chart.addSeries("Count Potential Yield", Color.blue);
+        //chart.addSeries("Sum Historic Population", Color.red);
+        //chart.addSeries("Count People", Color.black);
+        /*chart.addSeries("Count Deaths Starvation", Color.black);
+        chart.addSeries("Count Deaths Old Age", Color.gray);
+        chart.addSeries("Count Movements", Color.red);
+        chart.addSeries("Count Fissions", Color.green);
+        chart.addSeries("Count Departures", Color.white);*/
+        /*chart.addSeries("Count Households in General Valley Floor", Color.black);
+chart.addSeries("Count Households in North Valley Floor", Color.red);
+chart.addSeries("Count Households in Mid-Valley Floor", Color.green);
+chart.addSeries("Count Households in Uplands Natural", Color.yellow);
+chart.addSeries("Count Households in Uplands Arable", Color.blue);
+chart.addSeries("Count Households in Kinbiko Canyon", Color.pink);*/
+        /*chart.addSeries("Count Farms in General Valley Floor", Color.black);
+        chart.addSeries("Count Farms in North Valley Floor", Color.red);
+        chart.addSeries("Count Farms in Mid-Valley Floor", Color.green);
+        chart.addSeries("Count Farms in Uplands Natural", Color.yellow);
+        chart.addSeries("Count Farms in Uplands Arable", Color.blue);
+        chart.addSeries("Count Farms in Kinbiko Canyon", Color.pink);*/
+        /*chart.addSeries("Sum Size 1", Color.black);
+        chart.addSeries("Sum Size 2 to 3", Color.gray);
+        chart.addSeries("Sum Size 4 to 9", Color.blue);
+        chart.addSeries("Sum Size 10 to 19", Color.green);
+        chart.addSeries("Sum Size 20 to 39", Color.orange);
+        chart.addSeries("Sum Size 40 to 79", Color.yellow);
+        chart.addSeries("Sum Size 80+", Color.red);*/
+
+        Overhead2DView[] views = new Overhead2DView[2];
+        views[0] = new Overhead2DView();
+        views[0].setCellSize(5);
+        views[0].setName("Simulation");
+        views[1] = new Overhead2DView();
+        views[1].setCellSize(5);
+        views[1].setName("History");
+        valley.addViews(views);
+
+        views[0].getDrawSelection().clearSelection();
+        views[0].getDrawSelection().setSelected("Hydrology", true);
+        views[0].getDrawSelection().setSelected("Farms", true);
+        views[0].getDrawSelection().setSelected("Simulation Settlement Tier", true);
+        views[0].getDrawSelection().setSelected("Water Sources", true);
+
+        views[1].getDrawSelection().clearSelection();
+        views[1].getDrawSelection().setSelected("Hydrology", true);
+        views[1].getDrawSelection().setSelected("Farms", true);
+        views[1].getDrawSelection().setSelected("Historical Settlement Tier", true);
+        views[1].getDrawSelection().setSelected("Water Sources", true);
+
+    }
+
+    public int getBaseNutritionNeed() {
+        return baseNutritionNeed;
+    }
+
+    public void setBaseNutritionNeed(int baseNutritionNeed) {
+        this.baseNutritionNeed = baseNutritionNeed;
+    }
+
+    public Location getBestLocation() {
+        FindBestLocation finder = new FindBestLocation();
+        yieldZones.executeOnMembers(finder);
+        return finder.getBestLocation();
+    }
+
+    public Scape getEnvironmentZones() {
+        return environmentZones;
+    }
+
+    public Scape getFarms() {
+        return farms;
+    }
+
+    public double getHarvestAdjustment() {
+        return harvestAdjustment;
+    }
+
+    public void setHarvestAdjustment(double harvestAdjustment) {
+        this.harvestAdjustment = harvestAdjustment;
+    }
+
+    public double getHarvestVarianceLocation() {
+        return harvestVarianceLocation;
+    }
+
+    public void setHarvestVarianceLocation(double harvestVarianceLocation) {
+        this.harvestVarianceLocation = harvestVarianceLocation;
+    }
+
+    public double getHarvestVarianceYear() {
+        return harvestVarianceYear;
+    }
+
+    public void setHarvestVarianceYear(double harvestVarianceYear) {
+        this.harvestVarianceYear = harvestVarianceYear;
+    }
+
+    public int getHouseholdMaxInitialAge() {
+        return householdMaxInitialAge;
+    }
+
+    public void setHouseholdMaxInitialAge(int householdMaxInitialAge) {
+        this.householdMaxInitialAge = householdMaxInitialAge;
+    }
+
+    public int getHouseholdMaxInitialCorn() {
+        return householdMaxInitialCorn;
+    }
+
+    public void setHouseholdMaxInitialCorn(int householdMaxInitialCorn) {
+        this.householdMaxInitialCorn = householdMaxInitialCorn;
+    }
+
+    public int getHouseholdMaxNutritionNeed() {
+        return householdMaxNutritionNeed;
+    }
+
+    public void setHouseholdMaxNutritionNeed(int householdMaxNutritionNeed) {
+        this.householdMaxNutritionNeed = householdMaxNutritionNeed;
+    }
+
+    public int getHouseholdMinInitialAge() {
+        return householdMinInitialAge;
+    }
+
+    public void setHouseholdMinInitialAge(int householdMinInitialAge) {
+        this.householdMinInitialAge = householdMinInitialAge;
+    }
+
+    public int getHouseholdMinInitialCorn() {
+        return householdMinInitialCorn;
+    }
+
+    public void setHouseholdMinInitialCorn(int householdMinInitialCorn) {
+        this.householdMinInitialCorn = householdMinInitialCorn;
+    }
+
+    public int getHouseholdMinNutritionNeed() {
+        return householdMinNutritionNeed;
+    }
+
+    public void setHouseholdMinNutritionNeed(int householdMinNutritionNeed) {
+        this.householdMinNutritionNeed = householdMinNutritionNeed;
+    }
+
+    public Scape getHouseholds() {
+        return households;
+    }
+
+    public double getMaizeGiftToChild() {
+        return maizeGiftToChild;
+    }
+
+    public void setMaizeGiftToChild(double maizeGiftToChild) {
+        this.maizeGiftToChild = maizeGiftToChild;
+    }
+
+    public Scape getMaizeZones() {
+        return maizeZones;
+    }
+
+    public int getMaxDeathAge() {
+        return maxDeathAge;
+    }
+
+    public void setMaxDeathAge(int maxDeathAge) {
+        this.maxDeathAge = maxDeathAge;
+    }
+
+    public double getMaxFertility() {
+        return maxFertility;
+    }
+
+    public void setMaxFertility(double maxFertility) {
+        this.maxFertility = maxFertility;
+    }
+
+    public int getMaxFertilityAge() {
+        return maxFertilityAge;
+    }
+
+    public void setMaxFertilityAge(int maxFertilityAge) {
+        this.maxFertilityAge = maxFertilityAge;
+    }
+
+    public int getMaxFertilityEndsAge() {
+        return maxFertilityEndsAge;
+    }
+
+    public void setMaxFertilityEndsAge(int maxFertilityEndsAge) {
+        this.maxFertilityEndsAge = maxFertilityEndsAge;
+    }
+
+    public int getMinDeathAge() {
+        return minDeathAge;
+    }
+
+    public void setMinDeathAge(int minDeathAge) {
+        this.minDeathAge = minDeathAge;
+    }
+
+    public double getMinFertility() {
+        return minFertility;
+    }
+
+    public void setMinFertility(double minFertility) {
+        this.minFertility = minFertility;
+    }
+
+    public int getMinFertilityAge() {
+        return minFertilityAge;
+    }
+
+    public void setMinFertilityAge(int minFertilityAge) {
+        this.minFertilityAge = minFertilityAge;
+    }
+
+    public int getMinFertilityEndsAge() {
+        return minFertilityEndsAge;
+    }
+
+    public void setMinFertilityEndsAge(int minFertilityEndsAge) {
+        this.minFertilityEndsAge = minFertilityEndsAge;
+    }
+
+    public Scape getSettlements() {
+        return settlements;
+    }
+
     /**
-     * Import map and water sources from binary data files.
+     * @return
      */
-    protected void importMap() {
-        try {
-            InputStream fs = this.getClass().getResourceAsStream("MapData/map.bin");
-            DataInputStream ds = new DataInputStream(fs);
+    public int getTypicalHouseholdSize() {
+        return (typicalHouseholdSize);
+    }
 
-            for (int x = 0; x < 80; x++) {
-                for (int y = 0; y < 120; y++) {
-                    Location location = (Location) ((Array2D) valley.getSpace()).get(x, y);
-                    location.streamToState(ds);
-                }
-            }
+    /**
+     * @param typicalHouseholdSize
+     */
+    public void setTypicalHouseholdSize(int typicalHouseholdSize) {
+        this.typicalHouseholdSize = typicalHouseholdSize;
+    }
 
-            ds.close();
-            fs.close();
+    public double getWaterSourceDistance() {
+        return waterSourceDistance;
+    }
 
-            waterSources = new Scape();
-            waterSources.setPrototypeAgent(new WaterSource());
-            waterSources.setAutoCreate(false);
-            waterSources.setName("Water Sources");
-            add(waterSources);
-            waterSources.getRules().clear();
-            InputStream fws = this.getClass().getResourceAsStream("MapData/water.bin");
-            DataInputStream dws = new DataInputStream(fws);
-            for (int i = 0; i < 108; i++) {
-                //Not used
-                WaterSource importedSource = new WaterSource();
-                importedSource.streamToState(dws);
-                Coordinate2DDiscrete locCoordinate = Location.getCoordinateFromMeters(importedSource.getMetersNorth(), importedSource.getMetersEast());
-                if (((Array2D) valley.getSpace()).isValid(locCoordinate)) {
-                    Location location = (Location) valley.get(locCoordinate);
-                    location.setWaterSource(importedSource);
-                    waterSources.add(importedSource);
-                } else {
-                    //System.out.println("Bad data; ignored.");
-                }
-            }
-            int[][] streamLocations = {{72, 5}, {70, 6}, {69, 7}, {68, 8}, {67, 9}, {66, 10}, {65, 11}, {65, 12}};
-            for (int i = 0; i < streamLocations.length; i++) {
-                WaterSource streamSource = new GeneralValleyStreamSource();
-                waterSources.add(streamSource);
-                Location location = (Location) ((Array2D) valley.getSpace()).get(streamLocations[i][0], streamLocations[i][1]);
-                location.setWaterSource(streamSource);
-            }
+    public void setWaterSourceDistance(double waterSourceDistance) {
+        this.waterSourceDistance = waterSourceDistance;
+    }
 
-            dws.close();
-            fws.close();
-        } catch (IOException e) {
-            throw new RuntimeException("IO exception while importing data " + e);
-        }
+    public int getYearsOfStock() {
+        return yearsOfStock;
+    }
+
+    public void setYearsOfStock(int yearsOfStock) {
+        this.yearsOfStock = yearsOfStock;
+    }
+
+    public Scape getYieldZones() {
+        return yieldZones;
     }
 
     /**
@@ -559,6 +994,62 @@ public class LHV extends Scape {
     }
 
     /**
+     * Import map and water sources from binary data files.
+     */
+    protected void importMap() {
+        try {
+            InputStream fs = this.getClass().getResourceAsStream("MapData/map.bin");
+            DataInputStream ds = new DataInputStream(fs);
+
+            for (int x = 0; x < 80; x++) {
+                for (int y = 0; y < 120; y++) {
+                    Location location = (Location) ((Array2D) valley.getSpace()).get(x, y);
+                    location.streamToState(ds);
+                }
+            }
+
+            ds.close();
+            fs.close();
+
+            waterSources = new Scape();
+            waterSources.setPrototypeAgent(new WaterSource());
+            waterSources.setAutoCreate(false);
+            waterSources.setName("Water Sources");
+            add(waterSources);
+            waterSources.getRules().clear();
+            InputStream fws = this.getClass().getResourceAsStream("MapData/water.bin");
+            DataInputStream dws = new DataInputStream(fws);
+            for (int i = 0; i < 108; i++) {
+                //Not used
+                WaterSource importedSource = new WaterSource();
+                importedSource.streamToState(dws);
+                Coordinate2DDiscrete locCoordinate = Location.getCoordinateFromMeters(importedSource.getMetersNorth(), importedSource.getMetersEast());
+                if (((Array2D) valley.getSpace()).isValid(locCoordinate)) {
+                    Location location = (Location) valley.get(locCoordinate);
+                    location.setWaterSource(importedSource);
+                    waterSources.add(importedSource);
+                } else {
+                    //System.out.println("Bad data; ignored.");
+                }
+            }
+            int[][] streamLocations = {{72, 5}, {70, 6}, {69, 7}, {68, 8}, {67, 9}, {66, 10}, {65, 11}, {65, 12}};
+            for (int i = 0; i < streamLocations.length; i++) {
+                WaterSource streamSource = new GeneralValleyStreamSource();
+                waterSources.add(streamSource);
+                Location location = (Location) ((Array2D) valley.getSpace()).get(streamLocations[i][0], streamLocations[i][1]);
+                location.setWaterSource(streamSource);
+            }
+
+            dws.close();
+            fws.close();
+        } catch (IOException e) {
+            throw new RuntimeException("IO exception while importing data " + e);
+        }
+    }
+
+    //public Vector farmsSearchedThisYear = new Vector();
+
+    /**
      * Import historical settlment data from binary data files.
      */
     protected void importSettlementHistory() {
@@ -597,212 +1088,63 @@ public class LHV extends Scape {
         super.initialize();
     }
 
-    public double getHarvestAdjustment() {
-        return harvestAdjustment;
+    public Location removeBestLocation() {
+        FindBestLocation finder = new FindBestLocation();
+        yieldZones.executeOnMembers(finder);
+        if ((finder.getBestLocation() != null) && (finder.getBestLocation().getBaseYield() > 0)) {
+            //return (Location) finder.getBestList().removeLast();
+            ArrayList l = (ArrayList) finder.getBestList();
+            return (Location) l.remove(l.size() - 1);
+        } else {
+            return null;
+        }
     }
 
-    public void setHarvestAdjustment(double harvestAdjustment) {
-        this.harvestAdjustment = harvestAdjustment;
+    public void scapeIterated(ScapeEvent event) {
+        /*Enumeration e = farmsSearchedThisYear.elements();
+        while(e.hasMoreElements()) {
+            Location unusedLocation = (Location) e.nextElement();
+            unusedLocation.getYieldZone().getAvailableLocations().add(unusedLocation);
+        }
+        farmsSearchedThisYear = new Vector();*/
+        farmSitesAvailable = true;
+        super.scapeIterated(event);
     }
 
-    public double getHarvestVarianceYear() {
-        return harvestVarianceYear;
-    }
+    class FillValleyCellFeature extends FillCellFeature {
 
-    public void setHarvestVarianceYear(double harvestVarianceYear) {
-        this.harvestVarianceYear = harvestVarianceYear;
-    }
+        /**
+         *
+         */
+        private static final long serialVersionUID = 3823585979723128174L;
 
-    public double getHarvestVarianceLocation() {
-        return harvestVarianceLocation;
-    }
+        public FillValleyCellFeature(String name, ColorFeature colorFeature) {
+            super(name, colorFeature);
+        }
 
-    public void setHarvestVarianceLocation(double harvestVarianceLocation) {
-        this.harvestVarianceLocation = harvestVarianceLocation;
-    }
-
-    public int getBaseNutritionNeed() {
-        return baseNutritionNeed;
-    }
-
-    public void setBaseNutritionNeed(int baseNutritionNeed) {
-        this.baseNutritionNeed = baseNutritionNeed;
-    }
-
-    public int getHouseholdMinNutritionNeed() {
-        return householdMinNutritionNeed;
-    }
-
-    public void setHouseholdMinNutritionNeed(int householdMinNutritionNeed) {
-        this.householdMinNutritionNeed = householdMinNutritionNeed;
-    }
-
-    public int getHouseholdMaxNutritionNeed() {
-        return householdMaxNutritionNeed;
-    }
-
-    public void setHouseholdMaxNutritionNeed(int householdMaxNutritionNeed) {
-        this.householdMaxNutritionNeed = householdMaxNutritionNeed;
-    }
-
-    public int getMinFertilityAge() {
-        return minFertilityAge;
-    }
-
-    public void setMinFertilityAge(int minFertilityAge) {
-        this.minFertilityAge = minFertilityAge;
-    }
-
-    public int getMaxFertilityAge() {
-        return maxFertilityAge;
-    }
-
-    public void setMaxFertilityAge(int maxFertilityAge) {
-        this.maxFertilityAge = maxFertilityAge;
-    }
-
-    public int getMinFertilityEndsAge() {
-        return minFertilityEndsAge;
-    }
-
-    public void setMinFertilityEndsAge(int minFertilityEndsAge) {
-        this.minFertilityEndsAge = minFertilityEndsAge;
-    }
-
-    public int getMaxFertilityEndsAge() {
-        return maxFertilityEndsAge;
-    }
-
-    public void setMaxFertilityEndsAge(int maxFertilityEndsAge) {
-        this.maxFertilityEndsAge = maxFertilityEndsAge;
-    }
-
-    public int getMinDeathAge() {
-        return minDeathAge;
-    }
-
-    public void setMinDeathAge(int minDeathAge) {
-        this.minDeathAge = minDeathAge;
-    }
-
-    public int getMaxDeathAge() {
-        return maxDeathAge;
-    }
-
-    public void setMaxDeathAge(int maxDeathAge) {
-        this.maxDeathAge = maxDeathAge;
-    }
-
-    public double getMinFertility() {
-        return minFertility;
-    }
-
-    public void setMinFertility(double minFertility) {
-        this.minFertility = minFertility;
-    }
-
-    public double getMaxFertility() {
-        return maxFertility;
-    }
-
-    public void setMaxFertility(double maxFertility) {
-        this.maxFertility = maxFertility;
-    }
-
-    public double getMaizeGiftToChild() {
-        return maizeGiftToChild;
-    }
-
-    public void setMaizeGiftToChild(double maizeGiftToChild) {
-        this.maizeGiftToChild = maizeGiftToChild;
-    }
-
-    public double getWaterSourceDistance() {
-        return waterSourceDistance;
-    }
-
-    public void setWaterSourceDistance(double waterSourceDistance) {
-        this.waterSourceDistance = waterSourceDistance;
-    }
-
-    public int getYearsOfStock() {
-        return yearsOfStock;
-    }
-
-    public void setYearsOfStock(int yearsOfStock) {
-        this.yearsOfStock = yearsOfStock;
-    }
-
-    public int getHouseholdMinInitialAge() {
-        return householdMinInitialAge;
-    }
-
-    public void setHouseholdMinInitialAge(int householdMinInitialAge) {
-        this.householdMinInitialAge = householdMinInitialAge;
-    }
-
-    public int getHouseholdMaxInitialAge() {
-        return householdMaxInitialAge;
-    }
-
-    public void setHouseholdMaxInitialAge(int householdMaxInitialAge) {
-        this.householdMaxInitialAge = householdMaxInitialAge;
-    }
-
-    public int getHouseholdMinInitialCorn() {
-        return householdMinInitialCorn;
-    }
-
-    public void setHouseholdMinInitialCorn(int householdMinInitialCorn) {
-        this.householdMinInitialCorn = householdMinInitialCorn;
-    }
-
-    public int getHouseholdMaxInitialCorn() {
-        return householdMaxInitialCorn;
-    }
-
-    public void setHouseholdMaxInitialCorn(int householdMaxInitialCorn) {
-        this.householdMaxInitialCorn = householdMaxInitialCorn;
-    }
-
-    public Scape getHouseholds() {
-        return households;
-    }
-
-    public Scape getSettlements() {
-        return settlements;
-    }
-
-    public Scape getFarms() {
-        return farms;
-    }
-
-    public Scape getEnvironmentZones() {
-        return environmentZones;
-    }
-
-    public Scape getYieldZones() {
-        return yieldZones;
-    }
-
-    public Scape getMaizeZones() {
-        return maizeZones;
+        public void draw(Graphics g, Object object, int width, int height) {
+            if (((Location) object).getEnvironmentZone() != ENVIRON_EMPTY) {
+                g.setColor(getColor(object));
+                g.fillRect(0, 0, width, height);
+            } else {
+                g.setColor(Color.lightGray);
+                g.fillRect(0, 0, width, height);
+            }
+        }
     }
 
     //Replace w/ comparison
     class FindBestLocation extends Rule {
 
         /**
-         * 
+         *
          */
         private static final long serialVersionUID = 4269530128883979605L;
-
+        private Location bestLocation;
+        private List bestList;
         public FindBestLocation() {
             super("Find Best Location");
         }
-
-        private Location bestLocation;
-        private List bestList;
 
         public void execute(Agent agent) {
             try {
@@ -820,408 +1162,16 @@ public class LHV extends Scape {
             }
         }
 
-        public Location getBestLocation() {
-            return bestLocation;
-        }
-
         public List getBestList() {
             return bestList;
+        }
+
+        public Location getBestLocation() {
+            return bestLocation;
         }
 
         public boolean isRandomExecution() {
             return false;
         }
-    }
-
-    public Location getBestLocation() {
-        FindBestLocation finder = new FindBestLocation();
-        yieldZones.executeOnMembers(finder);
-        return finder.getBestLocation();
-    }
-
-    public Location removeBestLocation() {
-        FindBestLocation finder = new FindBestLocation();
-        yieldZones.executeOnMembers(finder);
-        if ((finder.getBestLocation() != null) && (finder.getBestLocation().getBaseYield() > 0)) {
-            //return (Location) finder.getBestList().removeLast();
-            ArrayList l = (ArrayList) finder.getBestList();
-            return (Location) l.remove(l.size() - 1);
-        } else {
-            return null;
-        }
-    }
-
-    public static boolean isStreamsExist(int date) {
-        return (((date >= 280) && (date < 360)) ||
-            ((date >= 800) && (date < 930)) ||
-            ((date >= 1300) && (date < 1450)));
-    }
-
-    public static boolean isAlluviumExists(int date) {
-        return (((date >= 420) && (date < 560)) ||
-            ((date >= 630) && (date < 680)) ||
-            ((date >= 980) && (date < 1120)) ||
-            ((date >= 1180) && (date < 1230)));
-    }
-
-    public static boolean isWaterSource(EnvironmentZone zone, int date) {
-        if ((isAlluviumExists(date)) && ((zone == ENVIRON_GENERAL_VALLEY) || (zone == ENVIRON_NORTH_VALLEY) || (zone == ENVIRON_MID_VALLEY) || (zone == ENVIRON_KINBIKO_CANYON))) {
-            return true;
-        }
-        if ((isStreamsExist(date)) && (zone == ENVIRON_KINBIKO_CANYON)) {
-            return true;
-        }
-        return false;
-    }
-
-    //public Vector farmsSearchedThisYear = new Vector();
-
-    public boolean farmSitesAvailable = true;
-
-    public void scapeIterated(ScapeEvent event) {
-        /*Enumeration e = farmsSearchedThisYear.elements();
-        while(e.hasMoreElements()) {
-            Location unusedLocation = (Location) e.nextElement();
-            unusedLocation.getYieldZone().getAvailableLocations().add(unusedLocation);
-        }
-        farmsSearchedThisYear = new Vector();*/
-        farmSitesAvailable = true;
-        super.scapeIterated(event);
-    }
-
-    public void createDrawFeatures() {
-        FillValleyCellFeature zoneFill =
-            new FillValleyCellFeature("Environment Zone", new ColorFeatureConcrete() {
-                /**
-                 * 
-                 */
-                private static final long serialVersionUID = 8060365487620083420L;
-
-                public Color getColor(Object o) {
-                    return (((Location) o).getEnvironmentZone().getColor());
-                }
-            });
-        valley.addDrawFeature(zoneFill);
-
-        FillValleyCellFeature maizeZoneFill =
-            new FillValleyCellFeature("Maize Zone", new ColorFeatureConcrete() {
-                /**
-                 * 
-                 */
-                private static final long serialVersionUID = -7825780654109831237L;
-
-                public Color getColor(Object o) {
-                    return (((Location) o).getMaizeZone().getColor());
-                }
-            });
-        valley.addDrawFeature(maizeZoneFill);
-
-        FillValleyCellFeature yieldZoneFill =
-            new FillValleyCellFeature("Yield Zone", new ColorFeatureConcrete() {
-                /**
-                 * 
-                 */
-                private static final long serialVersionUID = -8182575802685007681L;
-
-                public Color getColor(Object o) {
-                    return (((Location) o).getYieldZone().getColor());
-                }
-            });
-        valley.addDrawFeature(yieldZoneFill);
-
-        FillValleyCellFeature hydroFill =
-            new FillValleyCellFeature("Hydrology", new ColorFeatureGradiated(Color.blue, new UnitIntervalDataPoint() {
-                /**
-                 * 
-                 */
-                private static final long serialVersionUID = -2268057702246783384L;
-
-                public double getValue(Object object) {
-                    return ((((Location) object).getEnvironmentZone().getHydrology()) / 10.0);
-                }
-            }));
-        valley.addDrawFeature(hydroFill);
-
-        FillValleyCellFeature apdsiFill =
-            new FillValleyCellFeature("APDSI", new ColorFeatureGradiated(Color.red, new UnitIntervalDataPoint() {
-                /**
-                 * 
-                 */
-                private static final long serialVersionUID = 7338600146527039554L;
-
-                public double getValue(Object object) {
-                    return ((((Location) object).getEnvironmentZone().getAPDSI()) / 10.0);
-                }
-            }));
-        valley.addDrawFeature(apdsiFill);
-
-        FillValleyCellFeature yieldFill =
-            new FillValleyCellFeature("Plot Yield", new ColorFeatureGradiated(Color.orange, new UnitIntervalDataPoint() {
-                /**
-                 * 
-                 */
-                private static final long serialVersionUID = -5294758012864949871L;
-
-                public double getValue(Object object) {
-                    return ((((Location) object).getBaseYield()) / 1200.0);
-                }
-            }));
-        valley.addDrawFeature(yieldFill);
-
-        FillValleyCellFeature zoneYieldFill =
-            new FillValleyCellFeature("Zone Yield", new ColorFeatureGradiated(Color.orange, new UnitIntervalDataPoint() {
-                /**
-                 * 
-                 */
-                private static final long serialVersionUID = 322526470426236151L;
-
-                public double getValue(Object object) {
-                    return ((double) (((Location) object).getYieldZone().getYield()) / 1200.0);
-                }
-            }));
-        valley.addDrawFeature(zoneYieldFill);
-
-        DrawFeature drawWaterFeature = new DrawFeature("Water Sources") {
-            /**
-             * 
-             */
-            private static final long serialVersionUID = 8533411178579775478L;
-
-            public void draw(Graphics g, Object object, int width, int height) {
-                if (((Location) object).isCurrentWaterSource()) {
-                    g.setColor(Color.blue);
-                    g.fillOval(0, 0, width - 2, height - 2);
-                }
-            }
-        };
-        valley.addDrawFeature(drawWaterFeature);
-
-        DrawFeature drawFarmFeature = new DrawFeature("Farms") {
-            /**
-             * 
-             */
-            private static final long serialVersionUID = -1940011486883417752L;
-
-            public void draw(Graphics g, Object object, int width, int height) {
-                if (((Location) object).getFarm() != null) {
-                    g.setColor(Color.yellow);
-                    DrawSymbol.DRAW_HATCH.draw(g, width - 2, height - 2);
-                }
-            }
-        };
-        valley.addDrawFeature(drawFarmFeature);
-
-        /*DrawFeature drawMaxFeature = new DrawFeature("Best Yield") {
-            public void draw(Graphics g, Object object, int width, int height) {
-                if (object == (((Location) object).getYieldZone().getAvailableLocations().getLast())) {
-                    g.setColor(Color.red);
-                    DrawSymbol.DRAW_RECT.draw(g, width, height);
-                }
-            }
-        };
-        valley.addDrawFeature(drawMaxFeature);*/
-
-        DrawFeature sandDuneFeature = new DrawFeature("Sand Dunes") {
-            /**
-             * 
-             */
-            private static final long serialVersionUID = -2391074808277172861L;
-
-            public void draw(Graphics g, Object object, int width, int height) {
-                if (((Location) object).isSandDune()) {
-                    g.setColor(Color.green);
-                    g.fillOval(0 + 2, 0 + 2, width - 2, height - 2);
-                }
-            }
-        };
-        valley.addDrawFeature(sandDuneFeature);
-
-        final ColorFeatureGradiated historicSettlementSizeColor = new ColorFeatureGradiated("Households");
-        historicSettlementSizeColor.setDataPoint(new UnitIntervalDataPoint() {
-            /**
-             * 
-             */
-            private static final long serialVersionUID = 6295840997659754327L;
-
-            public double getValue(Object object) {
-                return ((double) (((Location) object).getHistoricSettlementHouseholdCount() - 1) / 10.0);
-            }
-        });
-        historicSettlementSizeColor.setMaximumColor(Color.red);
-        DrawFeature historicSettlementFeature = new DrawFeature("Historic Settlements") {
-            /**
-             * 
-             */
-            private static final long serialVersionUID = -3243407849851172816L;
-
-            public void draw(Graphics g, Object object, int width, int height) {
-                if (((Location) object).isCurrentHistoricSettlement()) {
-                    g.setColor(historicSettlementSizeColor.getColor(object));
-                    DrawSymbol.FILL_OVOID.draw(g, width, height);
-                    g.setColor(Color.red);
-                    DrawSymbol.DRAW_OVOID.draw(g, width, height);
-                }
-            }
-        };
-        valley.addDrawFeature(historicSettlementFeature);
-
-        final ColorFeatureGradiated settlementSizeColor = new ColorFeatureGradiated("Settlements");
-        settlementSizeColor.setDataPoint(new UnitIntervalDataPoint() {
-            /**
-             * 
-             */
-            private static final long serialVersionUID = 1044376827552903900L;
-
-            public double getValue(Object object) {
-                return ((double) (((Settlement) object).getSize() - 1) / 10.0);
-            }
-        });
-        DrawFeature settlementFeature = new DrawFeature("Simulation Settlements") {
-            /**
-             * 
-             */
-            private static final long serialVersionUID = 886210092045835742L;
-
-            public void draw(Graphics g, Object object, int width, int height) {
-                if (((Location) object).getSettlement() != null) {
-                    g.setColor(settlementSizeColor.getColor(((Location) object).getSettlement()));
-                    DrawSymbol.FILL_OVOID.draw(g, width - 1, height - 1);
-                    g.setColor(Color.black);
-                    DrawSymbol.DRAW_OVOID.draw(g, width - 1, height - 1);
-                }
-            }
-        };
-        valley.addDrawFeature(settlementFeature);
-        DrawFeature simSettlementTierFeature = new DrawFeature("Simulation Settlement Tier") {
-            /**
-             * 
-             */
-            private static final long serialVersionUID = 2663578481949934207L;
-
-            public void draw(Graphics g, Object object, int width, int height) {
-                if (((Location) object).isCurrentHistoricSettlement()) {
-                    if (((Location) object).getHistoricSettlementHouseholdCount() < 5) {
-                        g.setColor(Color.black);
-                    } else if (((Location) object).getHistoricSettlementHouseholdCount() < 20) {
-                        g.setColor(Color.green);
-                    } else {
-                        g.setColor(Color.red);
-                    }
-                    DrawSymbol.FILL_OVOID.draw(g, width, height);
-                }
-            }
-        };
-        valley.addDrawFeature(simSettlementTierFeature);
-        DrawFeature histSettlementTierFeature = new DrawFeature("Historical Settlement Tier") {
-            /**
-             * 
-             */
-            private static final long serialVersionUID = 8151081684304662162L;
-
-            public void draw(Graphics g, Object object, int width, int height) {
-                if (((Location) object).getSettlement() != null) {
-                    if (((Location) object).getSettlement().getSize() < 5) {
-                        g.setColor(Color.black);
-                    } else if (((Location) object).getSettlement().getSize() < 20) {
-                        g.setColor(Color.green);
-                    } else {
-                        g.setColor(Color.red);
-                    }
-                    DrawSymbol.FILL_OVOID.draw(g, width, height);
-                }
-            }
-        };
-        valley.addDrawFeature(histSettlementTierFeature);
-        DrawFeature drawClanFeature = new DrawFeature("Clan") {
-            /**
-             * 
-             */
-            private static final long serialVersionUID = 4722116535511174556L;
-
-            public void draw(Graphics g, Object object, int width, int height) {
-                if (((Location) object).getClan() != null) {
-                    g.setColor(((Location) object).getClan().getColor());
-                    g.drawRect(0, 0, width - 1, height - 1);
-                }
-            }
-        };
-        valley.addDrawFeature(drawClanFeature);
-    }
-
-    public void createViews() {
-        super.createViews();
-        //valley.setCellsRequestUpdates(true);
-        //Create a new chart
-        ChartView chart = new ChartView();
-        //Add it to the agents view, just like any other view
-        valley.addView(chart);
-        //And add some of the stat series we've just created to it
-        chart.addSeries("Sum Historic Households", Color.red);
-        chart.addSeries("Count Households", Color.black);
-        //chart.addSeries("Sum Historic Household Size", Color.red);
-        //chart.addSeries("Sum Household Size", Color.black);
-        //chart.addSeries("Count Potential Yield", Color.blue);
-        //chart.addSeries("Sum Historic Population", Color.red);
-        //chart.addSeries("Count People", Color.black);
-        /*chart.addSeries("Count Deaths Starvation", Color.black);
-        chart.addSeries("Count Deaths Old Age", Color.gray);
-        chart.addSeries("Count Movements", Color.red);
-        chart.addSeries("Count Fissions", Color.green);
-        chart.addSeries("Count Departures", Color.white);*/
-        /*chart.addSeries("Count Households in General Valley Floor", Color.black);
-chart.addSeries("Count Households in North Valley Floor", Color.red);
-chart.addSeries("Count Households in Mid-Valley Floor", Color.green);
-chart.addSeries("Count Households in Uplands Natural", Color.yellow);
-chart.addSeries("Count Households in Uplands Arable", Color.blue);
-chart.addSeries("Count Households in Kinbiko Canyon", Color.pink);*/
-        /*chart.addSeries("Count Farms in General Valley Floor", Color.black);
-        chart.addSeries("Count Farms in North Valley Floor", Color.red);
-        chart.addSeries("Count Farms in Mid-Valley Floor", Color.green);
-        chart.addSeries("Count Farms in Uplands Natural", Color.yellow);
-        chart.addSeries("Count Farms in Uplands Arable", Color.blue);
-        chart.addSeries("Count Farms in Kinbiko Canyon", Color.pink);*/
-        /*chart.addSeries("Sum Size 1", Color.black);
-        chart.addSeries("Sum Size 2 to 3", Color.gray);
-        chart.addSeries("Sum Size 4 to 9", Color.blue);
-        chart.addSeries("Sum Size 10 to 19", Color.green);
-        chart.addSeries("Sum Size 20 to 39", Color.orange);
-        chart.addSeries("Sum Size 40 to 79", Color.yellow);
-        chart.addSeries("Sum Size 80+", Color.red);*/
-
-        Overhead2DView[] views = new Overhead2DView[2];
-        views[0] = new Overhead2DView();
-        views[0].setCellSize(5);
-        views[0].setName("Simulation");
-        views[1] = new Overhead2DView();
-        views[1].setCellSize(5);
-        views[1].setName("History");
-        valley.addViews(views);
-
-        views[0].getDrawSelection().clearSelection();
-        views[0].getDrawSelection().setSelected("Hydrology", true);
-        views[0].getDrawSelection().setSelected("Farms", true);
-        views[0].getDrawSelection().setSelected("Simulation Settlement Tier", true);
-        views[0].getDrawSelection().setSelected("Water Sources", true);
-
-        views[1].getDrawSelection().clearSelection();
-        views[1].getDrawSelection().setSelected("Hydrology", true);
-        views[1].getDrawSelection().setSelected("Farms", true);
-        views[1].getDrawSelection().setSelected("Historical Settlement Tier", true);
-        views[1].getDrawSelection().setSelected("Water Sources", true);
-
-    }
-
-    /**
-     * @return
-     */
-    public int getTypicalHouseholdSize() {
-        return (typicalHouseholdSize);
-    }
-
-    /**
-     * @param typicalHouseholdSize
-     */
-    public void setTypicalHouseholdSize(int typicalHouseholdSize) {
-        this.typicalHouseholdSize = typicalHouseholdSize;
     }
 }
