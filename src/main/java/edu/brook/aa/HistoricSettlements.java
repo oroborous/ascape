@@ -196,14 +196,6 @@ public class HistoricSettlements extends Scape {
     }
 
     public void createScape() {
-        valley = new Scape(new Array2DMoore());
-        add(valley);
-        valley.setName("Locations");
-        valley.setPrototypeAgent(new Location());
-        valley.setExtent(new Coordinate2DDiscrete(80, 120));
-        valley.getRules().clear();
-        valley.setAutoCreate(false);
-
         /*
          * Create water sources
          */
@@ -221,6 +213,16 @@ public class HistoricSettlements extends Scape {
         yieldZones.createScape();
         add(yieldZones);
 
+        /*
+         * Create Locations
+         */
+        valley = new Scape(new Array2DMoore());
+        add(valley);
+        valley.setName("Locations");
+        valley.setPrototypeAgent(new Location());
+        valley.setExtent(new Coordinate2DDiscrete(80, 120));
+        valley.getRules().clear();
+        valley.setAutoCreate(false);
 
         /*
          * Create Historic Settlements

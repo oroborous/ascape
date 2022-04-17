@@ -31,15 +31,16 @@ public class LHV extends Scape {
      * The amount of food assumed to be needed for one average adult.
      */
     public static final int baseNutritionNeed = 160;
-    public static final int householdMinNutritionNeed = (int) Math.round(baseNutritionNeed * typicalHouseholdSize * 0.95);
-    public static final int householdMaxNutritionNeed = (int) Math.round(baseNutritionNeed * typicalHouseholdSize * 1.05); //baseNutritionNeed * typicalHouseholdSize;
+    public static final int householdMinNutritionNeed = 800; // (int) Math.round(baseNutritionNeed * typicalHouseholdSize * 0.95);
+    public static final int householdMaxNutritionNeed = 800; // (int) Math.round(baseNutritionNeed * typicalHouseholdSize * 1.05); //baseNutritionNeed * typicalHouseholdSize;
     public static final int minFertilityAge = 16;//16
     public static final int maxFertilityAge = 16;//16
     public static final int minDeathAge = 30;//30
-    public static final int maxDeathAge = 30;//30
+    public static final int maxDeathAge = 36;//30
     //For Rob's experiment
     public static final int minFertilityEndsAge = 30;
-    public static final int maxFertilityEndsAge = 30;
+    public static final int maxFertilityEndsAge = 32;
+    public static double minFertility = 0.125;//0.125
     public static final double maxFertility = 0.125;//0.125
     public static final double maizeGiftToChild = .33;
     public static final double waterSourceDistance = 16.0;
@@ -48,11 +49,11 @@ public class LHV extends Scape {
     public static final int householdMaxInitialAge = 29;
     public static final int householdMinInitialCorn = 2000;
     public static final int householdMaxInitialCorn = 2400;
-    public static final double harvestAdjustment = 1.0;
+    public static final double harvestAdjustment = 0.6;
     public static final double harvestVarianceYear = 0.1;
-    public static final double harvestVarianceLocation = 0.1;
+    public static final double harvestVarianceLocation = 0.4;
     private static final long serialVersionUID = -1892876266881188560L;
-    public static double minFertility = 0.125;//0.125
+
     public static EnvironmentZone ENVIRON_EMPTY = new EnvironmentZone("Empty", Color.white);
     public static EnvironmentZone ENVIRON_GENERAL_VALLEY = new EnvironmentZone("General Valley Floor", Color.black);
     public static EnvironmentZone ENVIRON_NORTH_VALLEY = new EnvironmentZone("North Valley Floor", Color.red);

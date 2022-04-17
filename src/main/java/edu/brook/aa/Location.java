@@ -8,6 +8,7 @@
 package edu.brook.aa;
 
 import org.ascape.model.Cell;
+import org.ascape.model.Scape;
 import org.ascape.model.space.Coordinate2DDiscrete;
 import org.ascape.util.Conditional;
 
@@ -89,9 +90,7 @@ public class Location extends Cell implements Comparable<Location> {
 
     public void createSettlement() {
         settlement = new Settlement();
-        if (getScape() instanceof LHVMachineLearning) {
-            ((LHVMachineLearning) getScape()).addSettlement(settlement);
-        }
+        getLHVRoot().addSettlement(settlement);
         settlement.occupy(this);
         makeUnavailable();
         requestUpdate();
@@ -161,6 +160,13 @@ public class Location extends Cell implements Comparable<Location> {
         return historicSettlements;
     }
 
+    private LHVMachineLearning getLHVRoot() {
+        Scape parent = getScape();
+        while (!(parent instanceof LHVMachineLearning)) {
+            parent = parent.getScape();
+        }
+        return (LHVMachineLearning) parent;
+    }
 
     public MaizeZone getMaizeZone() {
         return yieldZone.getMaizeZone();

@@ -427,17 +427,17 @@ public abstract class HouseholdBase extends Scape {
         if (getEstimateNextYearCorn() < getNutritionNeed()) {
             if (!findFarmsForNutritionalNeed()) {
                 Logger.INSTANCE.log(new HouseholdEvent(getScape().getPeriod(),
-                        EventType.MOVE, true, (HouseholdAggregate) this));
+                        EventType.MOVE, true, this));
                 getStatCollector("Movements").addValue(0.0);
                 return true;
             } else {
                 Logger.INSTANCE.log(new HouseholdEvent(getScape().getPeriod(),
-                        EventType.MOVE, false, (HouseholdAggregate) this));
+                        EventType.MOVE, false, this));
                 return false;
             }
         }
         Logger.INSTANCE.log(new HouseholdEvent(getScape().getPeriod(),
-                EventType.MOVE, false, (HouseholdAggregate) this));
+                EventType.MOVE, false, this));
         return false;
     }
 

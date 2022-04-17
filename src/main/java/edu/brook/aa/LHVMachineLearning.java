@@ -4,9 +4,7 @@ import org.ascape.model.Agent;
 import org.ascape.model.Scape;
 import org.ascape.model.event.ScapeEvent;
 import org.ascape.model.rule.Rule;
-import org.ascape.model.space.Array2DMoore;
 import org.ascape.model.space.Coordinate1DDiscrete;
-import org.ascape.model.space.Coordinate2DDiscrete;
 import org.ascape.util.data.UnitIntervalDataPoint;
 import org.ascape.util.vis.ColorFeatureConcrete;
 import org.ascape.util.vis.ColorFeatureGradiated;
@@ -215,14 +213,6 @@ public class LHVMachineLearning extends Scape {
     }
 
     public void createScape() {
-        valley = new Scape(new Array2DMoore());
-        add(valley);
-        valley.setName("Locations");
-        valley.setPrototypeAgent(new Location());
-        valley.setExtent(new Coordinate2DDiscrete(80, 120));
-        valley.getRules().clear();
-        valley.setAutoCreate(false);
-
         /*
          * Create water sources
          */
@@ -239,6 +229,12 @@ public class LHVMachineLearning extends Scape {
         yieldZones = new YieldZones();
         yieldZones.createScape();
         add(yieldZones);
+
+        /*
+         * Create Locations
+         */
+        valley = new ValleyLocations();
+        add(valley);
 
         valley.createScape();
 
