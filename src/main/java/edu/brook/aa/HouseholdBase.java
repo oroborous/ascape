@@ -7,12 +7,10 @@
 
 package edu.brook.aa;
 
-import edu.brook.aa.log.BuildFarmDecision;
 import edu.brook.aa.log.EventType;
 import edu.brook.aa.log.HouseholdEvent;
 import edu.brook.aa.log.Logger;
 import org.ascape.model.Scape;
-import org.ascape.model.space.Coordinate2DDiscrete;
 import org.ascape.util.Conditional;
 import org.ascape.util.data.DataPoint;
 import org.ascape.util.data.StatCollector;
@@ -92,10 +90,8 @@ public abstract class HouseholdBase extends Scape {
      */
     public Object clone() {
         HouseholdBase clone = (HouseholdBase) super.clone();
-        //clone.valley = this.valley;
         clone.farms = new ArrayList<>();
         clone.settlement = null;
-        //System.out.println(scape);
         return clone;
     }
 
@@ -214,18 +210,10 @@ public abstract class HouseholdBase extends Scape {
             }
             Location best = (Location) settlement.getLocation()
                     .findMaximumWithin(BEST_FARM, false, LHV.waterSourceDistance);
-            Location nearestWater = (Location) best.findNearest(Location.HAS_WATER, true, Double.MAX_VALUE);
-            int distanceToWater = (int) best.calculateDistance(nearestWater);
 
-            if (best != null) {
-                boolean isOccupy = (best.isAvailable()) && (best.getBaseYield() > 0.0);
-                Logger.INSTANCE.log(new BuildFarmDecision(getScape().getPeriod(), EventType.BUILD_FARM, isOccupy,
-                        (HouseholdAggregate) this, best, distanceToWater));
-            }
             if ((best != null) && (best.isAvailable()) && (best.getBaseYield() > 0.0)) {
                 addFarm().occupy(best);
                 currentEstimate += best.getBaseYield();
-                //System.out.println(adults+" "+adultCount+", "+getSize()+"-"+currentEstimate);
             } else {
                 return false;
             }
@@ -239,15 +227,6 @@ public abstract class HouseholdBase extends Scape {
 
     public void setClan(Clan clan) {
         this.clan = clan;
-    }
-
-    private double getDistance(Location l1, Location l2) {
-        if (l1 == null || l2 == null)
-            return -1;
-        Coordinate2DDiscrete c1 = (Coordinate2DDiscrete) l1.getCoordinate();
-        Coordinate2DDiscrete c2 = (Coordinate2DDiscrete) l2.getCoordinate();
-        return Math.sqrt(Math.pow(c1.getXValue() - c2.getXValue(), 2)
-                + Math.pow(c1.getYValue() - c2.getYValue(), 2));
     }
 
     public int getEstimateNextYearCorn() {
@@ -268,9 +247,7 @@ public abstract class HouseholdBase extends Scape {
 
     public abstract int getNumAdults();
 
-    public int getNutritionNeed() {
-        return 0;
-    }
+    public abstract int getNutritionNeed();
 
     public Settlement getSettlement() {
         return settlement;
@@ -299,10 +276,6 @@ public abstract class HouseholdBase extends Scape {
 
     public boolean hasFarm() {
         return !farms.isEmpty();
-    }
-
-    public boolean hasSettlement() {
-        return settlement != null;
     }
 
     public void initialize() {
@@ -334,9 +307,7 @@ public abstract class HouseholdBase extends Scape {
         leaveAllFarms();
 
         if (settlement != null) {
-            int currentSize = settlement.getSize();
             settlement.remove(this);
-            int newSize = settlement.getSize();
             settlement = null;
         }
     }
@@ -360,7 +331,7 @@ public abstract class HouseholdBase extends Scape {
                 break;
             }
         }
-        //lastHarvest = (int) ((Location) farm.getLocation()).findRandomYield();
+
         for (int i = LHV.yearsOfStock - 1; i >= 0; i--) {
             agedCornStocks[i + 1] = agedCornStocks[i];
         }
@@ -427,19 +398,16 @@ public abstract class HouseholdBase extends Scape {
         };
         scape.addStatCollectors(stats);
 
-        for (int i = 0; i < ((LHV) scape.getRoot()).getEnvironmentZones().getSize(); i++) {
-            SettlementZoneStatCollector settlementStatCollector = new SettlementZoneStatCollector();
-            settlementStatCollector.zone = (EnvironmentZone) ((LHV) scape.getRoot()).getEnvironmentZones().get(i);
-            scape.addStatCollector(settlementStatCollector);
-//            FarmZoneStatCollector farmStatCollector = new FarmZoneStatCollector();
-//            farmStatCollector.zone = (EnvironmentZone) ((LHV) scape.getRoot()).getEnvironmentZones().get(i);
-//            scape.addStatCollector(farmStatCollector);
-        }
+//        for (int i = 0; i < ((LHV) scape.getRoot()).getEnvironmentZones().getSize(); i++) {
+//            SettlementZoneStatCollector settlementStatCollector = new SettlementZoneStatCollector();
+//            settlementStatCollector.zone = (EnvironmentZone) ((LHV) scape.getRoot()).getEnvironmentZones().get(i);
+//            scape.addStatCollector(settlementStatCollector);
+////            FarmZoneStatCollector farmStatCollector = new FarmZoneStatCollector();
+////            farmStatCollector.zone = (EnvironmentZone) ((LHV) scape.getRoot()).getEnvironmentZones().get(i);
+////            scape.addStatCollector(farmStatCollector);
+//        }
     }
 
-    /*public Farm getFarm() {
-        return farm;
-    }*/
 
     public String toInnerString() {
         return "household size " + getSize() + (getClan() != null ? getClan().toString() : "");

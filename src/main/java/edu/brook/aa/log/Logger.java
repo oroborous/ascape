@@ -9,21 +9,21 @@ public enum Logger {
     INSTANCE;
 
     private final Map<Integer, HouseholdDecisions> householdMap = new HashMap<>();
-    private PrintWriter farmWriter, decisionWriter;
+    private PrintWriter decisionWriter;
     private boolean isClosed = false;
     private int currentPeriod = 0;
 
 
     Logger() {
         try {
-            farmWriter = new PrintWriter("C:\\Users\\moogi\\Documents\\data-weka\\anasazi-farms.arff");
-            farmWriter.println("@relation anasazi-build-farm");
-            farmWriter.println("@attribute 'nutrition need' numeric");
-            farmWriter.println("@attribute 'base yield' numeric");
-            farmWriter.println("@attribute 'distance to water' numeric");
-            farmWriter.println("@attribute 'is available' { true, false }");
-            farmWriter.println("@attribute 'build farm' { true, false }");
-            farmWriter.println("@data");
+//            farmWriter = new PrintWriter("C:\\Users\\moogi\\Documents\\data-weka\\anasazi-farms.arff");
+//            farmWriter.println("@relation anasazi-build-farm");
+//            farmWriter.println("@attribute 'nutrition need' numeric");
+//            farmWriter.println("@attribute 'base yield' numeric");
+//            farmWriter.println("@attribute 'distance to water' numeric");
+//            farmWriter.println("@attribute 'is available' { true, false }");
+//            farmWriter.println("@attribute 'build farm' { true, false }");
+//            farmWriter.println("@data");
 
             decisionWriter = new PrintWriter("C:\\Users\\moogi\\Documents\\data-weka\\anasazi-decisions.arff");
             decisionWriter.println("@relation anasazi-household-decision");
@@ -47,8 +47,8 @@ public enum Logger {
         printDecisions();
 
         isClosed = true;
-        farmWriter.flush();
-        farmWriter.close();
+//        farmWriter.flush();
+//        farmWriter.close();
         decisionWriter.flush();
         decisionWriter.close();
     }
@@ -75,7 +75,7 @@ public enum Logger {
 
     public void log(BuildFarmDecision event) {
         if (!isClosed) {
-            farmWriter.println(event.toString());
+//            farmWriter.println(event.toString());
         }
     }
 
