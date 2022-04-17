@@ -221,6 +221,8 @@ public abstract class HouseholdBase extends Scape {
         //if (farmLocation.getBaseYield() >= getLHVRoot().getHouseholdMinNutritionNeed()) {
     }
 
+    public abstract int getAge();
+
     public Clan getClan() {
         return clan;
     }
@@ -231,10 +233,6 @@ public abstract class HouseholdBase extends Scape {
 
     public int getEstimateNextYearCorn() {
         return getTotalCornStocks() + lastHarvest;
-    }
-
-    public double getEstimatedNutritionAvailable() {
-        return farms.stream().mapToDouble(farm -> farm.getLocation().getBaseYield()).sum();
     }
 
     private LHVMachineLearning getLHVRoot() {

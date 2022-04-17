@@ -16,24 +16,13 @@ public enum Logger {
 
     Logger() {
         try {
-//            farmWriter = new PrintWriter("C:\\Users\\moogi\\Documents\\data-weka\\anasazi-farms.arff");
-//            farmWriter.println("@relation anasazi-build-farm");
-//            farmWriter.println("@attribute 'nutrition need' numeric");
-//            farmWriter.println("@attribute 'base yield' numeric");
-//            farmWriter.println("@attribute 'distance to water' numeric");
-//            farmWriter.println("@attribute 'is available' { true, false }");
-//            farmWriter.println("@attribute 'build farm' { true, false }");
-//            farmWriter.println("@data");
-
             decisionWriter = new PrintWriter("C:\\Users\\moogi\\Documents\\data-weka\\anasazi-decisions.arff");
             decisionWriter.println("@relation anasazi-household-decision");
             decisionWriter.println("@attribute 'age' numeric");
             decisionWriter.println("@attribute 'has farm' { true, false }");
-//            decisionWriter.println("@attribute 'has settlement' { true, false }");
             decisionWriter.println("@attribute 'nutrition need' numeric");
-            decisionWriter.println("@attribute 'est nutrition available' numeric");
             decisionWriter.println("@attribute 'total corn stocks' numeric");
-//            decisionWriter.println("@attribute 'est next year corn' numeric");
+            decisionWriter.println("@attribute 'est next year corn' numeric");
             decisionWriter.println("@attribute 'fertility' numeric");
             decisionWriter.println("@attribute 'decision' { DIE_STARVATION, DIE_OLD_AGE, DEPART, MOVE, FISSION, NONE }");
             decisionWriter.println("@data");
@@ -54,7 +43,7 @@ public enum Logger {
     }
 
     public void log(HouseholdEvent event) {
-        if (!isClosed && event.household != null) {
+        if (!isClosed && event.id != 0) {
             if (event.period != currentPeriod) {
                 if (currentPeriod != 0) {
                     printDecisions();
@@ -64,11 +53,11 @@ public enum Logger {
                 householdMap.clear();
             }
 
-            if (!householdMap.containsKey(event.household.id)) {
-                householdMap.put(event.household.id, new HouseholdDecisions(event.household));
+            if (!householdMap.containsKey(event.id)) {
+                householdMap.put(event.id, new HouseholdDecisions(event.id));
             }
 
-            householdMap.get(event.household.id).setDecision(event);
+            householdMap.get(event.id).setDecision(event);
 
         }
     }

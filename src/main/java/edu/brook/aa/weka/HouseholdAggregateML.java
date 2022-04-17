@@ -19,15 +19,20 @@ public class HouseholdAggregateML extends HouseholdBase {
         public void execute(Agent agent) {
             HouseholdAggregateML hha = (HouseholdAggregateML) agent;
             /*
-            @attribute 'age' numeric
-            @attribute 'has farm' { true, false }
-            @attribute 'nutrition need' numeric
-            @attribute 'est nutrition available' numeric
-            @attribute 'total corn stocks' numeric
-            @attribute 'fertility' numeric
+            .println("@attribute 'age' numeric");
+            decisionWriter.println("@attribute 'has farm' { true, false }");
+            decisionWriter.println("@attribute 'nutrition need' numeric");
+            decisionWriter.println("@attribute 'total corn stocks' numeric");
+            decisionWriter.println("@attribute 'est next year corn' numeric");
+            decisionWriter.println("@attribute 'fertility' numeric");
             @attribute 'decision' { DIE_STARVATION, DIE_OLD_AGE, DEPART, MOVE, FISSION, NONE }
             */
-            Object[] props = new Object[]{(double) hha.getAge(), Boolean.toString(hha.hasFarm()), (double) hha.getNutritionNeed(), hha.getEstimatedNutritionAvailable(), (double) hha.getTotalCornStocks(), getRandom().nextDouble()};
+            Object[] props = new Object[]{(double) hha.getAge(),
+                    Boolean.toString(hha.hasFarm()),
+                    (double) hha.getNutritionNeed(),
+                    (double) hha.getTotalCornStocks(),
+                    (double) hha.getEstimateNextYearCorn(),
+                    getRandom().nextDouble()};
             EventType decision = WekaDecisionClassifier.classify(props);
 
             switch (decision) {

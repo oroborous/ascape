@@ -1,12 +1,11 @@
 package edu.brook.aa.log;
 
-import edu.brook.aa.HouseholdAggregate;
 import edu.brook.aa.HouseholdBase;
 
 public class HouseholdEvent {
-    int period;
+    int period, id, age, nutritionNeed, totalCornStocks, estNextYearCorn;
+    boolean hasFarm;
     EventType eventType;
-    HouseholdAggregate household;
     double fissionRandom;
     boolean decision;
 
@@ -15,10 +14,7 @@ public class HouseholdEvent {
                           boolean decision,
                           HouseholdBase household,
                           double fissionRandom) {
-        this.period = period;
-        this.eventType = eventType;
-        this.decision = decision;
-        this.household = household instanceof HouseholdAggregate ? (HouseholdAggregate) household : null;
+        this(period, eventType, decision, household);
         this.fissionRandom = fissionRandom;
     }
 
@@ -29,6 +25,12 @@ public class HouseholdEvent {
         this.period = period;
         this.eventType = eventType;
         this.decision = decision;
-        this.household = household instanceof HouseholdAggregate ? (HouseholdAggregate) household : null;
+
+        this.id = household.id;
+        this.age = household.getAge();
+        this.hasFarm = household.hasFarm();
+        this.nutritionNeed = household.getNutritionNeed();
+        this.totalCornStocks = household.getTotalCornStocks();
+        this.estNextYearCorn = household.getEstimateNextYearCorn();
     }
 }

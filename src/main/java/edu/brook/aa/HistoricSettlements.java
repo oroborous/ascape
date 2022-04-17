@@ -111,9 +111,6 @@ public class HistoricSettlements extends Scape {
         valley.addDrawFeature(zoneYieldFill);
 
         DrawFeature drawWaterFeature = new DrawFeature("Water Sources") {
-
-            private static final long serialVersionUID = 8533411178579775478L;
-
             public void draw(Graphics g, Object object, int width, int height) {
                 if (((Location) object).isCurrentWaterSource()) {
                     g.setColor(Color.blue);
@@ -124,9 +121,6 @@ public class HistoricSettlements extends Scape {
         valley.addDrawFeature(drawWaterFeature);
 
         DrawFeature drawFarmFeature = new DrawFeature("Farms") {
-
-            private static final long serialVersionUID = -1940011486883417752L;
-
             public void draw(Graphics g, Object object, int width, int height) {
                 if (((Location) object).getFarm() != null) {
                     g.setColor(Color.yellow);
@@ -137,9 +131,6 @@ public class HistoricSettlements extends Scape {
         valley.addDrawFeature(drawFarmFeature);
 
         DrawFeature sandDuneFeature = new DrawFeature("Sand Dunes") {
-
-            private static final long serialVersionUID = -2391074808277172861L;
-
             public void draw(Graphics g, Object object, int width, int height) {
                 if (((Location) object).isSandDune()) {
                     g.setColor(Color.green);
@@ -173,25 +164,6 @@ public class HistoricSettlements extends Scape {
             }
         };
         valley.addDrawFeature(historicSettlementFeature);
-
-        DrawFeature histSettlementTierFeature = new DrawFeature("Historical Settlement Tier") {
-
-            private static final long serialVersionUID = 8151081684304662162L;
-
-            public void draw(Graphics g, Object object, int width, int height) {
-                if (((Location) object).getSettlement() != null) {
-                    if (((Location) object).getSettlement().getSize() < 5) {
-                        g.setColor(Color.black);
-                    } else if (((Location) object).getSettlement().getSize() < 20) {
-                        g.setColor(Color.green);
-                    } else {
-                        g.setColor(Color.red);
-                    }
-                    DrawSymbol.FILL_OVOID.draw(g, width, height);
-                }
-            }
-        };
-        valley.addDrawFeature(histSettlementTierFeature);
 
     }
 
@@ -281,7 +253,7 @@ public class HistoricSettlements extends Scape {
         views[0].getDrawSelection().clearSelection();
         views[0].getDrawSelection().setSelected("Hydrology", true);
         views[0].getDrawSelection().setSelected("Farms", true);
-        views[0].getDrawSelection().setSelected("Historical Settlement Tier", true);
+        views[0].getDrawSelection().setSelected("Historic Settlements", true);
         views[0].getDrawSelection().setSelected("Water Sources", true);
     }
 

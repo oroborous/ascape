@@ -76,6 +76,10 @@ public class HouseholdDisaggregate extends HouseholdBase {
         }
     }
 
+    public int getAge() {
+        return 0;
+    }
+
     public int getNumAdults() {
         return 6;
 /*collectAdults.clear();

@@ -1,18 +1,23 @@
 package edu.brook.aa.log;
 
-import edu.brook.aa.HouseholdAggregate;
-
 public class HouseholdDecisions {
-    private HouseholdAggregate household;
+    private int id, age, nutritionNeed, totalCornStocks, estNextYearCorn;
     private double fissionRandom;
+    private boolean hasFarm;
     private boolean starvation, oldAge, move, depart, fission;
 
-    public HouseholdDecisions(HouseholdAggregate household) {
-        this.household = household;
+    public HouseholdDecisions(int id) {
+        this.id = id;
     }
 
     public void setDecision(HouseholdEvent event) {
-        switch(event.eventType) {
+        this.age = event.age;
+        this.nutritionNeed = event.nutritionNeed;
+        this.totalCornStocks = event.totalCornStocks;
+        this.estNextYearCorn = event.estNextYearCorn;
+        this.hasFarm = event.hasFarm;
+
+        switch (event.eventType) {
             case DIE_STARVATION:
                 starvation = event.decision;
                 break;
@@ -44,35 +49,20 @@ public class HouseholdDecisions {
             choice = EventType.DIE_STARVATION;
         } else if (depart) {
             choice = EventType.DEPART;
-        } else if (fission) {
-            choice = EventType.FISSION;
         } else if (move) {
             choice = EventType.MOVE;
+        } else if (fission) {
+            choice = EventType.FISSION;
         }
 
-        return String.format("%d,%b,%d,%f,%d,%f,%s",
-                household.getAge(),
-                household.hasFarm(),
-//                household.hasSettlement(),
-                household.getNutritionNeed(),
-                household.getEstimatedNutritionAvailable(),
-                household.getTotalCornStocks(),
-//                household.getEstimateNextYearCorn(),
+        return String.format("%d,%b,%d,%d,%d,%f,%s",
+                age,
+                hasFarm,
+                nutritionNeed,
+                totalCornStocks,
+                estNextYearCorn,
                 fissionRandom,
-                choice.toString());
+                choice);
 
-//        return String.format("%d, %d, %b, %b, %d, %f, %d, %d, DIE %b, DEPART %b, MOVE %b, FISSION %b",
-//                household.id,
-//                household.getAge(),
-//                household.hasFarm(),
-//                household.hasSettlement(),
-//                household.getNutritionNeed(),
-//                household.getEstimatedNutritionAvailable(),
-//                household.getTotalCornStocks(),
-//                household.getEstimateNextYearCorn(),
-//                die,
-//                depart,
-//                move,
-//                fission);
     }
 }
