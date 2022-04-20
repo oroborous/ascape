@@ -11,16 +11,44 @@ package edu.brook.aa;
 import edu.brook.aa.log.EventType;
 import edu.brook.aa.log.HouseholdEvent;
 import edu.brook.aa.log.Logger;
+import edu.brook.aa.weka.WekaDecisionClassifier;
+import org.ascape.model.Agent;
+import org.ascape.model.rule.Rule;
 import org.ascape.util.data.StatCollector;
 import org.ascape.util.data.StatCollectorCSAMM;
 
 public class HouseholdAggregate extends HouseholdBase {
 
     private static final long serialVersionUID = 5091800912116536871L;
+    private static int nextId = 1;
 
     private int age;
-
     private int nutritionNeed;
+    public final Rule DECISION_TREE_RULE_PRE = new Rule("(Pre) Consult Decision Tree") {
+
+        public void execute(Agent agent) {
+            HouseholdAggregate hha = (HouseholdAggregate) agent;
+
+            Object[] props = new Object[]{(double) hha.getAge(),
+                    Boolean.toString(hha.hasFarm()),
+                    (double) hha.getNutritionNeed(),
+                    (double) hha.getTotalCornStocks(),
+                    (double) hha.getEstimateNextYearCorn(),
+                    getRandom().nextDouble()};
+            EventType decision = WekaDecisionClassifier.classify(props);
+
+            Logger.INSTANCE.log(new HouseholdEvent(hha.getScape().getPeriod(),
+                    decision, true, hha, hha.fissionRandom));
+        }
+
+        public boolean isCauseRemoval() {
+            return false;
+        }
+
+        public boolean isRandomExecution() {
+            return false;
+        }
+    };
 
     private int nutritionNeedRemaining;
 
@@ -28,9 +56,9 @@ public class HouseholdAggregate extends HouseholdBase {
         boolean starvation = nutritionNeedRemaining > 0;
         boolean oldAge = age > deathAge;
         Logger.INSTANCE.log(new HouseholdEvent(getScape().getPeriod(),
-                EventType.DIE_STARVATION, starvation, this));
+                EventType.DIE_STARVATION, starvation, this, fissionRandom));
         Logger.INSTANCE.log(new HouseholdEvent(getScape().getPeriod(),
-                EventType.DIE_OLD_AGE, oldAge, this));
+                EventType.DIE_OLD_AGE, oldAge, this, fissionRandom));
 
         if (nutritionNeedRemaining > 0) {
             getStatCollector(DEATHS_STARVATION).addValue(0.0);
@@ -63,11 +91,10 @@ public class HouseholdAggregate extends HouseholdBase {
         //return ((age > ((LHV) getRoot()).getFertilityAge())
         // && (getRandom().nextDouble() < ((LHV) getRoot()).getFertility()));
         //Rob's experiment
-        double fissionRandom = getRandom().nextDouble();
         boolean isFission = (age > fertilityAge) && (age <= fertilityEndsAge)
                 && (fissionRandom < fertility);
         Logger.INSTANCE.log(new HouseholdEvent(getScape().getPeriod(),
-                EventType.FISSION, isFission, this, 1 - fissionRandom));
+                EventType.FISSION, isFission, this, fissionRandom));
         return isFission;
     }
 
@@ -94,6 +121,7 @@ public class HouseholdAggregate extends HouseholdBase {
 
     public void initialize() {
         super.initialize();
+        this.id = nextId++;
         setMembersActive(false);
 
         age = randomInRange(LHV.householdMinInitialAge, LHV.householdMaxInitialAge);
@@ -110,6 +138,7 @@ public class HouseholdAggregate extends HouseholdBase {
         super.scapeCreated();
 
         scape.addRule(METABOLISM_RULE);
+        scape.addRule(DECISION_TREE_RULE_PRE);
         scape.addRule(DEATH_RULE);
         scape.addRule(MOVEMENT_RULE);
         scape.addRule(FISSIONING_RULE);

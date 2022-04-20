@@ -11,6 +11,8 @@ import org.ascape.util.data.StatCollectorCSAMM;
 public class HouseholdAggregateML extends HouseholdBase {
 
     private static final long serialVersionUID = 5091800912116536871L;
+    private static int nextId = 1;
+
     private int age;
     private int nutritionNeed;
     public final Rule DECISION_TREE_RULE = new Rule("Obey Decision Tree") {
@@ -64,6 +66,7 @@ public class HouseholdAggregateML extends HouseholdBase {
             return false;
         }
     };
+
     private int nutritionNeedRemaining;
 
     public void fission() {
@@ -103,6 +106,7 @@ public class HouseholdAggregateML extends HouseholdBase {
 
     public void initialize() {
         super.initialize();
+        this.id = nextId++;
         setMembersActive(false);
 
         age = randomInRange(LHV.householdMinInitialAge, LHV.householdMaxInitialAge);

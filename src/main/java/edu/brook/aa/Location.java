@@ -97,7 +97,11 @@ public class Location extends Cell implements Comparable<Location> {
     }
 
     public double findRandomYield() {
-        return getBaseYield() * ((getRandom().nextGaussian() * LHV.harvestVarianceLocation) + 1.0);
+        double yield = getBaseYield() * (Math.abs(getRandom().nextGaussian() * LHV.harvestVarianceLocation) + 1.0);
+        if (yield < 0) {
+            System.out.println("WTH?");
+        }
+        return yield;
     }
 
     public final double getBaseYield() {

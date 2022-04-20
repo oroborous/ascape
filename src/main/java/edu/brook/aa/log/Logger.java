@@ -9,7 +9,7 @@ public enum Logger {
     INSTANCE;
 
     private final Map<Integer, HouseholdDecisions> householdMap = new HashMap<>();
-    private PrintWriter decisionWriter;
+    private PrintWriter trainingData, decisionHistory;
     private boolean isClosed = false;
     private int currentPeriod = 0;
 
@@ -23,10 +23,10 @@ public enum Logger {
         printDecisions();
 
         isClosed = true;
-//        farmWriter.flush();
-//        farmWriter.close();
-        decisionWriter.flush();
-        decisionWriter.close();
+        decisionHistory.flush();
+        decisionHistory.close();
+        trainingData.flush();
+        trainingData.close();
     }
 
     public void log(HouseholdEvent event) {
@@ -41,7 +41,7 @@ public enum Logger {
             }
 
             if (!householdMap.containsKey(event.id)) {
-                householdMap.put(event.id, new HouseholdDecisions(event.id));
+                householdMap.put(event.id, new HouseholdDecisions());
             }
 
             householdMap.get(event.id).setDecision(event);
@@ -49,26 +49,24 @@ public enum Logger {
         }
     }
 
-    public void log(BuildFarmDecision event) {
-        if (!isClosed) {
-//            farmWriter.println(event.toString());
-        }
-    }
-
     public void open() {
         isClosed = false;
-        
+
         try {
-            decisionWriter = new PrintWriter("C:\\Users\\moogi\\Documents\\data-weka\\anasazi-decisions.arff");
-            decisionWriter.println("@relation anasazi-household-decision");
-            decisionWriter.println("@attribute 'age' numeric");
-            decisionWriter.println("@attribute 'has farm' { true, false }");
-            decisionWriter.println("@attribute 'nutrition need' numeric");
-            decisionWriter.println("@attribute 'total corn stocks' numeric");
-            decisionWriter.println("@attribute 'est next year corn' numeric");
-            decisionWriter.println("@attribute 'fertility' numeric");
-            decisionWriter.println("@attribute 'decision' { DIE_STARVATION, DIE_OLD_AGE, DEPART, MOVE, FISSION, NONE }");
-            decisionWriter.println("@data");
+            trainingData = new PrintWriter("C:\\Users\\moogi\\Documents\\data-weka\\anasazi-decisions-train.arff");
+            trainingData.println("@relation anasazi-household-decision");
+            trainingData.println("@attribute 'period' numeric");
+            trainingData.println("@attribute 'id' numeric");
+            trainingData.println("@attribute 'age' numeric");
+            trainingData.println("@attribute 'has farm' { true, false }");
+            trainingData.println("@attribute 'nutrition need' numeric");
+            trainingData.println("@attribute 'total corn stocks' numeric");
+            trainingData.println("@attribute 'est next year corn' numeric");
+            trainingData.println("@attribute 'fertility' numeric");
+            trainingData.println("@attribute 'decision' { DIE_STARVATION, DIE_OLD_AGE, DEPART, MOVE, FISSION, NONE }");
+            trainingData.println("@data");
+
+            decisionHistory = new PrintWriter("C:\\Users\\moogi\\Documents\\data-weka\\anasazi-decisions-history.arff");
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -76,7 +74,10 @@ public enum Logger {
 
     private void printDecisions() {
         for (HouseholdDecisions decisions : householdMap.values()) {
-            decisionWriter.println(decisions.toString());
+            if (decisions.hasEvents()) {
+                trainingData.println(decisions.getFinalDecision());
+                decisionHistory.println(decisions.getDecisionHistory());
+            }
         }
     }
 

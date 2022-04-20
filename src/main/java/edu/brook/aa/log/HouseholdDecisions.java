@@ -1,43 +1,23 @@
 package edu.brook.aa.log;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class HouseholdDecisions {
-    private int id, age, nutritionNeed, totalCornStocks, estNextYearCorn;
+    private int period, id, age, nutritionNeed, totalCornStocks, estNextYearCorn;
     private double fissionRandom;
     private boolean hasFarm;
     private boolean starvation, oldAge, move, depart, fission;
 
-    public HouseholdDecisions(int id) {
-        this.id = id;
+    private List<HouseholdEvent> events = new ArrayList<>();
+
+    public String getDecisionHistory() {
+        StringBuilder sb = new StringBuilder();
+        events.forEach(sb::append);
+        return sb.toString();
     }
 
-    public void setDecision(HouseholdEvent event) {
-        this.age = event.age;
-        this.nutritionNeed = event.nutritionNeed;
-        this.totalCornStocks = event.totalCornStocks;
-        this.estNextYearCorn = event.estNextYearCorn;
-        this.hasFarm = event.hasFarm;
-
-        switch (event.eventType) {
-            case DIE_STARVATION:
-                starvation = event.decision;
-                break;
-            case DIE_OLD_AGE:
-                oldAge = event.decision;
-                break;
-            case DEPART:
-                depart = event.decision;
-                break;
-            case MOVE:
-                move = event.decision;
-                break;
-            case FISSION:
-                fission = event.decision;
-                fissionRandom = event.fissionRandom;
-                break;
-        }
-    }
-
-    public String toString() {
+    public String getFinalDecision() {
         // period, hhID, eventType, decision,
         // age, hasFarm, hasSettlement,
         // nutritionNeed,
@@ -55,7 +35,9 @@ public class HouseholdDecisions {
             choice = EventType.FISSION;
         }
 
-        return String.format("%d,%b,%d,%d,%d,%f,%s",
+        return String.format("%d,%d,%d,%b,%d,%d,%d,%f,%s",
+                period,
+                id,
                 age,
                 hasFarm,
                 nutritionNeed,
@@ -63,6 +45,46 @@ public class HouseholdDecisions {
                 estNextYearCorn,
                 fissionRandom,
                 choice);
+    }
 
+    public boolean hasEvents() {
+        return events.size() > 1;
+    }
+
+    public void setDecision(HouseholdEvent event) {
+        if (event.isML || event.age == 0)
+            return;
+
+        events.add(event);
+
+        // ignore the first event -- the decision tree ruling
+        if (events.size() > 1) {
+            this.period = event.period;
+            this.id = event.id;
+            this.age = event.age;
+            this.nutritionNeed = event.nutritionNeed;
+            this.totalCornStocks = event.totalCornStocks;
+            this.estNextYearCorn = event.estNextYearCorn;
+            this.hasFarm = event.hasFarm;
+            this.fissionRandom = event.fissionRandom;
+
+            switch (event.eventType) {
+                case DIE_STARVATION:
+                    starvation = event.decision;
+                    break;
+                case DIE_OLD_AGE:
+                    oldAge = event.decision;
+                    break;
+                case DEPART:
+                    depart = event.decision;
+                    break;
+                case MOVE:
+                    move = event.decision;
+                    break;
+                case FISSION:
+                    fission = event.decision;
+                    break;
+            }
+        }
     }
 }

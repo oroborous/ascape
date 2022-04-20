@@ -1,6 +1,7 @@
 package edu.brook.aa.log;
 
 import edu.brook.aa.HouseholdBase;
+import edu.brook.aa.weka.HouseholdAggregateML;
 
 public class HouseholdEvent {
     int period, id, age, nutritionNeed, totalCornStocks, estNextYearCorn;
@@ -8,20 +9,13 @@ public class HouseholdEvent {
     EventType eventType;
     double fissionRandom;
     boolean decision;
+    boolean isML;
 
     public HouseholdEvent(int period,
                           EventType eventType,
                           boolean decision,
                           HouseholdBase household,
                           double fissionRandom) {
-        this(period, eventType, decision, household);
-        this.fissionRandom = fissionRandom;
-    }
-
-    public HouseholdEvent(int period,
-                          EventType eventType,
-                          boolean decision,
-                          HouseholdBase household) {
         this.period = period;
         this.eventType = eventType;
         this.decision = decision;
@@ -32,5 +26,21 @@ public class HouseholdEvent {
         this.nutritionNeed = household.getNutritionNeed();
         this.totalCornStocks = household.getTotalCornStocks();
         this.estNextYearCorn = household.getEstimateNextYearCorn();
+        this.fissionRandom = fissionRandom;
+        this.isML = household instanceof HouseholdAggregateML;
+    }
+
+    public String toString() {
+        return String.format("[%d,%d,%d,%b,%d,%d,%d,%f,%s,%b]%n",
+                period,
+                id,
+                age,
+                hasFarm,
+                nutritionNeed,
+                totalCornStocks,
+                estNextYearCorn,
+                fissionRandom,
+                eventType,
+                decision);
     }
 }

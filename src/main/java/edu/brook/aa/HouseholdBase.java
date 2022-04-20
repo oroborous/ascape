@@ -30,6 +30,11 @@ public abstract class HouseholdBase extends Scape {
     public static final String HOUSEHOLD_SIZE = "Household Size";
     public static final String HOUSEHOLDS_DISBANDED = "Households Disbanded";
     public static final String HOUSEHOLDS_FORMED = "Households Formed";
+    public static final String DEPARTURES = "Departures";
+    public static final String MOVEMENTS = "Movements";
+    public static final String HOUSEHOLDS = "Households";
+    public static final String FARMS_PER_HOUSEHOLD = "Farms Per Household";
+
     public final static DataPoint BEST_FARM = new DataPoint() {
         public String getName() {
             return "Best Farm";
@@ -45,7 +50,7 @@ public abstract class HouseholdBase extends Scape {
     };
     private static final long serialVersionUID = 4016766647753095651L;
     static int maximumFarmlandsSearched = 100;
-    private static int nextId = 1;
+
     public int id;
 
     protected List<Farm> farms;
@@ -61,6 +66,8 @@ public abstract class HouseholdBase extends Scape {
     protected int fertilityEndsAge;
 
     protected double fertility;
+
+    protected double fissionRandom;
 
     //The last item in cornstocks is unusable, except as a holder for
     //use when aging a years cornstocks.
@@ -114,6 +121,9 @@ public abstract class HouseholdBase extends Scape {
                 amount -= agedCornStocks[i];
                 agedCornStocks[i] = 0;
             }
+            if (agedCornStocks[i] < 0) {
+                System.out.println("WTH?");
+            }
         }
         //Not all need was meet
         return amount;
@@ -121,7 +131,7 @@ public abstract class HouseholdBase extends Scape {
 
     public void depart() {
         die();
-        getStatCollector("Departures").addValue(0.0);
+        getStatCollector(DEPARTURES).addValue(0.0);
     }
 
     public void die() {
@@ -262,6 +272,9 @@ public abstract class HouseholdBase extends Scape {
         for (int i = 0; i < LHV.yearsOfStock; i++) {
             total += agedCornStocks[i];
         }
+        if (total < 0) {
+            System.out.println("WTH?");
+        }
         return total;
     }
 
@@ -278,7 +291,6 @@ public abstract class HouseholdBase extends Scape {
 
     public void initialize() {
         super.initialize();
-        id = nextId++;
 
         setMembersActive(false);
         agedCornStocks = new int[LHV.yearsOfStock + 1];
@@ -319,6 +331,7 @@ public abstract class HouseholdBase extends Scape {
 
     public void metabolism() {
         lastHarvest = 0;
+        fissionRandom = getRandom().nextDouble();
         int adultCount = 0;
         int adults = getNumAdults();
 
@@ -334,6 +347,9 @@ public abstract class HouseholdBase extends Scape {
             agedCornStocks[i + 1] = agedCornStocks[i];
         }
         agedCornStocks[0] = lastHarvest;
+        if (agedCornStocks[0] < 0) {
+            System.out.println("WTH?");
+        }
     }
 
     public void move() {
@@ -344,7 +360,7 @@ public abstract class HouseholdBase extends Scape {
         boolean isMove = farms.isEmpty() || settlement == null;
 
         Logger.INSTANCE.log(new HouseholdEvent(getScape().getPeriod(),
-                EventType.DEPART, isMove, this));
+                EventType.DEPART, isMove, this, fissionRandom));
 
         if ((farms.size() == 0) || (settlement == null)) {
             depart();
@@ -355,17 +371,17 @@ public abstract class HouseholdBase extends Scape {
         if (getEstimateNextYearCorn() < getNutritionNeed()) {
             if (!findFarmsForNutritionalNeed()) {
                 Logger.INSTANCE.log(new HouseholdEvent(getScape().getPeriod(),
-                        EventType.MOVE, true, this));
-                getStatCollector("Movements").addValue(0.0);
+                        EventType.MOVE, true, this, fissionRandom));
+                getStatCollector(MOVEMENTS).addValue(0.0);
                 return true;
             } else {
                 Logger.INSTANCE.log(new HouseholdEvent(getScape().getPeriod(),
-                        EventType.MOVE, false, this));
+                        EventType.MOVE, false, this, fissionRandom));
                 return false;
             }
         }
         Logger.INSTANCE.log(new HouseholdEvent(getScape().getPeriod(),
-                EventType.MOVE, false, this));
+                EventType.MOVE, false, this, fissionRandom));
         return false;
     }
 
@@ -382,11 +398,11 @@ public abstract class HouseholdBase extends Scape {
         String suffix = getStatCollectorSuffix();
 
         StatCollector[] stats = new StatCollector[5];
-        stats[0] = new StatCollector("Households" + suffix);
-        stats[1] = new StatCollector("Movements" + suffix, false);
-        stats[2] = new StatCollector("Fissions" + suffix, false);
-        stats[3] = new StatCollector("Departures" + suffix, false);
-        stats[4] = new StatCollectorCSAMM("Farms Per Household" + suffix) {
+        stats[0] = new StatCollector(HOUSEHOLDS + suffix);
+        stats[1] = new StatCollector(MOVEMENTS + suffix, false);
+        stats[2] = new StatCollector(FISSIONS + suffix, false);
+        stats[3] = new StatCollector(DEPARTURES + suffix, false);
+        stats[4] = new StatCollectorCSAMM(FARMS_PER_HOUSEHOLD + suffix) {
 
             private static final long serialVersionUID = -3060585396202230071L;
 

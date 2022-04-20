@@ -11,7 +11,7 @@ import edu.brook.aa.log.EventType;
 public class WekaDecisionClassifier {
 
     public static EventType classify(Object[] i) {
-        int result = WekaDecisionClassifier.N2c62887f0(i);
+        int result = (int) WekaDecisionClassifier.N1cbae59012(i);
         switch (result) {
             case 0:
                 return EventType.DIE_STARVATION;
@@ -23,140 +23,190 @@ public class WekaDecisionClassifier {
                 return EventType.MOVE;
             case 4:
                 return EventType.FISSION;
+            case 5:
+                return EventType.NONE;
             default:
                 return EventType.NONE;
         }
     }
 
-    static int N2c62887f0(Object[] i) {
-
-        if (i[1] == null) {
-            return 5;
-        } else if (i[1].equals("true")) {
-            return WekaDecisionClassifier.N725df88e1(i);
-        } else if (i[1].equals("false")) {
-            return WekaDecisionClassifier.N820d4969(i);
-        }
-        return 5;
-    }
-
-    static int N725df88e1(Object[] i) {
-
+    static double N1cbae59012(Object[] i) {
+        double p = Double.NaN;
         if (i[5] == null) {
-            return 5;
-        } else if (((Double) i[5]) <= 0.874974) {
-            return WekaDecisionClassifier.N4e689f362(i);
-        } else if (((Double) i[5]) > 0.874974) {
-            return WekaDecisionClassifier.N8432f368(i);
+            p = 5;
+        } else if (((Double) i[5]).doubleValue() <= 0.124967) {
+            p = WekaDecisionClassifier.N49daba813(i);
+        } else if (((Double) i[5]).doubleValue() > 0.124967) {
+            p = WekaDecisionClassifier.N793a055420(i);
         }
-        return 5;
+        return p;
     }
 
-    static int N4e689f362(Object[] i) {
+    static double N49daba813(Object[] i) {
+        double p = Double.NaN;
+        if (i[0] == null) {
+            p = 5;
+        } else if (((Double) i[0]).doubleValue() <= 16.0) {
+            p = WekaDecisionClassifier.N4a92e87d14(i);
+        } else if (((Double) i[0]).doubleValue() > 16.0) {
+            p = WekaDecisionClassifier.N2206a8ea15(i);
+        }
+        return p;
+    }
 
+    static double N4a92e87d14(Object[] i) {
+        double p = Double.NaN;
+        if (i[1] == null) {
+            p = 5;
+        } else if (i[1].equals("true")) {
+            p = 5;
+        } else if (i[1].equals("false")) {
+            p = 2;
+        }
+        return p;
+    }
+
+    static double N2206a8ea15(Object[] i) {
+        double p = Double.NaN;
+        if (i[0] == null) {
+            p = 4;
+        } else if (((Double) i[0]).doubleValue() <= 30.0) {
+            p = WekaDecisionClassifier.N69db4f5f16(i);
+        } else if (((Double) i[0]).doubleValue() > 30.0) {
+            p = WekaDecisionClassifier.N72792717(i);
+        }
+        return p;
+    }
+
+    static double N69db4f5f16(Object[] i) {
+        double p = Double.NaN;
+        if (i[1] == null) {
+            p = 4;
+        } else if (i[1].equals("true")) {
+            p = 4;
+        } else if (i[1].equals("false")) {
+            p = 2;
+        }
+        return p;
+    }
+
+    static double N72792717(Object[] i) {
+        double p = Double.NaN;
+        if (i[0] == null) {
+            p = 4;
+        } else if (((Double) i[0]).doubleValue() <= 32.0) {
+            p = WekaDecisionClassifier.N5d7eb85418(i);
+        } else if (((Double) i[0]).doubleValue() > 32.0) {
+            p = WekaDecisionClassifier.N4aa80ae919(i);
+        }
+        return p;
+    }
+
+    static double N5d7eb85418(Object[] i) {
+        double p = Double.NaN;
+        if (i[0] == null) {
+            p = 4;
+        } else if (((Double) i[0]).doubleValue() <= 31.0) {
+            p = 4;
+        } else if (((Double) i[0]).doubleValue() > 31.0) {
+            p = 5;
+        }
+        return p;
+    }
+
+    static double N4aa80ae919(Object[] i) {
+        double p = Double.NaN;
+        if (i[0] == null) {
+            p = 5;
+        } else if (((Double) i[0]).doubleValue() <= 35.0) {
+            p = 5;
+        } else if (((Double) i[0]).doubleValue() > 35.0) {
+            p = 1;
+        }
+        return p;
+    }
+
+    static double N793a055420(Object[] i) {
+        double p = Double.NaN;
+        if (i[0] == null) {
+            p = 5;
+        } else if (((Double) i[0]).doubleValue() <= 30.0) {
+            p = WekaDecisionClassifier.N6a92e01521(i);
+        } else if (((Double) i[0]).doubleValue() > 30.0) {
+            p = WekaDecisionClassifier.N1c25867b25(i);
+        }
+        return p;
+    }
+
+    static double N6a92e01521(Object[] i) {
+        double p = Double.NaN;
+        if (i[1] == null) {
+            p = 5;
+        } else if (i[1].equals("true")) {
+            p = WekaDecisionClassifier.N4286590b22(i);
+        } else if (i[1].equals("false")) {
+            p = 2;
+        }
+        return p;
+    }
+
+    static double N4286590b22(Object[] i) {
+        double p = Double.NaN;
         if (i[4] == null) {
-            return 5;
-        } else if (((Double) i[4]) <= 298.0) {
-            return WekaDecisionClassifier.N55f356bb3(i);
-        } else if (((Double) i[4]) > 298.0) {
-            return 5;
+            p = 5;
+        } else if (((Double) i[4]).doubleValue() <= 900.0) {
+            p = WekaDecisionClassifier.N48f3ecf023(i);
+        } else if (((Double) i[4]).doubleValue() > 900.0) {
+            p = 5;
         }
-        return 5;
+        return p;
     }
 
-    static int N55f356bb3(Object[] i) {
+    static double N48f3ecf023(Object[] i) {
+        double p = Double.NaN;
+        if (i[4] == null) {
+            p = 3;
+        } else if (((Double) i[4]).doubleValue() <= 799.0) {
+            p = WekaDecisionClassifier.N61ca401f24(i);
+        } else if (((Double) i[4]).doubleValue() > 799.0) {
+            p = 5;
+        }
+        return p;
+    }
 
+    static double N61ca401f24(Object[] i) {
+        double p = Double.NaN;
         if (i[3] == null) {
-            return 5;
-        } else if (((Double) i[3]) <= 935.037488) {
-            return 5;
-        } else if (((Double) i[3]) > 935.037488) {
-            return WekaDecisionClassifier.N6d6a0d0a4(i);
+            p = 0;
+        } else if (((Double) i[3]).doubleValue() <= 2.0) {
+            p = 0;
+        } else if (((Double) i[3]).doubleValue() > 2.0) {
+            p = 3;
         }
-        return 5;
+        return p;
     }
 
-    static int N6d6a0d0a4(Object[] i) {
-
+    static double N1c25867b25(Object[] i) {
+        double p = Double.NaN;
         if (i[0] == null) {
-            return 5;
-        } else if (((Double) i[0]) <= 0.0) {
-            return 5;
-        } else if (((Double) i[0]) > 0.0) {
-            return WekaDecisionClassifier.N70ee01a15(i);
+            p = 5;
+        } else if (((Double) i[0]).doubleValue() <= 36.0) {
+            p = WekaDecisionClassifier.N6c1bdaf526(i);
+        } else if (((Double) i[0]).doubleValue() > 36.0) {
+            p = 1;
         }
-        return 5;
+        return p;
     }
 
-    static int N70ee01a15(Object[] i) {
-
-        if (i[4] == null) {
-            return 3;
-        } else if (((Double) i[4]) <= 167.0) {
-            return 3;
-        } else if (((Double) i[4]) > 167.0) {
-            return WekaDecisionClassifier.N7a75a1a56(i);
+    static double N6c1bdaf526(Object[] i) {
+        double p = Double.NaN;
+        if (i[1] == null) {
+            p = 5;
+        } else if (i[1].equals("true")) {
+            p = 5;
+        } else if (i[1].equals("false")) {
+            p = 2;
         }
-        return 5;
-    }
-
-    static int N7a75a1a56(Object[] i) {
-
-        if (i[3] == null) {
-            return 5;
-        } else if (((Double) i[3]) <= 1057.626978) {
-            return 5;
-        } else if (((Double) i[3]) > 1057.626978) {
-            return WekaDecisionClassifier.N35fc76de7(i);
-        }
-        return 5;
-    }
-
-    static int N35fc76de7(Object[] i) {
-
-        if (i[4] == null) {
-            return 3;
-        } else if (((Double) i[4]) <= 231.0) {
-            return 3;
-        } else if (((Double) i[4]) > 231.0) {
-            return 5;
-        }
-        return 5;
-    }
-
-    static int N8432f368(Object[] i) {
-
-        if (i[0] == null) {
-            return 5;
-        } else if (((Double) i[0]) <= 16.0) {
-            return 5;
-        } else if (((Double) i[0]) > 16.0) {
-            return 4;
-        }
-        return 5;
-    }
-
-    static int N820d4969(Object[] i) {
-
-        if (i[0] == null) {
-            return 2;
-        } else if (((Double) i[0]) <= 30.0) {
-            return WekaDecisionClassifier.N5f0f24be10(i);
-        } else if (((Double) i[0]) > 30.0) {
-            return 1;
-        }
-        return 5;
-    }
-
-    static int N5f0f24be10(Object[] i) {
-
-        if (i[4] == null) {
-            return 0;
-        } else if (((Double) i[4]) <= 0.0) {
-            return 0;
-        } else if (((Double) i[4]) > 0.0) {
-            return 2;
-        }
-        return 5;
+        return p;
     }
 }
