@@ -15,20 +15,7 @@ public enum Logger {
 
 
     Logger() {
-        try {
-            decisionWriter = new PrintWriter("C:\\Users\\moogi\\Documents\\data-weka\\anasazi-decisions.arff");
-            decisionWriter.println("@relation anasazi-household-decision");
-            decisionWriter.println("@attribute 'age' numeric");
-            decisionWriter.println("@attribute 'has farm' { true, false }");
-            decisionWriter.println("@attribute 'nutrition need' numeric");
-            decisionWriter.println("@attribute 'total corn stocks' numeric");
-            decisionWriter.println("@attribute 'est next year corn' numeric");
-            decisionWriter.println("@attribute 'fertility' numeric");
-            decisionWriter.println("@attribute 'decision' { DIE_STARVATION, DIE_OLD_AGE, DEPART, MOVE, FISSION, NONE }");
-            decisionWriter.println("@data");
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+
     }
 
     public void close() {
@@ -65,6 +52,25 @@ public enum Logger {
     public void log(BuildFarmDecision event) {
         if (!isClosed) {
 //            farmWriter.println(event.toString());
+        }
+    }
+
+    public void open() {
+        isClosed = false;
+        
+        try {
+            decisionWriter = new PrintWriter("C:\\Users\\moogi\\Documents\\data-weka\\anasazi-decisions.arff");
+            decisionWriter.println("@relation anasazi-household-decision");
+            decisionWriter.println("@attribute 'age' numeric");
+            decisionWriter.println("@attribute 'has farm' { true, false }");
+            decisionWriter.println("@attribute 'nutrition need' numeric");
+            decisionWriter.println("@attribute 'total corn stocks' numeric");
+            decisionWriter.println("@attribute 'est next year corn' numeric");
+            decisionWriter.println("@attribute 'fertility' numeric");
+            decisionWriter.println("@attribute 'decision' { DIE_STARVATION, DIE_OLD_AGE, DEPART, MOVE, FISSION, NONE }");
+            decisionWriter.println("@data");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
         }
     }
 
