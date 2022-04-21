@@ -7,7 +7,7 @@ public class HouseholdEvent {
     int period, id, age, nutritionNeed, totalCornStocks, estNextYearCorn;
     boolean hasFarm;
     EventType eventType;
-    double fissionRandom;
+    double fissionRandom, fertility;
     boolean decision;
     boolean isML;
 
@@ -26,12 +26,13 @@ public class HouseholdEvent {
         this.nutritionNeed = household.getNutritionNeed();
         this.totalCornStocks = household.getTotalCornStocks();
         this.estNextYearCorn = household.getEstimateNextYearCorn();
+        this.fertility = household.getFertility();
         this.fissionRandom = fissionRandom;
         this.isML = household instanceof HouseholdAggregateML;
     }
 
     public String toString() {
-        return String.format("[%d,%d,%d,%b,%d,%d,%d,%f,%s,%b]%n",
+        return String.format("[%d,%d,%d,%b,%d,%d,%d,%.3f,%.3f,%s,%b]%n",
                 period,
                 id,
                 age,
@@ -40,6 +41,7 @@ public class HouseholdEvent {
                 totalCornStocks,
                 estNextYearCorn,
                 fissionRandom,
+                fertility,
                 eventType,
                 decision);
     }

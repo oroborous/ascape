@@ -2,6 +2,8 @@ package edu.brook.aa.log;
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,8 +49,12 @@ public enum Logger {
     public void open() {
         isClosed = false;
 
+        LocalDateTime now = LocalDateTime.now();
+        String formattedNow = now.format(DateTimeFormatter.ISO_DATE_TIME).replaceAll(":", "-");
+
         try {
-            trainingData = new PrintWriter("C:\\Users\\moogi\\Documents\\data-weka\\anasazi-decisions-train.arff");
+            trainingData = new PrintWriter("C:\\Users\\moogi\\Documents\\data-weka\\anasazi\\anasazi-decisions-train" +
+                    formattedNow + ".arff");
             trainingData.println("@relation anasazi-household-decision");
             trainingData.println("@attribute 'period' numeric");
             trainingData.println("@attribute 'id' numeric");
@@ -58,10 +64,12 @@ public enum Logger {
             trainingData.println("@attribute 'total corn stocks' numeric");
             trainingData.println("@attribute 'est next year corn' numeric");
             trainingData.println("@attribute 'fertility' numeric");
+            trainingData.println("@attribute 'fertility random' numeric");
             trainingData.println("@attribute 'decision' { DIE_STARVATION, DIE_OLD_AGE, DEPART, MOVE, FISSION, NONE }");
             trainingData.println("@data");
 
-            decisionHistory = new PrintWriter("C:\\Users\\moogi\\Documents\\data-weka\\anasazi-decisions-history.arff");
+            decisionHistory = new PrintWriter("C:\\Users\\moogi\\Documents\\data-weka\\anasazi\\anasazi-decisions-history" +
+                    formattedNow + ".log");
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }

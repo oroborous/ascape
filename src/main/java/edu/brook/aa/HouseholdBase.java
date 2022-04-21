@@ -246,6 +246,10 @@ public abstract class HouseholdBase extends Scape {
         return getTotalCornStocks() + lastHarvest;
     }
 
+    public double getFertility() {
+        return fertility;
+    }
+
     private LHVMachineLearning getLHVRoot() {
         Scape parent = getScape();
         while (!(parent instanceof LHVMachineLearning)) {

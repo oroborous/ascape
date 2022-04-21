@@ -26,6 +26,7 @@ public class HouseholdAggregateML extends HouseholdBase {
             decisionWriter.println("@attribute 'nutrition need' numeric");
             decisionWriter.println("@attribute 'total corn stocks' numeric");
             decisionWriter.println("@attribute 'est next year corn' numeric");
+            decisionWriter.println("@attribute 'fertility random' numeric");
             decisionWriter.println("@attribute 'fertility' numeric");
             @attribute 'decision' { DIE_STARVATION, DIE_OLD_AGE, DEPART, MOVE, FISSION, NONE }
             */
@@ -34,7 +35,8 @@ public class HouseholdAggregateML extends HouseholdBase {
                     (double) hha.getNutritionNeed(),
                     (double) hha.getTotalCornStocks(),
                     (double) hha.getEstimateNextYearCorn(),
-                    getRandom().nextDouble()};
+                    getRandom().nextDouble(),
+                    hha.getFertility()};
             EventType decision = WekaDecisionClassifier.classify(props);
 
             switch (decision) {

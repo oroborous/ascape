@@ -5,7 +5,7 @@ import java.util.List;
 
 public class HouseholdDecisions {
     private int period, id, age, nutritionNeed, totalCornStocks, estNextYearCorn;
-    private double fissionRandom;
+    private double fissionRandom, fertility;
     private boolean hasFarm;
     private boolean starvation, oldAge, move, depart, fission;
 
@@ -45,7 +45,7 @@ public class HouseholdDecisions {
             choice = EventType.FISSION;
         }
 
-        return String.format("%d,%d,%d,%b,%d,%d,%d,%f,%s",
+        return String.format("%d,%d,%d,%b,%d,%d,%d,%.3f,%.3f,%s",
                 period,
                 id,
                 age,
@@ -54,6 +54,7 @@ public class HouseholdDecisions {
                 totalCornStocks,
                 estNextYearCorn,
                 fissionRandom,
+                fertility,
                 choice);
     }
 
@@ -77,6 +78,7 @@ public class HouseholdDecisions {
             this.estNextYearCorn = event.estNextYearCorn;
             this.hasFarm = event.hasFarm;
             this.fissionRandom = event.fissionRandom;
+            this.fertility = event.fertility;
 
             switch (event.eventType) {
                 case DIE_STARVATION:

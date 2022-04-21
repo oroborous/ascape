@@ -2,6 +2,8 @@ package edu.brook.aa.log;
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,7 +16,10 @@ public enum StatLogger {
 
     public void close() {
         try {
-            PrintWriter data = new PrintWriter("C:\\Users\\moogi\\Documents\\data-weka\\anasazi-stats.log");
+            LocalDateTime now = LocalDateTime.now();
+            String formattedNow = now.format(DateTimeFormatter.ISO_DATE_TIME).replaceAll(":", "-");
+            PrintWriter data = new PrintWriter("C:\\Users\\moogi\\Documents\\data-weka\\anasazi\\anasazi-stats" +
+                    formattedNow + ".log");
 
             List<Integer> keys = popMap.keySet()
                     .stream().sorted()
@@ -41,6 +46,6 @@ public enum StatLogger {
     }
 
     public void open() {
-        
+
     }
 }

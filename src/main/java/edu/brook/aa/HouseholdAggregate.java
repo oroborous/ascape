@@ -34,11 +34,12 @@ public class HouseholdAggregate extends HouseholdBase {
                     (double) hha.getNutritionNeed(),
                     (double) hha.getTotalCornStocks(),
                     (double) hha.getEstimateNextYearCorn(),
-                    getRandom().nextDouble()};
+                    hha.getFissionRandom(),
+                    hha.getFertility()};
             EventType decision = WekaDecisionClassifier.classify(props);
 
             Logger.INSTANCE.log(new HouseholdEvent(hha.getScape().getPeriod(),
-                    decision, true, hha, hha.fissionRandom));
+                    decision, true, hha, hha.getFissionRandom()));
         }
 
         public boolean isCauseRemoval() {
@@ -49,7 +50,6 @@ public class HouseholdAggregate extends HouseholdBase {
             return false;
         }
     };
-
     private int nutritionNeedRemaining;
 
     public boolean deathCondition() {
@@ -104,6 +104,10 @@ public class HouseholdAggregate extends HouseholdBase {
 
     public void setAge(int age) {
         this.age = age;
+    }
+
+    private double getFissionRandom() {
+        return fissionRandom;
     }
 
     public int getNumAdults() {
