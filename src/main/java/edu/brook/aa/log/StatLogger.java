@@ -21,6 +21,8 @@ public enum StatLogger {
             PrintWriter data = new PrintWriter("C:\\Users\\moogi\\Documents\\data-weka\\anasazi\\anasazi-stats" +
                     formattedNow + ".log");
 
+            data.println("Year,Hist,RB,ML");
+
             List<Integer> keys = popMap.keySet()
                     .stream().sorted()
                     .collect(Collectors.toList());
