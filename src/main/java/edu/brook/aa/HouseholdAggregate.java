@@ -115,6 +115,11 @@ public class HouseholdAggregate extends HouseholdBase {
     }
 
     @Override
+    public int getStatCollectorIndex() {
+        return 1;
+    }
+
+    @Override
     public String getStatCollectorSuffix() {
         return " (RB)";
     }

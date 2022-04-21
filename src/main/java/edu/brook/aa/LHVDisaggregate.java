@@ -63,7 +63,7 @@ public class LHVDisaggregate extends LHV {
         protoHousehold.setMembersActive(false);
         households.setPrototypeAgent(protoHousehold);
         households.addInitialRule(CREATE_SCAPE_RULE);
-        minFertility = .25;
+//        minFertility = .25;
         //households.setAutoPopulate(false);
     }
 

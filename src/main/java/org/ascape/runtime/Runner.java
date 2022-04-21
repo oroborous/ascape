@@ -8,6 +8,7 @@
 package org.ascape.runtime;
 
 import edu.brook.aa.log.Logger;
+import edu.brook.aa.log.StatLogger;
 import org.ascape.model.Scape;
 import org.ascape.model.event.ControlEvent;
 import org.ascape.model.event.DefaultScapeListener;
@@ -212,11 +213,8 @@ public abstract class Runner implements Serializable, Runnable {
      * pairs. Paramters and values are expected to be seperated with an "=", for
      * example: "MyParameter=12".
      *
-     * @param args           an array of strings with paramter-value paris in the form
-     *                       "{paramter-name}={paramter-value}"
-     * @param reportNotFound if paramters not found should result in a console notification
-     *                       and if errors in invocation should be reported, false
-     *                       otherwise
+     * @param args an array of strings with paramter-value paris in the form
+     *             "{paramter-name}={paramter-value}"
      */
     public static boolean assignEnvironmentParameters(String[] args) {
         boolean found = args.length == 0;
@@ -341,7 +339,7 @@ public abstract class Runner implements Serializable, Runnable {
     /**
      * Sets startOnOpen for the ModelRoot object.
      *
-     * @param startOnOpen the startOnOpen
+     * @param _startOnOpen the startOnOpen
      */
     public static void setStartOnOpen(boolean _startOnOpen) {
         startOnOpen = _startOnOpen;
@@ -1381,6 +1379,7 @@ public abstract class Runner implements Serializable, Runnable {
         }
 
         Logger.INSTANCE.open();
+        StatLogger.INSTANCE.open();
 
         while (running) {
             if (scape.isListenersAndMembersCurrent() && (!paused || step)) {
@@ -1419,6 +1418,7 @@ public abstract class Runner implements Serializable, Runnable {
                 waitForViewsUpdate();
                 running = false;
                 Logger.INSTANCE.close();
+                StatLogger.INSTANCE.close();
                 if (isAutoRestart()) {
                     restartRequested = true;
                 }

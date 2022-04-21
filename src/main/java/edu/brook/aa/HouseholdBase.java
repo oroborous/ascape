@@ -10,6 +10,7 @@ package edu.brook.aa;
 import edu.brook.aa.log.EventType;
 import edu.brook.aa.log.HouseholdEvent;
 import edu.brook.aa.log.Logger;
+import edu.brook.aa.log.LoggingStatCollector;
 import org.ascape.model.Scape;
 import org.ascape.util.Conditional;
 import org.ascape.util.data.DataPoint;
@@ -265,15 +266,14 @@ public abstract class HouseholdBase extends Scape {
         return scape.getData().getStatCollector(name + getStatCollectorSuffix());
     }
 
+    public abstract int getStatCollectorIndex();
+
     public abstract String getStatCollectorSuffix();
 
     public int getTotalCornStocks() {
         int total = 0;
         for (int i = 0; i < LHV.yearsOfStock; i++) {
             total += agedCornStocks[i];
-        }
-        if (total < 0) {
-            System.out.println("WTH?");
         }
         return total;
     }
@@ -347,9 +347,6 @@ public abstract class HouseholdBase extends Scape {
             agedCornStocks[i + 1] = agedCornStocks[i];
         }
         agedCornStocks[0] = lastHarvest;
-        if (agedCornStocks[0] < 0) {
-            System.out.println("WTH?");
-        }
     }
 
     public void move() {
@@ -398,14 +395,11 @@ public abstract class HouseholdBase extends Scape {
         String suffix = getStatCollectorSuffix();
 
         StatCollector[] stats = new StatCollector[5];
-        stats[0] = new StatCollector(HOUSEHOLDS + suffix);
+        stats[0] = new LoggingStatCollector(HOUSEHOLDS + suffix, getStatCollectorIndex(), getScape());
         stats[1] = new StatCollector(MOVEMENTS + suffix, false);
         stats[2] = new StatCollector(FISSIONS + suffix, false);
         stats[3] = new StatCollector(DEPARTURES + suffix, false);
         stats[4] = new StatCollectorCSAMM(FARMS_PER_HOUSEHOLD + suffix) {
-
-            private static final long serialVersionUID = -3060585396202230071L;
-
             public double getValue(Object o) {
                 return ((HouseholdBase) o).farms.size();
             }

@@ -12,7 +12,7 @@ public class HouseholdAggregateML extends HouseholdBase {
 
     private static final long serialVersionUID = 5091800912116536871L;
     private static int nextId = 1;
-
+    private int nutritionNeedRemaining;
     private int age;
     private int nutritionNeed;
     public final Rule DECISION_TREE_RULE = new Rule("Obey Decision Tree") {
@@ -67,8 +67,6 @@ public class HouseholdAggregateML extends HouseholdBase {
         }
     };
 
-    private int nutritionNeedRemaining;
-
     public void fission() {
         HouseholdAggregateML child = new HouseholdAggregateML();//(Household) this.clone();
         scape.add(child);
@@ -97,6 +95,10 @@ public class HouseholdAggregateML extends HouseholdBase {
 
     public int getNutritionNeed() {
         return nutritionNeed;
+    }
+
+    public int getStatCollectorIndex() {
+        return 2;
     }
 
     @Override

@@ -40,6 +40,7 @@ public class LHV extends Scape {
     //For Rob's experiment
     public static final int minFertilityEndsAge = 30;
     public static final int maxFertilityEndsAge = 32;
+    public static final double minFertility = 0.10;//0.125
     public static final double maxFertility = 0.125;//0.125
     public static final double maizeGiftToChild = .33;
     public static final double waterSourceDistance = 16.0;
@@ -52,7 +53,7 @@ public class LHV extends Scape {
     public static final double harvestVarianceYear = 0.1;
     public static final double harvestVarianceLocation = 0.4;
     private static final long serialVersionUID = -1892876266881188560L;
-    public static double minFertility = 0.125;//0.125
+
     public static EnvironmentZone ENVIRON_EMPTY = new EnvironmentZone("Empty", Color.white);
     public static EnvironmentZone ENVIRON_GENERAL_VALLEY = new EnvironmentZone("General Valley Floor", Color.black);
     public static EnvironmentZone ENVIRON_NORTH_VALLEY = new EnvironmentZone("North Valley Floor", Color.red);

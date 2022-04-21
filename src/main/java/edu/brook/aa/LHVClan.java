@@ -25,7 +25,7 @@ public class LHVClan extends LHVDisaggregate {
     public void createScape() {
         super.createScape();
         people.setPrototypeAgent(new PersonClan());
-        minFertility = .33;
+//        minFertility = .33;
         //harvestAdjustment = .75;
         //harvestAdjustment = .80;
 

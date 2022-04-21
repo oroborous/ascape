@@ -103,6 +103,11 @@ public class HouseholdDisaggregate extends HouseholdBase {
     }
 
     @Override
+    public int getStatCollectorIndex() {
+        return 0;
+    }
+
+    @Override
     public String getStatCollectorSuffix() {
         return " (RB)";
     }

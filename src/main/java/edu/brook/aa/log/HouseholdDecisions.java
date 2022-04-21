@@ -13,7 +13,17 @@ public class HouseholdDecisions {
 
     public String getDecisionHistory() {
         StringBuilder sb = new StringBuilder();
-        events.forEach(sb::append);
+
+        for (int i = 0; i < events.size(); i++) {
+            if (i == 0)
+                sb.append("Predicted: ").append(events.get(i).eventType);
+            else if (events.get(i).decision) {
+                sb.append(", Actual: ").append(events.get(i).eventType);
+                return sb.toString();
+            }
+        }
+
+        sb.append(", Actual: ").append(EventType.NONE);
         return sb.toString();
     }
 

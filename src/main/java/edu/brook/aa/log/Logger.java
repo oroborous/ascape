@@ -13,11 +13,6 @@ public enum Logger {
     private boolean isClosed = false;
     private int currentPeriod = 0;
 
-
-    Logger() {
-
-    }
-
     public void close() {
         // print final decisions
         printDecisions();

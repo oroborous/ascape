@@ -7,10 +7,10 @@
 
 package edu.brook.aa;
 
+import edu.brook.aa.log.LoggingStatCollectorCondCSA;
 import org.ascape.model.Cell;
 import org.ascape.model.space.Coordinate2DDiscrete;
 import org.ascape.util.data.StatCollector;
-import org.ascape.util.data.StatCollectorCondCSA;
 import org.ascape.util.data.StatCollectorCondCSAMM;
 import org.ascape.util.vis.Drawable;
 
@@ -123,21 +123,8 @@ public class HistoricSettlement extends Cell implements Drawable {
 
     public void scapeCreated() {
         StatCollector[] stats = new StatCollector[2];
-        stats[0] = new StatCollectorCondCSA("Historic Households") {
-
-            private static final long serialVersionUID = -890759850053222387L;
-
-            public double getValue(Object object) {
-                return ((HistoricSettlement) object).getHouseholdCount();
-            }
-
-            public boolean meetsCondition(Object object) {
-                return ((HistoricSettlement) object).isExtant();
-            }
-        };
+        stats[0] = new LoggingStatCollectorCondCSA("Historic Households", 0, getScape());
         stats[1] = new StatCollectorCondCSAMM("Historic Household Size") {
-
-            private static final long serialVersionUID = 1466828234754387324L;
 
             public final double getValue(Object object) {
                 return 5 * ((HistoricSettlement) object).getHouseholdCount();
