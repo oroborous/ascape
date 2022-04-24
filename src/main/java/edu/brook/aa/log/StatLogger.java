@@ -1,6 +1,8 @@
 package edu.brook.aa.log;
 
-import java.io.FileNotFoundException;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -9,19 +11,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+// TODO Singleton
 public enum StatLogger {
     INSTANCE;
+
+    private LocalDateTime now = LocalDateTime.now();
 
     private Map<Integer, int[]> popMap = new HashMap<>();
 
     public void close() {
         try {
-            LocalDateTime now = LocalDateTime.now();
             String formattedNow = now.format(DateTimeFormatter.ISO_DATE_TIME).replaceAll(":", "-");
-            PrintWriter data = new PrintWriter("C:\\Users\\moogi\\Documents\\data-weka\\anasazi\\anasazi-stats" +
-                    formattedNow + ".log");
 
-            data.println("Year,Hist,RB,ML");
+            File file = new File("C:\\Users\\moogi\\Documents\\data-weka\\anasazi\\anasazi-stats" +
+                    formattedNow + ".csv");
+
+            PrintWriter data = new PrintWriter(new FileWriter(file, true), true);
+
+//            data.println("Year,Hist,RB,ML,ErrorRB^2,ErrorML%2");
 
             List<Integer> keys = popMap.keySet()
                     .stream().sorted()
@@ -29,12 +36,15 @@ public enum StatLogger {
 
             for (Integer key : keys) {
                 int[] pops = popMap.get(key);
-                data.println(String.format("%d,%d,%d,%d", key, pops[0], pops[1], pops[2]));
+                data.println(String.format("%d,%d,%d,%d,%d,%d",
+                        key, pops[0], pops[1], pops[2],
+                        (int) Math.pow(pops[1] - pops[0], 2),
+                        (int) Math.pow(pops[2] - pops[0], 2)));
             }
 
             data.flush();
             data.close();
-        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -48,6 +58,6 @@ public enum StatLogger {
     }
 
     public void open() {
-
+        popMap.clear();
     }
 }

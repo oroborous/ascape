@@ -12,19 +12,18 @@ public class HouseholdDecisions {
     private List<HouseholdEvent> events = new ArrayList<>();
 
     public String getDecisionHistory() {
-        StringBuilder sb = new StringBuilder();
+        EventType predicted = EventType.NONE, actual = EventType.NONE;
 
         for (int i = 0; i < events.size(); i++) {
-            if (i == 0)
-                sb.append("Predicted: ").append(events.get(i).eventType);
-            else if (events.get(i).decision) {
-                sb.append(", Actual: ").append(events.get(i).eventType);
-                return sb.toString();
+            if (i == 0) {
+                predicted = events.get(i).eventType;
+            } else if (events.get(i).decision) {
+                actual = events.get(i).eventType;
+                break;
             }
         }
 
-        sb.append(", Actual: ").append(EventType.NONE);
-        return sb.toString();
+        return String.format("%s,%s,%d", predicted, actual, predicted == actual ? 1 : 0);
     }
 
     public String getFinalDecision() {

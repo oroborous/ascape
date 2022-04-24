@@ -1,12 +1,15 @@
 package edu.brook.aa.log;
 
-import java.io.FileNotFoundException;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
+// TODO Singleton
 public enum Logger {
     INSTANCE;
 
@@ -14,6 +17,7 @@ public enum Logger {
     private PrintWriter trainingData, decisionHistory;
     private boolean isClosed = false;
     private int currentPeriod = 0;
+    private LocalDateTime now = LocalDateTime.now();
 
     public void close() {
         // print final decisions
@@ -47,14 +51,12 @@ public enum Logger {
     }
 
     public void open() {
-        isClosed = false;
-
-        LocalDateTime now = LocalDateTime.now();
         String formattedNow = now.format(DateTimeFormatter.ISO_DATE_TIME).replaceAll(":", "-");
 
         try {
-            trainingData = new PrintWriter("C:\\Users\\moogi\\Documents\\data-weka\\anasazi\\anasazi-decisions-train" +
+            File trainingFile = new File("C:\\Users\\moogi\\Documents\\data-weka\\anasazi\\anasazi-decisions-train" +
                     formattedNow + ".arff");
+            trainingData = new PrintWriter(new FileWriter(trainingFile, false), true);
             trainingData.println("@relation anasazi-household-decision");
             trainingData.println("@attribute 'period' numeric");
             trainingData.println("@attribute 'id' numeric");
@@ -68,9 +70,10 @@ public enum Logger {
             trainingData.println("@attribute 'decision' { DIE_STARVATION, DIE_OLD_AGE, DEPART, MOVE, FISSION, NONE }");
             trainingData.println("@data");
 
-            decisionHistory = new PrintWriter("C:\\Users\\moogi\\Documents\\data-weka\\anasazi\\anasazi-decisions-history" +
-                    formattedNow + ".log");
-        } catch (FileNotFoundException e) {
+            File file = new File("C:\\Users\\moogi\\Documents\\data-weka\\anasazi\\anasazi-decisions-history" +
+                    formattedNow + ".csv");
+            decisionHistory = new PrintWriter(new FileWriter(file, true), true);
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

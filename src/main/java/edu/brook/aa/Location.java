@@ -70,6 +70,7 @@ public class Location extends Cell implements Comparable<Location> {
         return new Coordinate2DDiscrete(locationX, locationY);
     }
 
+    // TODO Law of Demeter correct
     public void addHistoricSettlement(HistoricSettlement historicSettlement) {
         historicSettlement.setLocation(this);
         HistoricSettlement[] temp = new HistoricSettlement[historicSettlements.length + 1];
@@ -98,9 +99,6 @@ public class Location extends Cell implements Comparable<Location> {
 
     public double findRandomYield() {
         double yield = getBaseYield() * (Math.abs(getRandom().nextGaussian() * LHV.harvestVarianceLocation) + 1.0);
-        if (yield < 0) {
-            System.out.println("WTH?");
-        }
         return yield;
     }
 
@@ -130,7 +128,10 @@ public class Location extends Cell implements Comparable<Location> {
                 makeUnavailable();
             }
             this.farm = farm;
-            if ((farm != null) && (farm.getHousehold() != null) && (farm.getHousehold().getClan() != null)) {
+            // TODO Law of Demeter violation
+            if ((farm != null)
+                    && (farm.getHousehold() != null)
+                    && (farm.getHousehold().getClan() != null)) {
                 this.clan = farm.getHousehold().getClan();
             }
         }
@@ -152,6 +153,7 @@ public class Location extends Cell implements Comparable<Location> {
         return 1.0;
     }
 
+    // TODO Law of Demeter correct
     public int getHistoricSettlementHouseholdCount() {
         int count = 0;
         for (int i = 0; i < historicSettlements.length; i++) {
@@ -235,9 +237,8 @@ public class Location extends Cell implements Comparable<Location> {
         quality = Math.max(quality, 0.0);
         //We'll sort them all at once...
         if (yieldZone != null)
+            // TODO Law of Demeter violation
             yieldZone.getAvailableLocations().add(this);
-        else
-            System.out.println("WTF?");
         settlement = null;
         farm = null;
         clan = null;
@@ -257,7 +258,9 @@ public class Location extends Cell implements Comparable<Location> {
     }
 
     public boolean isCurrentWaterSource() {
-        return (environmentZone.isWaterSource() || ((waterSource != null) && waterSource.isExtant()));
+        return (environmentZone.isWaterSource() ||
+                ((waterSource != null) &&
+                        waterSource.isExtant()));
     }
 
     public boolean isOnMap() {

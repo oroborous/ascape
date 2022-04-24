@@ -109,7 +109,7 @@ public class HouseholdDisaggregate extends HouseholdBase {
 
     @Override
     public String getStatCollectorSuffix() {
-        return " (RB)";
+        return " (RBC)";
     }
 
     public void initialize() {

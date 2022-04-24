@@ -208,6 +208,7 @@ public abstract class HouseholdBase extends Scape {
         double currentEstimate = 0;
 
         for (Farm farm : farms) {
+            // TODO Law of Demeter violation
             currentEstimate += farm.getLocation().getBaseYield();
             adultCount++;
         }
@@ -340,6 +341,7 @@ public abstract class HouseholdBase extends Scape {
         int adults = getNumAdults();
 
         for (Farm farm : farms) {
+            // TODO Law of Demeter violation
             lastHarvest += farm.getLocation().findRandomYield();
             adultCount++;
             if (adultCount >= adults) {
