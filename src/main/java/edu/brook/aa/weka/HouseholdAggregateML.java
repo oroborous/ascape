@@ -16,20 +16,10 @@ public class HouseholdAggregateML extends HouseholdBase {
     private int age;
     private int nutritionNeed;
     public final Rule DECISION_TREE_RULE = new Rule("Obey Decision Tree") {
-        private static final long serialVersionUID = 1L;
 
         public void execute(Agent agent) {
             HouseholdAggregateML hha = (HouseholdAggregateML) agent;
-            /*
-            .println("@attribute 'age' numeric");
-            decisionWriter.println("@attribute 'has farm' { true, false }");
-            decisionWriter.println("@attribute 'nutrition need' numeric");
-            decisionWriter.println("@attribute 'total corn stocks' numeric");
-            decisionWriter.println("@attribute 'est next year corn' numeric");
-            decisionWriter.println("@attribute 'fertility random' numeric");
-            decisionWriter.println("@attribute 'fertility' numeric");
-            @attribute 'decision' { DIE_STARVATION, DIE_OLD_AGE, DEPART, MOVE, FISSION, NONE }
-            */
+
             Object[] props = new Object[]{(double) hha.getAge(),
                     Boolean.toString(hha.hasFarm()),
                     (double) hha.getNutritionNeed(),
