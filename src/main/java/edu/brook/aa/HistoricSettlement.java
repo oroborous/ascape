@@ -1,32 +1,27 @@
 /*
- * Copyright 1998-2007 The Brookings Institution, with revisions by Metascape LLC, and others. 
+ * Copyright 1998-2007 The Brookings Institution, with revisions by Metascape LLC, and others.
  * All rights reserved.
  * This program and the accompanying materials are made available solely under of the BSD license "brookings-models-license.txt".
- * Any referenced or included libraries carry licenses of their respective copyright holders. 
+ * Any referenced or included libraries carry licenses of their respective copyright holders.
  */
 
 package edu.brook.aa;
 
-import java.awt.Color;
-import java.awt.Graphics;
-import java.io.DataInputStream;
-import java.io.IOException;
-
+import edu.brook.aa.log.LoggingStatCollectorCondCSA;
 import org.ascape.model.Cell;
+import org.ascape.model.space.Coordinate2DDiscrete;
 import org.ascape.util.data.StatCollector;
-import org.ascape.util.data.StatCollectorCondCSA;
 import org.ascape.util.data.StatCollectorCondCSAMM;
-import org.ascape.util.data.UnitIntervalDataPoint;
-import org.ascape.util.vis.ColorFeatureGradiated;
 import org.ascape.util.vis.Drawable;
 
+import java.awt.*;
+import java.io.DataInputStream;
+import java.io.IOException;
 
 
 public class HistoricSettlement extends Cell implements Drawable {
 
-    /**
-     * 
-     */
+
     private static final long serialVersionUID = -6290387961249914907L;
 
     private int SARGnumber;
@@ -57,7 +52,98 @@ public class HistoricSettlement extends Cell implements Drawable {
 
     private int baselineHouseholds;
 
+    private Location location;
+    private Coordinate2DDiscrete coordinates;
+
     public HistoricSettlement() {
+    }
+
+    public void draw(Graphics g, int width, int height) {
+        g.setColor(Color.black);
+        g.drawOval(0, 0, width - 1, height - 1);
+        //g.setColor(settlementColorFeature.getColor(this));
+        //g.fillOval(1, 1, width - 2, height - 2);
+    }
+
+    public int getBaselineHouseholds() {
+        return baselineHouseholds;
+    }
+
+    public int getEndYear() {
+        return endDate;
+    }
+
+    public int getHouseholdCount() {
+        int period = getScape().getPeriod();
+        if (period > medianDate) {
+            return (int) Math.max(Math.ceil((baselineHouseholds * (float) (endDate - period)) / (float) (endDate - medianDate)), 1);
+        } else if (period < medianDate) {
+            return (int) Math.max(Math.ceil((baselineHouseholds * (float) (period - startDate)) / (float) (medianDate - startDate)), 1);
+        } else {
+            return baselineHouseholds;
+        }
+    }
+
+    public int getMedianYear() {
+        return medianDate;
+    }
+
+    public int getMetersEast() {
+        return metersEast;
+    }
+
+    public int getMetersNorth() {
+        return metersNorth;
+    }
+
+    public int getSize() {
+        int period = getScape().getPeriod();
+        if (period > medianDate) {
+            return (int) Math.max(Math.ceil((baselineHouseholds * (float) (endDate - period)) / (float) (endDate - medianDate)), 1);
+        } else if (period < medianDate) {
+            return (int) Math.max(Math.ceil((baselineHouseholds * (float) (period - startDate)) / (float) (medianDate - startDate)), 1);
+        } else {
+            return baselineHouseholds;
+        }
+    }
+
+    public int getStartYear() {
+        return startDate;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public boolean isExtant() {
+        //if ((startDate <= getScape().getPeriod()) && (endDate > getScape().getPeriod()))
+        //System.out.println(getScape().getPeriod());
+        return ((startDate <= getScape().getPeriod()) && (endDate > getScape().getPeriod()));
+    }
+
+    public void scapeCreated() {
+        StatCollector[] stats = new StatCollector[2];
+        stats[0] = new LoggingStatCollectorCondCSA("Historic Households", 0, getScape());
+        stats[1] = new StatCollectorCondCSAMM("Historic Household Size") {
+
+            public final double getValue(Object object) {
+                return 5 * ((HistoricSettlement) object).getHouseholdCount();
+            }
+
+            public boolean meetsCondition(Object object) {
+                return ((HistoricSettlement) object).isExtant();
+            }
+        };
+
+        getScape().addStatCollectors(stats);
+    }
+
+    public void setCoordinates(Coordinate2DDiscrete locCoordinate) {
+        this.coordinates = locCoordinate;
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
     }
 
     public void streamToState(DataInputStream s) throws IOException {
@@ -80,115 +166,15 @@ public class HistoricSettlement extends Cell implements Drawable {
         }
     }
 
-    public boolean isExtant() {
-        //if ((startDate <= getScape().getPeriod()) && (endDate > getScape().getPeriod()))
-        //System.out.println(getScape().getPeriod());
-        return ((startDate <= getScape().getPeriod()) && (endDate > getScape().getPeriod()));
-    }
-
-    public int getType() {
-        return type;
-    }
-
-    public int getStartYear() {
-        return startDate;
-    }
-
-    public int getMedianYear() {
-        return medianDate;
-    }
-
-    public int getEndYear() {
-        return endDate;
-    }
-
-    public int getMetersNorth() {
-        return metersNorth;
-    }
-
-    public int getMetersEast() {
-        return metersEast;
-    }
-
-    public int getBaselineHouseholds() {
-        return baselineHouseholds;
-    }
-
-    public int getSize() {
-        int period = getScape().getPeriod();
-        if (period > medianDate) {
-            return (int) Math.max(Math.ceil((baselineHouseholds * (float) (endDate - period)) / (float) (endDate - medianDate)), 1);
-        } else if (period < medianDate) {
-            return (int) Math.max(Math.ceil((baselineHouseholds * (float) (period - startDate)) / (float) (medianDate - startDate)), 1);
-        } else {
-            return baselineHouseholds;
-        }
-    }
-
-    public int getHouseholdCount() {
-        int period = getScape().getPeriod();
-        if (period > medianDate) {
-            return (int) Math.max(Math.ceil((baselineHouseholds * (float) (endDate - period)) / (float) (endDate - medianDate)), 1);
-        } else if (period < medianDate) {
-            return (int) Math.max(Math.ceil((baselineHouseholds * (float) (period - startDate)) / (float) (medianDate - startDate)), 1);
-        } else {
-            return baselineHouseholds;
-        }
-    }
-
-    final ColorFeatureGradiated settlementColorFeature =
-        new ColorFeatureGradiated("Settlement Size", Color.black, (new UnitIntervalDataPoint() {
-            /**
-             * 
-             */
-            private static final long serialVersionUID = 1992474238329035019L;
-
-            public double getValue(Object object) {
-                return ((double) (((HistoricSettlement) object).getHouseholdCount()) / 10.0);
-            }
-        }));
-
-    public void scapeCreated() {
-        StatCollector[] stats = new StatCollector[2];
-        stats[0] = new StatCollectorCondCSA("Historic Households") {
-            /**
-             * 
-             */
-            private static final long serialVersionUID = -890759850053222387L;
-
-            public boolean meetsCondition(Object object) {
-                return ((HistoricSettlement) object).isExtant();
-            }
-
-            public double getValue(Object object) {
-                return ((HistoricSettlement) object).getHouseholdCount();
-            }
-        };
-        stats[1] = new StatCollectorCondCSAMM("Historic Household Size") {
-            /**
-             * 
-             */
-            private static final long serialVersionUID = 1466828234754387324L;
-
-            public boolean meetsCondition(Object object) {
-                return ((HistoricSettlement) object).isExtant();
-            }
-
-            public final double getValue(Object object) {
-                return 5 * ((HistoricSettlement) object).getHouseholdCount();
-            }
-        };
-        getScape().addStatCollectors(stats);
-    }
-
-    public void draw(Graphics g, int width, int height) {
-        g.setColor(Color.black);
-        g.drawOval(0, 0, width - 1, height - 1);
-        //g.setColor(settlementColorFeature.getColor(this));
-        //g.fillOval(1, 1, width - 2, height - 2);
-    }
-
     public String toString() {
-        return "Historic Settlement " + coordinate;
+        return String.format("Period: %d, SARG Number: %d, Household Count: %d, Size: %d, Coordinates: (%d,%d), Location [%s]",
+                getScape().getPeriod(), SARGnumber,
+                getHouseholdCount(), getSize(),
+                coordinates.getXValue(), coordinates.getYValue(),
+                this.location.toString());
     }
+
+//    public String toString() {
+//        return "Historic Settlement " + coordinate;
+//    }
 }

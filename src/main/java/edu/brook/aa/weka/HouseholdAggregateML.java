@@ -1,80 +1,66 @@
-/*
- * Copyright 1998-2007 The Brookings Institution, with revisions by Metascape LLC, and others.
- * All rights reserved.
- * This program and the accompanying materials are made available solely under of the BSD license "brookings-models-license.txt".
- * Any referenced or included libraries carry licenses of their respective copyright holders.
- */
+package edu.brook.aa.weka;
 
-package edu.brook.aa;
-
-
+import edu.brook.aa.HouseholdBase;
+import edu.brook.aa.LHV;
 import edu.brook.aa.log.EventType;
-import edu.brook.aa.log.HouseholdEvent;
-import edu.brook.aa.log.Logger;
-import edu.brook.aa.weka.WekaDecisionClassifier;
 import org.ascape.model.Agent;
 import org.ascape.model.rule.Rule;
 import org.ascape.util.data.StatCollector;
 import org.ascape.util.data.StatCollectorCSAMM;
 
-public class HouseholdAggregate extends HouseholdBase {
+public class HouseholdAggregateML extends HouseholdBase {
 
     private static final long serialVersionUID = 5091800912116536871L;
     private static int nextId = 1;
-
+    private int nutritionNeedRemaining;
     private int age;
     private int nutritionNeed;
-    public final Rule DECISION_TREE_RULE_PRE = new Rule("(Pre) Consult Decision Tree") {
+    public final Rule DECISION_TREE_RULE = new Rule("Obey Decision Tree") {
 
         public void execute(Agent agent) {
-            HouseholdAggregate hha = (HouseholdAggregate) agent;
+            HouseholdAggregateML hha = (HouseholdAggregateML) agent;
 
             Object[] props = new Object[]{(double) hha.getAge(),
                     Boolean.toString(hha.hasFarm()),
                     (double) hha.getNutritionNeed(),
                     (double) hha.getTotalCornStocks(),
                     (double) hha.getEstimateNextYearCorn(),
-                    hha.getFissionRandom(),
+                    getRandom().nextDouble(),
                     hha.getFertility()};
             EventType decision = WekaDecisionClassifier.classify(props);
 
-            Logger.INSTANCE.log(new HouseholdEvent(hha.getScape().getPeriod(),
-                    decision, true, hha, hha.getFissionRandom()));
+            switch (decision) {
+                case DIE_OLD_AGE:
+                    HouseholdAggregateML.this.getStatCollector(DEATHS_OLD_AGE).addValue(0.0);
+                    hha.die();
+                    break;
+                case DIE_STARVATION:
+                    HouseholdAggregateML.this.getStatCollector(DEATHS_STARVATION).addValue(0.0);
+                    hha.die();
+                    break;
+                case DEPART:
+                    hha.depart();
+                    break;
+                case MOVE:
+                    hha.move();
+                    break;
+                case FISSION:
+                    hha.fission();
+                    break;
+            }
         }
 
         public boolean isCauseRemoval() {
-            return false;
+            return true;
         }
 
         public boolean isRandomExecution() {
             return false;
         }
     };
-    private int nutritionNeedRemaining;
-
-    public boolean deathCondition() {
-        boolean starvation = nutritionNeedRemaining > 0;
-        boolean oldAge = age > deathAge;
-        Logger.INSTANCE.log(new HouseholdEvent(getScape().getPeriod(),
-                EventType.DIE_STARVATION, starvation, this, fissionRandom));
-        Logger.INSTANCE.log(new HouseholdEvent(getScape().getPeriod(),
-                EventType.DIE_OLD_AGE, oldAge, this, fissionRandom));
-
-        if (nutritionNeedRemaining > 0) {
-            getStatCollector(DEATHS_STARVATION).addValue(0.0);
-            return true;
-        }
-        if (age > deathAge) {
-            getStatCollector(DEATHS_OLD_AGE).addValue(0.0);
-            return true;
-        }
-        return false;
-        //return ((age > ((LHV) getRoot()).getHouseholdDeathAge())
-        // || (nutritionNeedRemaining > 0));
-    }
 
     public void fission() {
-        HouseholdAggregate child = new HouseholdAggregate();//(Household) this.clone();
+        HouseholdAggregateML child = new HouseholdAggregateML();//(Household) this.clone();
         scape.add(child);
         child.initialize();
         child.age = 0;
@@ -87,27 +73,12 @@ public class HouseholdAggregate extends HouseholdBase {
         //System.out.println(child.age);
     }
 
-    public boolean fissionCondition() {
-        //return ((age > ((LHV) getRoot()).getFertilityAge())
-        // && (getRandom().nextDouble() < ((LHV) getRoot()).getFertility()));
-        //Rob's experiment
-        boolean isFission = (age > fertilityAge) && (age <= fertilityEndsAge)
-                && (fissionRandom < fertility);
-        Logger.INSTANCE.log(new HouseholdEvent(getScape().getPeriod(),
-                EventType.FISSION, isFission, this, fissionRandom));
-        return isFission;
-    }
-
     public int getAge() {
         return age;
     }
 
     public void setAge(int age) {
         this.age = age;
-    }
-
-    private double getFissionRandom() {
-        return fissionRandom;
     }
 
     public int getNumAdults() {
@@ -118,14 +89,13 @@ public class HouseholdAggregate extends HouseholdBase {
         return nutritionNeed;
     }
 
-    @Override
     public int getStatCollectorIndex() {
-        return 1;
+        return 2;
     }
 
     @Override
     public String getStatCollectorSuffix() {
-        return " (RB)";
+        return " (ML)";
     }
 
     public void initialize() {
@@ -147,10 +117,7 @@ public class HouseholdAggregate extends HouseholdBase {
         super.scapeCreated();
 
         scape.addRule(METABOLISM_RULE);
-        scape.addRule(DECISION_TREE_RULE_PRE);
-        scape.addRule(DEATH_RULE);
-        scape.addRule(MOVEMENT_RULE);
-        scape.addRule(FISSIONING_RULE);
+        scape.addRule(DECISION_TREE_RULE);
 
         String suffix = getStatCollectorSuffix();
 

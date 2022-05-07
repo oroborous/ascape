@@ -1,19 +1,15 @@
 /*
- * Copyright 1998-2007 The Brookings Institution, with revisions by Metascape LLC, and others. 
+ * Copyright 1998-2007 The Brookings Institution, with revisions by Metascape LLC, and others.
  * All rights reserved.
  * This program and the accompanying materials are made available solely under of the BSD license "brookings-models-license.txt".
- * Any referenced or included libraries carry licenses of their respective copyright holders. 
+ * Any referenced or included libraries carry licenses of their respective copyright holders.
  */
 
 package edu.brook.aa;
 
 
-
 public class HouseholdGreedy extends HouseholdAggregate {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = 8865761711867701509L;
     public Farm[] bufferFarms = new Farm[0];
 
@@ -26,7 +22,7 @@ public class HouseholdGreedy extends HouseholdAggregate {
         child.move();
         //if ((child.farm.getLocation() != null) && (child.settlement != null)) {
         //For now, record fissions regardless of successful move to match C++ code
-        scape.getData().getStatCollector("Fissions").addValue(0.0);
+        getStatCollector(FISSIONS).addValue(0.0);
         //}
         //System.out.println(child.age);
     }

@@ -1,8 +1,8 @@
 /*
- * Copyright 1998-2007 The Brookings Institution, with revisions by Metascape LLC, and others. 
+ * Copyright 1998-2007 The Brookings Institution, with revisions by Metascape LLC, and others.
  * All rights reserved.
  * This program and the accompanying materials are made available solely under of the BSD license "brookings-models-license.txt".
- * Any referenced or included libraries carry licenses of their respective copyright holders. 
+ * Any referenced or included libraries carry licenses of their respective copyright holders.
  */
 
 package edu.brook.aa;
@@ -10,9 +10,9 @@ package edu.brook.aa;
 //Temporary for JDK 1.1 compatibility
 //import com.sun.java.util.collections.*;
 
-import java.awt.Color;
-
 import org.ascape.view.vis.ChartView;
+
+import java.awt.*;
 
 
 /**
@@ -20,15 +20,12 @@ import org.ascape.view.vis.ChartView;
  */
 public class LHVClan extends LHVDisaggregate {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = -5102792644057845317L;
 
     public void createScape() {
         super.createScape();
         people.setPrototypeAgent(new PersonClan());
-        minFertility = .33;
+//        minFertility = .33;
         //harvestAdjustment = .75;
         //harvestAdjustment = .80;
 
@@ -41,7 +38,7 @@ public class LHVClan extends LHVDisaggregate {
 
     public void createViews() {
         ChartView chart = new ChartView();
-        valley.addView(chart);
+//        valley.addView(chart);
         //And add some of the stat series we've just created to it
         chart.addSeries("Count Orange Clan", Color.orange);
         chart.addSeries("Count Red Clan", Color.red);

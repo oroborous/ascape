@@ -1,26 +1,27 @@
 /*
- * Copyright 1998-2007 The Brookings Institution, with revisions by Metascape LLC, and others. 
+ * Copyright 1998-2007 The Brookings Institution, with revisions by Metascape LLC, and others.
  * All rights reserved.
  * This program and the accompanying materials are made available solely under of the BSD license "brookings-models-license.txt".
- * Any referenced or included libraries carry licenses of their respective copyright holders. 
+ * Any referenced or included libraries carry licenses of their respective copyright holders.
  */
 
 package edu.brook.aa;
-
-import java.awt.Color;
-import java.util.ArrayList;
-import java.util.Collections;
 
 import org.ascape.model.Agent;
 import org.ascape.model.Scape;
 import org.ascape.model.rule.Rule;
 import org.ascape.model.space.Singleton;
 
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.Collections;
+
+/**
+ * A list that keeps itself sorted.
+ */
+// TODO: LSP violation
 class Locations extends ArrayList {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = 5450029191071931492L;
     private boolean needsSort = true;
 
@@ -29,29 +30,26 @@ class Locations extends ArrayList {
         return super.add(o);
     }
 
-    /*public boolean add(Object o) {
-        CSIterator i = listIterator(size());
-        while (i.hasPrevious()) {
-            if (((Comparable) o).compareTo((Comparable) i.previous()) >= 0) {
-                if (i.hasNext()) {
-                    i.next();
-                }
-                i.add(o);
-                return true;
-            }
+    public void checkSort() {
+        if (needsSort) {
+            needsSort = false;
+            Collections.sort(this);
         }
-        i.add(o);
-        /*CSIterator j = listIterator();
-        while (j.hasNext()) {
-            System.out.print(((Location) j.next()).getQuality() + " ");
-        }
-        System.out.println();*/
-    //return true;
-    //}*/
+    }
+
+    public final Object get(int index) {
+        checkSort();
+        return super.get(index);
+    }
 
     public boolean remove(Object o) {
         needsSort = true;
         return super.remove(o);
+    }
+
+    public final Object remove(int index) {
+        checkSort();
+        return super.remove(index);
     }
 
     /*public Object removeFirst() {
@@ -73,41 +71,17 @@ class Locations extends ArrayList {
         checkSort();
 	    return super.getLast();
     }*/
-
-    public final Object remove(int index) {
-        checkSort();
-        return super.remove(index);
-    }
-
-    public final Object get(int index) {
-        checkSort();
-        return super.get(index);
-    }
-
-    public void checkSort() {
-        if (needsSort) {
-            needsSort = false;
-            Collections.sort(this);
-        }
-    }
 }
 
 public class YieldZone extends Scape {
 
-    /**
-     * 
-     */
+
     private static final long serialVersionUID = 6889645892625033089L;
-
-    private EnvironmentZone environmentZone;
-
-    private MaizeZone maizeZone;
-
-    private Locations locations;
-
-    private int yield;
-
     protected Color color;
+    private EnvironmentZone environmentZone;
+    private MaizeZone maizeZone;
+    private Locations locations;
+    private int yield;
 
     public YieldZone(String name, Color color, EnvironmentZone environmentZone, MaizeZone maizeZone) {
         super(new Singleton());
@@ -118,21 +92,9 @@ public class YieldZone extends Scape {
         locations = new Locations();
     }
 
-    public void initialize() {
-        locations.clear();
-    }
-
-    public int getYield() {
-        return yield;
-    }
-
-    public MaizeZone getMaizeZone() {
-        return maizeZone;
-    }
-
     public void calculateYield() {
         double apdsi = environmentZone.getAPDSI();
-        if (maizeZone == LHV.MAIZE_NO_YIELD) {
+        if ((maizeZone == LHV.MAIZE_NO_YIELD) || (maizeZone == LHV.MAIZE_EMPTY)) {
             yield = 0;
         } else if (maizeZone == LHV.MAIZE_YIELD_1) {
             if (apdsi >= 3.0) {
@@ -182,20 +144,36 @@ public class YieldZone extends Scape {
             } else {
                 yield = 642;
             }
-        } else if ((maizeZone == LHV.MAIZE_NO_YIELD) || (maizeZone == LHV.MAIZE_EMPTY)) {
-            yield = 0;
         } else {
             throw new RuntimeException("Bad data or logic in Location#getYield");
         }
         //yield = (int) (yield * getFrostYieldFactor());
     }
 
+    public Locations getAvailableLocations() {
+        return locations;
+    }
+
+    public Color getColor() {
+        return color;
+    }
+
+    public MaizeZone getMaizeZone() {
+        return maizeZone;
+    }
+
+    public int getYield() {
+        return yield;
+    }
+
+    public void initialize() {
+        locations.clear();
+    }
+
     public void scapeCreated() {
         scape.getRules().clear();
         Rule calculateYield = new Rule("Calculate Yield") {
-            /**
-             * 
-             */
+
             private static final long serialVersionUID = -6031208102620304399L;
 
             public void execute(Agent agent) {
@@ -207,13 +185,5 @@ public class YieldZone extends Scape {
         };
         scape.addInitialRule(calculateYield);
         scape.addRule(calculateYield);
-    }
-
-    public Color getColor() {
-        return color;
-    }
-
-    public Locations getAvailableLocations() {
-        return locations;
     }
 }

@@ -1,8 +1,8 @@
 /*
- * Copyright 1998-2007 The Brookings Institution, with revisions by Metascape LLC, and others. 
+ * Copyright 1998-2007 The Brookings Institution, with revisions by Metascape LLC, and others.
  * All rights reserved.
  * This program and the accompanying materials are made available solely under of the BSD license "brookings-models-license.txt".
- * Any referenced or included libraries carry licenses of their respective copyright holders. 
+ * Any referenced or included libraries carry licenses of their respective copyright holders.
  */
 
 package edu.brook.aa;
@@ -10,9 +10,6 @@ package edu.brook.aa;
 
 public class PersonClan extends Person {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = -2839096845066088358L;
     public ClanFindMateRule findMate = new ClanFindMateRule(this);
 
@@ -26,7 +23,7 @@ public class PersonClan extends Person {
             //System.out.println("A " + this.toInnerString() + " marries a " + mate.toInnerString());
             scape.getData().getStatCollector("Households Formed").addValue(0.0);
             HouseholdDisaggregate newHousehold = new HouseholdDisaggregate();
-            ((LHVDisaggregate) getRoot()).getHouseholds().add(newHousehold);
+            ((LHVDisaggregate) getRoot()).addHousehold(newHousehold);
             newHousehold.initialize();
             //System.out.println(oldHousehold.getClan());
             newHousehold.setClan(oldHousehold.getClan());
